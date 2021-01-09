@@ -17,6 +17,9 @@
             });
         }
 
+        ~ValueObservation()
+            => Dispose();
+
         public T Value
             => _value;
 
@@ -25,6 +28,8 @@
             if (!_hasDisposed)
             {
                 _subscription.Dispose();
+
+                GC.SuppressFinalize(this);
                 _hasDisposed = true;
             }
         }
