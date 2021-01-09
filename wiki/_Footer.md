@@ -1,1 +1,0 @@
-If you encounter anything confusing about the MODiX codebase, have a look at [Application Architecture](Application-Architecture), or just hop into [#modix-development](https://discord.gg/csharp) and ask us directly.
