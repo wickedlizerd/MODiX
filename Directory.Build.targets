@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+
+  <!-- Override package versions across all projects that use them -->
+  <ItemGroup>
+    <PackageReference Update="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.1" />
+    <PackageReference Update="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.1" />
+    <PackageReference Update="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.1" />
+    <PackageReference Update="System.Net.Http.Json" Version="5.0.0" />
+    <PackageReference Update="System.Reactive" Version="5.0.0" />
+  </ItemGroup>
+
+</Project>

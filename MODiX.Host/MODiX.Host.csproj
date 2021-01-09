@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <RootNamespace>Modix.Host</RootNamespace>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\MODiX.Web\MODiX.Web.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,22 @@
+﻿using System.Threading.Tasks;
+
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+
+namespace Modix.Web
+{
+    public class Program
+    {
+        #pragma warning disable IDE1006 // MainAsync would not be valid
+        public static async Task Main(string[] args)
+        {
+            var hostBuilder = WebAssemblyHostBuilder.CreateDefault(args);
+
+            hostBuilder.RootComponents.Add<ApplicationView>("#application-root");
+
+            await using var host = hostBuilder.Build();
+
+            await host.RunAsync();
+        }
+        #pragma warning restore IDE1006
+    }
+}
