@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Modix.Web
 {
@@ -12,6 +13,9 @@ namespace Modix.Web
             var hostBuilder = WebAssemblyHostBuilder.CreateDefault(args);
 
             hostBuilder.RootComponents.Add<ApplicationView>("#application-root");
+
+            hostBuilder.Services
+                .AddTransient<ApplicationViewModel>();
 
             await using var host = hostBuilder.Build();
 
