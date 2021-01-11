@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>Modix.Bot</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Humanizer" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" />
+    <PackageReference Include="Remora.Discord" />
+    <PackageReference Include="Remora.Discord.Commands" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MODiX.Business\MODiX.Business.csproj" />
+    <ProjectReference Include="..\MODiX.Common\MODiX.Common.csproj" />
+  </ItemGroup>
+
+</Project>

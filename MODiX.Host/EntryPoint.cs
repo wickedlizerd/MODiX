@@ -3,7 +3,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace Modix.Host
 {
-    public class Program
+    public static class EntryPoint
     {
         public static void Main(string[] args)
         {

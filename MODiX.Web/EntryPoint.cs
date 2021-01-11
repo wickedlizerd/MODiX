@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Modix.Web
 {
-    public class Program
+    public static class EntryPoint
     {
         #pragma warning disable IDE1006 // MainAsync would not be valid
         public static async Task Main(string[] args)

@@ -20,6 +20,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MODiX.Web", "MODiX.Web\MODi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MODiX.Common", "MODiX.Common\MODiX.Common.csproj", "{1AF11EAC-935B-4509-A9D9-507E891E73C7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MODiX.Bot", "MODiX.Bot\MODiX.Bot.csproj", "{B8CE36D7-DC85-40E1-92D1-21EFB71E1C72}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MODiX.Business", "MODiX.Business\MODiX.Business.csproj", "{E5B4D49A-EF28-4730-967B-DA812C909ABD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +42,14 @@ Global
 		{1AF11EAC-935B-4509-A9D9-507E891E73C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1AF11EAC-935B-4509-A9D9-507E891E73C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1AF11EAC-935B-4509-A9D9-507E891E73C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B8CE36D7-DC85-40E1-92D1-21EFB71E1C72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8CE36D7-DC85-40E1-92D1-21EFB71E1C72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8CE36D7-DC85-40E1-92D1-21EFB71E1C72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8CE36D7-DC85-40E1-92D1-21EFB71E1C72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5B4D49A-EF28-4730-967B-DA812C909ABD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5B4D49A-EF28-4730-967B-DA812C909ABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5B4D49A-EF28-4730-967B-DA812C909ABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5B4D49A-EF28-4730-967B-DA812C909ABD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

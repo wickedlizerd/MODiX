@@ -4,9 +4,7 @@ namespace Microsoft.AspNetCore.Builder
 {
     public static class ApplicationBuilderExtensions
     {
-        public static IApplicationBuilder UseFallbackFile(
-                this IApplicationBuilder application,
-                string filePath)
+        public static IApplicationBuilder UseFallbackFile(this IApplicationBuilder application, string filePath)
             => application
                 .Use(next => context =>
                 {
