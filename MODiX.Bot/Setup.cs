@@ -9,6 +9,7 @@ using Remora.Discord.Gateway;
 using Remora.Discord.Gateway.Extensions;
 
 using Modix.Bot.Commands;
+using Modix.Bot.Controls;
 using Modix.Bot.Responders;
 using Modix.Bot.Parsers;
 
@@ -28,6 +29,7 @@ namespace Modix.Bot
                 .AddDiscordCommands()
                 .AddModixCommands()
                 .AddParsers()
-                .AddResponders();
+                .AddResponders()
+                .AddControls();
     }
 }

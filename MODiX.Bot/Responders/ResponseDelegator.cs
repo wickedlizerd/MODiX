@@ -15,9 +15,7 @@ namespace Modix.Bot.Responders
     {
         Task<EventResponseResult> OnRespondingAsync(TGatewayEvent? gatewayEvent, CancellationToken cancellationToken);
 
-        IDisposable RespondWith(Action<TGatewayEvent?> onResponding);
-
-        IDisposable RespondWith(ResponseDelegate<TGatewayEvent> onRespondingAsync);
+        IDisposable RespondWith(ResponseDelegate<TGatewayEvent> respondAsync);
     }
 
     public class ResponseDelegator<TGatewayEvent>
@@ -41,13 +39,6 @@ namespace Modix.Bot.Responders
                 ? EventResponseResult.FromError(AggregateResult.FromResults(failedResults))
                 : EventResponseResult.FromSuccess();
         }
-
-        public IDisposable RespondWith(Action<TGatewayEvent?> onResponding)
-            => RespondWith((gatewayEvent, _) =>
-            {
-                onResponding.Invoke(gatewayEvent);
-                return Task.FromResult(EventResponseResult.FromSuccess());
-            });
 
         public IDisposable RespondWith(ResponseDelegate<TGatewayEvent> onRespondingAsync)
         {

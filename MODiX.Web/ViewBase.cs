@@ -19,6 +19,7 @@ namespace Modix.Web
             if (!_hasDisposed)
             {
                 OnDisposing(disposeManagedResources: false);
+                _hasDisposed = true;
             }
         }
 
@@ -28,6 +29,7 @@ namespace Modix.Web
             {
                 OnDisposing(disposeManagedResources: true);
                 GC.SuppressFinalize(this);
+                _hasDisposed = true;
             }
         }
 
@@ -61,8 +63,6 @@ namespace Modix.Web
                 if (ViewModel is IDisposable viewModel)
                     viewModel.Dispose();
             }
-
-            _hasDisposed = true;
         }
 
         private T ObserveValueInternal<T>(
