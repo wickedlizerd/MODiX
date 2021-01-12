@@ -52,66 +52,6 @@ namespace Modix.Bot.Commands
         [Command("delay")]
         public async Task<IResult> DelayAsync(TimeSpan duration)
         {
-            //var createMessageResult = await _channelApi.CreateMessageAsync(_context.ChannelID, content: $"Delaying for {duration}...");
-            //if (!createMessageResult.IsSuccess)
-            //    return EventResponseResult.FromError(createMessageResult);
-
-            //var stopwatch = new Stopwatch();
-            //stopwatch.Start();
-
-            //using var cancellationTokenSource = new CancellationTokenSource();
-
-            //using var _1 = _reactionAddDelegator.ObserveWith(gatewayEvent =>
-            //{
-            //    if (gatewayEvent is not null)
-            //        CheckForCancelReaction(gatewayEvent.MessageID, gatewayEvent.UserID, gatewayEvent.Emoji);
-            //});
-            //using var _2 = _reactionRemoveDelegator.ObserveWith(gatewayEvent =>
-            //{
-            //    if (gatewayEvent is not null)
-            //        CheckForCancelReaction(gatewayEvent.MessageID, gatewayEvent.UserID, gatewayEvent.Emoji);
-            //});
-
-            //var createReactionResult = await _channelApi.CreateReactionAsync(
-            //    channelID:  createMessageResult.Entity.ChannelID,
-            //    messageID:  createMessageResult.Entity.ID,
-            //    emoji:      CancelButtonEmoji);
-            //if (!createReactionResult.IsSuccess)
-            //    return EventResponseResult.FromError(createReactionResult);
-
-            //stopwatch.Stop();
-            //var remaining = duration - stopwatch.Elapsed;
-            //try
-            //{
-            //    if (remaining > TimeSpan.Zero)
-            //        await Task.Delay(remaining, cancellationTokenSource.Token);
-            //}
-            //catch (TaskCanceledException) { }
-
-            //var editMessageResult = await _channelApi.EditMessageAsync(
-            //    channelID:  createMessageResult.Entity.ChannelID,
-            //    messageID:  createMessageResult.Entity.ID,
-            //    content:    $"{duration} delay {(cancellationTokenSource.IsCancellationRequested ? "cancelled" : "completed")}");
-            //if (!editMessageResult.IsSuccess)
-            //    return EventResponseResult.FromError(editMessageResult);
-
-            //var clearReactionsResult = await _channelApi.DeleteAllReactionsForEmojiAsync(
-            //    channelID:  createMessageResult.Entity.ChannelID,
-            //    messageID:  createMessageResult.Entity.ID,
-            //    emoji:      CancelButtonEmoji);
-            //return clearReactionsResult.IsSuccess
-            //    ? EventResponseResult.FromSuccess()
-            //    : EventResponseResult.FromError(clearReactionsResult);
-
-            //void CheckForCancelReaction(Snowflake messageId, Snowflake userId, IPartialEmoji emoji)
-            //{
-            //    if ((messageId.Value == createMessageResult.Entity.ID.Value)
-            //            && (userId.Value != createMessageResult.Entity.Author.ID.Value)
-            //            && emoji.Name.HasValue
-            //            && (emoji.Name.Value == CancelButtonEmoji))
-            //        cancellationTokenSource.Cancel();
-            //}
-
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
