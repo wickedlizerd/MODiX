@@ -76,13 +76,18 @@ namespace Modix.Bot.Controls
 
         public override async Task<OperationResult> DestroyAsync()
         {
-            var results = await Task.WhenAll(_buttons
+            var buttonDestroyResults = await Task.WhenAll(_buttons
                 .Select(button => button.DestroyAsync())
                 .Append(base.DestroyAsync()));
 
-            var failedResults = results.Where(result => !result.IsSuccess);
+            var failedResults = buttonDestroyResults.Where<IResult>(result => !result.IsSuccess);
+
+            var deleteMessageResult = await _channelApi.DeleteMessageAsync(_channelId, _messageId);
+            if (!deleteMessageResult.IsSuccess)
+                failedResults = failedResults.Append(deleteMessageResult);
+
             return failedResults.Any()
-                ? OperationResult.FromError(AggregateResult.FromResults(results))
+                ? OperationResult.FromError(AggregateResult.FromResults(failedResults))
                 : OperationResult.FromSuccess();
         }
 

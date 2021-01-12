@@ -17,7 +17,7 @@ namespace Modix.Bot.Controls
             Snowflake messageId,
             string emoji,
             OperationAction onClickedAsync,
-            CancellationToken cancellationToken);
+            CancellationToken cancellationToken = default);
     }
 
     public class ReactionButtonFactory
@@ -40,7 +40,7 @@ namespace Modix.Bot.Controls
                 Snowflake messageId,
                 string emoji,
                 OperationAction onClickedAsync,
-                CancellationToken cancellationToken)
+                CancellationToken cancellationToken = default)
             => ReactionButton.CreateAsync(
                 _channelApi,
                 _userApi,

@@ -14,7 +14,6 @@ using Remora.Discord.API.Abstractions.Objects;
 using Remora.Discord.API.Objects;
 using Remora.Discord.Commands.Contexts;
 using Remora.Discord.Core;
-using Remora.Discord.Gateway.Results;
 using Remora.Results;
 
 using Modix.Bot.Controls;
@@ -29,19 +28,19 @@ namespace Modix.Bot.Commands
             = "❌";
 
         public DiagnosticsCommandGroup(
+            IReactionButtonFactory buttonFactory,
             IDiscordRestChannelAPI channelApi,
             IDiagnosticsService diagnosticsService,
-            IMessageDialogFactory dialogFactory,
             ICommandContext context)
         {
+            _buttonFactory = buttonFactory;
             _channelApi = channelApi;
             _context = context;
             _diagnosticsService = diagnosticsService;
-            _dialogFactory = dialogFactory;
         }
 
         [Command("echo")]
-        public async Task<IResult> EchoAsync(string value)
+        public async Task<OperationResult> EchoAsync(string value)
         {
             var result = await _channelApi.CreateMessageAsync(_context.ChannelID, content: value);
             return result.IsSuccess
@@ -50,28 +49,32 @@ namespace Modix.Bot.Commands
         }
 
         [Command("delay")]
-        public async Task<IResult> DelayAsync(TimeSpan duration)
+        public async Task<OperationResult> DelayAsync(TimeSpan duration)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
+            var messageCreationResult = await _channelApi.CreateMessageAsync(
+                channelID:  _context.ChannelID,
+                content:    $"Delaying for {duration.Humanize()}...");
+            if (!messageCreationResult.IsSuccess)
+                return OperationResult.FromError(messageCreationResult);
+
             var whenCancelledSource = new TaskCompletionSource();
 
-            var dialogCreationResult = await _dialogFactory.CreateAsync(
-                buttons:    Enumerable.Empty<ReactionButtonOptions>()
-                    .Append(new(
-                        emoji:          "❌",
-                        onClickedAsync: _ =>
-                        {
-                            whenCancelledSource.SetResult();
-                            return Task.FromResult(OperationResult.FromSuccess());
-                        })),
-                channelId:  _context.ChannelID,
-                content:    $"Delaying for {duration.Humanize()}...");
-            if (!dialogCreationResult.IsSuccess)
-                return OperationResult.FromError(dialogCreationResult);
+            var buttonCreationResult = await _buttonFactory.CreateAsync(
+                channelId:      _context.ChannelID,
+                messageId:      messageCreationResult.Entity.ID,
+                emoji:          "❌",
+                onClickedAsync: _ =>
+                {
+                    whenCancelledSource.SetResult();
+                    return Task.FromResult(OperationResult.FromSuccess());
+                });
+            if (!buttonCreationResult.IsSuccess)
+                return OperationResult.FromError(buttonCreationResult);
 
-            using var dialog = dialogCreationResult.Control;
+            using var button = buttonCreationResult.Control;
 
             stopwatch.Stop();
             var remaining = duration - stopwatch.Elapsed;
@@ -86,19 +89,21 @@ namespace Modix.Bot.Commands
                 catch (TaskCanceledException) { }
             }
 
-            var updateResult = await dialog.UpdateAsync(
-                content: $"Delay ({duration.Humanize()}) {(whenCancelledSource.Task.IsCompleted ? "cancelled" : "completed")}");
-            if (!updateResult.IsSuccess)
-                return OperationResult.FromError(updateResult);
+            var editMessageResult = await _channelApi.EditMessageAsync(
+                channelID:  _context.ChannelID,
+                messageID:  messageCreationResult.Entity.ID,
+                content:    $"Delay ({duration.Humanize()}) {(whenCancelledSource.Task.IsCompleted ? "cancelled" : "completed")}");
+            if (!editMessageResult.IsSuccess)
+                return OperationResult.FromError(editMessageResult);
 
-            var destroyResult = await dialog.DestroyAsync();
+            var destroyResult = await button.DestroyAsync();
             return destroyResult.IsSuccess
                 ? OperationResult.FromSuccess()
                 : OperationResult.FromError(destroyResult);
         }
 
         [Command("ping")]
-        public async Task<IResult> PingAsync()
+        public async Task<OperationResult> PingAsync()
         {
             var result = await _channelApi.CreateMessageAsync(_context.ChannelID, content: "Pong!");
             return result.IsSuccess
@@ -107,7 +112,7 @@ namespace Modix.Bot.Commands
         }
 
         [Command("pingtest")]
-        public async Task<IResult> PingTestAsync()
+        public async Task<OperationResult> PingTestAsync()
         {
             if (_diagnosticsService.PingTestEndpointCount == 0)
             {
@@ -119,7 +124,7 @@ namespace Modix.Bot.Commands
 
             var createMessageResult = await _channelApi.CreateMessageAsync(_context.ChannelID, content: $"Pinging {_diagnosticsService.PingTestEndpointCount} endpoints...");
             if (!createMessageResult.IsSuccess)
-                return EventResponseResult.FromError(createMessageResult);
+                return OperationResult.FromError(createMessageResult);
 
             var pingTestOutcomes = await _diagnosticsService.PerformPingTestAsync(CancellationToken.None);
 
@@ -186,9 +191,9 @@ namespace Modix.Bot.Commands
                 };
         }
 
+        private readonly IReactionButtonFactory _buttonFactory;
         private readonly IDiscordRestChannelAPI _channelApi;
         private readonly ICommandContext _context;
         private readonly IDiagnosticsService _diagnosticsService;
-        private readonly IMessageDialogFactory _dialogFactory;
     }
 }
