@@ -18,16 +18,17 @@ using Remora.Results;
 
 using Modix.Bot.Controls;
 using Modix.Business.Diagnostics;
+using Modix.Web.Protocol.Diagnostics;
 
 namespace Modix.Bot.Commands
 {
-    public class DiagnosticsCommandGroup
+    public class DiagnosticsCommands
         : CommandGroup
     {
         public const string CancelButtonEmoji
             = "❌";
 
-        public DiagnosticsCommandGroup(
+        public DiagnosticsCommands(
             IReactionButtonFactory buttonFactory,
             IDiscordRestChannelAPI channelApi,
             IDiagnosticsService diagnosticsService,
@@ -40,7 +41,7 @@ namespace Modix.Bot.Commands
         }
 
         [Command("echo")]
-        public async Task<OperationResult> EchoAsync(string value)
+        public async Task<IResult> EchoAsync(string value)
         {
             var result = await _channelApi.CreateMessageAsync(_context.ChannelID, content: value);
             return result.IsSuccess
@@ -49,7 +50,7 @@ namespace Modix.Bot.Commands
         }
 
         [Command("delay")]
-        public async Task<OperationResult> DelayAsync(TimeSpan duration)
+        public async Task<IResult> DelayAsync(TimeSpan duration)
         {
             var stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -103,7 +104,7 @@ namespace Modix.Bot.Commands
         }
 
         [Command("ping")]
-        public async Task<OperationResult> PingAsync()
+        public async Task<IResult> PingAsync()
         {
             var result = await _channelApi.CreateMessageAsync(_context.ChannelID, content: "Pong!");
             return result.IsSuccess
@@ -112,9 +113,9 @@ namespace Modix.Bot.Commands
         }
 
         [Command("pingtest")]
-        public async Task<OperationResult> PingTestAsync()
+        public async Task<IResult> PingTestAsync()
         {
-            if (_diagnosticsService.PingTestEndpointCount == 0)
+            if (_diagnosticsService.PingTestEndpointNames.Length == 0)
             {
                 var result = await _channelApi.CreateMessageAsync(_context.ChannelID, content: "No endpoints configured for ping testing");
                 return result.IsSuccess
@@ -122,11 +123,12 @@ namespace Modix.Bot.Commands
                     : OperationResult.FromError(result);
             }
 
-            var createMessageResult = await _channelApi.CreateMessageAsync(_context.ChannelID, content: $"Pinging {_diagnosticsService.PingTestEndpointCount} endpoints...");
+            var createMessageResult = await _channelApi.CreateMessageAsync(_context.ChannelID, content: $"Pinging {_diagnosticsService.PingTestEndpointNames.Length} endpoints...");
             if (!createMessageResult.IsSuccess)
                 return OperationResult.FromError(createMessageResult);
 
-            var pingTestOutcomes = await _diagnosticsService.PerformPingTestAsync(CancellationToken.None);
+            var pingTestOutcomes = await _diagnosticsService.PerformPingTest()
+                .ToArrayAsync();
 
             var embedFields = pingTestOutcomes
                 .Select(outcome => new EmbedField(
@@ -147,7 +149,7 @@ namespace Modix.Bot.Commands
                     IsInline:   true));
 
             var embed = new Embed(
-                Title:          $"Pong! Checked {pingTestOutcomes.Count} endpoints",
+                Title:          $"Pong! Checked {pingTestOutcomes.Length} endpoints",
                 Type:           EmbedType.Rich,
                 Description:    (embedFields.Count == 0)
                     ? "No endpoints configured"

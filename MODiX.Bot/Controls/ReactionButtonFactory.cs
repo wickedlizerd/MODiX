@@ -4,9 +4,8 @@ using System.Threading.Tasks;
 using Remora.Discord.Core;
 using Remora.Discord.API.Abstractions.Gateway.Events;
 using Remora.Discord.API.Abstractions.Rest;
+using Remora.Discord.Gateway.Delegation;
 using Remora.Results;
-
-using Modix.Bot.Responders;
 
 namespace Modix.Bot.Controls
 {

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 
 using Modix.Bot;
 using Modix.Business;
+using Modix.Web.Server;
 
 namespace Modix.Host
 {
@@ -29,7 +30,8 @@ namespace Modix.Host
                     .MimeTypes = ResponseCompressionDefaults.MimeTypes
                         .Append("application/octet-stream"))
                 .AddModixBot(_configuration)
-                .AddModixBusiness(_configuration);
+                .AddModixBusiness(_configuration)
+                .AddModixWebServer();
 
         public void Configure(IApplicationBuilder application)
         {
@@ -44,6 +46,7 @@ namespace Modix.Host
             application
                 .UseBlazorFrameworkFiles()
                 .UseStaticFiles()
+                .UseModixWebServer()
                 .UseFallbackFile("index.html");
         }
 

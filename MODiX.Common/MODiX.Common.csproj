@@ -8,7 +8,10 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Nito.AsyncEx.Coordination" />
     <PackageReference Include="Remora.Results" />
+    <PackageReference Include="System.Interactive.Async" />
+    <PackageReference Include="System.Linq.Async" />
     <PackageReference Include="System.Reactive" />
   </ItemGroup>
 

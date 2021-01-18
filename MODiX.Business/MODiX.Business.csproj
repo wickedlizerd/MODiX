@@ -7,10 +7,12 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
+    <PackageReference Include="Remora.Discord" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MODiX.Common\MODiX.Common.csproj" />
+    <ProjectReference Include="..\MODiX.Web.Protocol\MODiX.Web.Protocol.csproj" />
   </ItemGroup>
 
 </Project>

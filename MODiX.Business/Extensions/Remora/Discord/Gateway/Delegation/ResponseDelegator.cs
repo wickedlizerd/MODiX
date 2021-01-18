@@ -8,7 +8,7 @@ using Remora.Discord.API.Abstractions.Gateway.Events;
 using Remora.Discord.Gateway.Results;
 using Remora.Results;
 
-namespace Modix.Bot.Responders
+namespace Remora.Discord.Gateway.Delegation
 {
     public interface IResponseDelegator<TGatewayEvent>
         where TGatewayEvent : IGatewayEvent

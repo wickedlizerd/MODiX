@@ -1,41 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.Options;
 
+using Modix.Web.Protocol.Diagnostics;
+
 namespace Modix.Business.Diagnostics
 {
     public interface IDiagnosticsService
     {
-        int PingTestEndpointCount { get; }
+        ImmutableArray<string> PingTestEndpointNames { get; }
 
-        Task<IReadOnlyList<PingTestOutcome>> PerformPingTestAsync(CancellationToken cancellationToken);
+        IAsyncEnumerable<PingTestOutcome> PerformPingTest();
     }
 
     public class DiagnosticsService
         : IDiagnosticsService
     {
-        public const int DefaultTimeout = 5000;
-
         public DiagnosticsService(
             IOptions<DiagnosticsConfiguration> configuration)
         {
             _configuration = configuration;
         }
 
-        public int PingTestEndpointCount
-            => _configuration.Value.PingEndpointsByName?.Count ?? 0;
+        public ImmutableArray<string> PingTestEndpointNames
+            => _configuration.Value.PingTestEndpointsByName?.Keys.ToImmutableArray()
+                ?? ImmutableArray<string>.Empty;
 
-        public async Task<IReadOnlyList<PingTestOutcome>> PerformPingTestAsync(CancellationToken cancellationToken)
-            => _configuration.Value.PingEndpointsByName is not null
-                ? await Task.WhenAll(_configuration.Value.PingEndpointsByName
-                    .Select(endpointByName => PingEndpointAsync(endpointByName.Key, endpointByName.Value, cancellationToken))
-                    .ToArray())
-                : Array.Empty<PingTestOutcome>();
+        public IAsyncEnumerable<PingTestOutcome> PerformPingTest()
+            => _configuration.Value.PingTestEndpointsByName?
+                    .Select(endpointByName => Observable.FromAsync(cancellationToken => PingEndpointAsync(endpointByName.Key, endpointByName.Value, cancellationToken)))
+                    .Merge()
+                    .ToAsyncEnumerable()
+                ?? AsyncEnumerable.Empty<PingTestOutcome>();
 
         private async Task<PingTestOutcome> PingEndpointAsync(
             string endpointName,
@@ -44,7 +47,7 @@ namespace Modix.Business.Diagnostics
         {
             using var ping = new Ping();
 
-            var pingOperation = ping.SendPingAsync(endpoint, (int)(_configuration.Value.PingTimeout?.TotalMilliseconds ?? DefaultTimeout));
+            var pingOperation = ping.SendPingAsync(endpoint, (int)(_configuration.Value.PingTestTimeout?.TotalMilliseconds ?? DiagnosticsDefaults.DefaultPingTestTimeout.TotalMilliseconds));
 
             cancellationToken.Register(ping.SendAsyncCancel);
 
@@ -57,14 +60,14 @@ namespace Modix.Business.Diagnostics
                     latency:        (result?.Status != IPStatus.TimedOut)
                         ? TimeSpan.FromMilliseconds(result!.RoundtripTime)
                         : null,
-                    status:         result?.Status ?? IPStatus.Unknown);
+                    status:         (EndpointStatus)(result?.Status ?? IPStatus.Unknown));
             }
             catch
             {
                 return new PingTestOutcome(
                     endpointName:   endpointName,
                     latency:        null,
-                    status:         IPStatus.Unknown);
+                    status:         EndpointStatus.Unknown);
             }
         }
 

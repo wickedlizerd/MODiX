@@ -16,13 +16,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		readme.md = readme.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MODiX.Web", "MODiX.Web\MODiX.Web.csproj", "{59E58448-5ECB-473C-BF42-9CC9E70167DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MODiX.Web.Client", "MODiX.Web.Client\MODiX.Web.Client.csproj", "{59E58448-5ECB-473C-BF42-9CC9E70167DA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MODiX.Common", "MODiX.Common\MODiX.Common.csproj", "{1AF11EAC-935B-4509-A9D9-507E891E73C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MODiX.Bot", "MODiX.Bot\MODiX.Bot.csproj", "{B8CE36D7-DC85-40E1-92D1-21EFB71E1C72}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MODiX.Bot", "MODiX.Bot\MODiX.Bot.csproj", "{B8CE36D7-DC85-40E1-92D1-21EFB71E1C72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MODiX.Business", "MODiX.Business\MODiX.Business.csproj", "{E5B4D49A-EF28-4730-967B-DA812C909ABD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MODiX.Business", "MODiX.Business\MODiX.Business.csproj", "{E5B4D49A-EF28-4730-967B-DA812C909ABD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MODiX.Web.Server", "MODiX.Web.Server\MODiX.Web.Server.csproj", "{42B3ED8B-6A63-434F-B69D-0F4BA5F822E2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MODiX.Web.Protocol", "MODiX.Web.Protocol\MODiX.Web.Protocol.csproj", "{A8871C00-2FB0-434C-B0A5-F39ACF87A9B6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +54,14 @@ Global
 		{E5B4D49A-EF28-4730-967B-DA812C909ABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5B4D49A-EF28-4730-967B-DA812C909ABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E5B4D49A-EF28-4730-967B-DA812C909ABD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{42B3ED8B-6A63-434F-B69D-0F4BA5F822E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42B3ED8B-6A63-434F-B69D-0F4BA5F822E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42B3ED8B-6A63-434F-B69D-0F4BA5F822E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42B3ED8B-6A63-434F-B69D-0F4BA5F822E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8871C00-2FB0-434C-B0A5-F39ACF87A9B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8871C00-2FB0-434C-B0A5-F39ACF87A9B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8871C00-2FB0-434C-B0A5-F39ACF87A9B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8871C00-2FB0-434C-B0A5-F39ACF87A9B6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

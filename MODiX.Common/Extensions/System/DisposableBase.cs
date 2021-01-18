@@ -1,15 +1,15 @@
-﻿using System;
-
-namespace Modix.Web
+﻿namespace System
 {
-    public class ViewModelBase
+    public abstract class DisposableBase
         : IDisposable
     {
-        ~ViewModelBase()
+        ~DisposableBase()
         {
             if (!_hasDisposed)
             {
                 OnDisposing(disposeManagedResources: false);
+
+                _hasDisposed = true;
             }
         }
 
@@ -18,14 +18,14 @@ namespace Modix.Web
             if (!_hasDisposed)
             {
                 OnDisposing(disposeManagedResources: true);
+
+                _hasDisposed = true;
+
                 GC.SuppressFinalize(this);
             }
         }
 
-        protected virtual void OnDisposing(bool disposeManagedResources)
-        {
-            _hasDisposed = true;
-        }
+        protected virtual void OnDisposing(bool disposeManagedResources) { }
 
         private bool _hasDisposed;
     }

@@ -5,8 +5,8 @@ namespace Modix.Business.Diagnostics
 {
     public class DiagnosticsConfiguration
     {
-        public Dictionary<string, string>? PingEndpointsByName { get; set; }
+        public Dictionary<string, string>? PingTestEndpointsByName { get; set; }
 
-        public TimeSpan? PingTimeout { get; set; }
+        public TimeSpan? PingTestTimeout { get; set; }
     }
 }

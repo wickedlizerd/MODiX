@@ -1,0 +1,24 @@
+﻿@using Humanizer
+@using Microsoft.AspNetCore.Components.Web
+@using System.Collections.Immutable
+
+@namespace Modix.Web.Client.Diagnostics
+
+@inherits ViewBase<DiagnosticsViewModel>
+
+<div>
+    <button @onclick="ViewModel.StartPingTest" disabled="@ObserveValue(ViewModel.IsPingTestRunning, false)">Start Ping Test</button>
+
+    <dl>
+        @foreach (var item in ObserveValue(ViewModel.PingTestStates, ImmutableList<PingTestState>.Empty))
+        {
+            <dt>@item.EndpointName</dt>
+            <dd>@(item.HasCompleted
+                ? (item.Latency >= TimeSpan.Zero)
+                    ? $"{item.Latency.Value.TotalMilliseconds: 0}ms"
+                    : item.Status.ToString().Humanize()
+                : "Running...")
+            </dd>
+        }
+    </dl>
+</div>

@@ -8,6 +8,6 @@ namespace Modix.Bot.Commands
     {
         public static IServiceCollection AddModixCommands(this IServiceCollection services)
             => services
-                .AddCommandGroup<DiagnosticsCommandGroup>();
+                .AddCommandGroup<DiagnosticsCommands>();
     }
 }
