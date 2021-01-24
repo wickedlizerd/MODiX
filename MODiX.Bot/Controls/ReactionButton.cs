@@ -1,123 +1,109 @@
-﻿using System.Threading;
+﻿using System;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Remora.Discord.API.Abstractions.Gateway.Events;
-using Remora.Discord.API.Abstractions.Objects;
 using Remora.Discord.API.Abstractions.Rest;
 using Remora.Discord.Core;
-using Remora.Discord.Gateway.Delegation;
-using Remora.Discord.Gateway.Results;
-using Remora.Results;
 
 namespace Modix.Bot.Controls
 {
     public class ReactionButton
-        : ControlBase
+        : MessageControlBase
     {
-        public static async Task<ControlCreationResult<ReactionButton>> CreateAsync(
+        public static async Task<ReactionButton> CreateAsync(
             IDiscordRestChannelAPI channelApi,
             IDiscordRestUserAPI userApi,
-            IResponseDelegator<IMessageReactionAdd> reactionAddDelegator,
-            IResponseDelegator<IMessageReactionRemove> reactionRemoveDelegator,
+            IObservable<IGuildDelete?> guildDeleted,
+            IObservable<IChannelDelete?> channelDeleted,
+            IObservable<IMessageDelete?> messageDeleted,
+            IObservable<IMessageReactionAdd?> messageReactionAdded,
+            IObservable<IMessageReactionRemove?> messageReactionRemoved,
+            Snowflake? guildId,
             Snowflake channelId,
             Snowflake messageId,
-            string emoji,
-            OperationAction onClickedAsync,
+            string emojiName,
             CancellationToken cancellationToken)
         {
             var getCurrentUserResult = await userApi.GetCurrentUserAsync(cancellationToken);
             if (!getCurrentUserResult.IsSuccess)
-                return ControlCreationResult<ReactionButton>.FromError(getCurrentUserResult);
+                throw new ControlException($"Uncable to create button: {getCurrentUserResult.ErrorReason}", getCurrentUserResult.Exception);
 
-            var button = new ReactionButton(
-                channelApi:                 channelApi,
-                channelId:                  channelId,
-                currentUserId:              getCurrentUserResult.Entity.ID,
-                emoji:                      emoji,
-                messageId:                  messageId,
-                onClickedAsync:             onClickedAsync,
-                reactionAddDelegator:       reactionAddDelegator,
-                reactionRemoveDelegator:    reactionRemoveDelegator);
-
-            return await OnCreatingAsync(button, cancellationToken);
+            var createReactionResult = await channelApi.CreateReactionAsync(channelId, messageId, emojiName, cancellationToken);
+            return !createReactionResult.IsSuccess
+                ? throw new ControlException($"Unable to create button: {createReactionResult.ErrorReason}", createReactionResult.Exception)
+                : new ReactionButton(
+                    guildId:                guildId,
+                    channelId:              channelId,
+                    messageId:              messageId,
+                    selfId:                 getCurrentUserResult.Entity.ID,
+                    emojiName:              emojiName,
+                    guildDeleted:           guildDeleted,
+                    channelDeleted:         channelDeleted,
+                    messageDeleted:         messageDeleted,
+                    channelApi:             channelApi,
+                    messageReactionAdded:   messageReactionAdded,
+                    messageReactionRemoved: messageReactionRemoved);
         }
 
         private ReactionButton(
-            IDiscordRestChannelAPI channelApi,
-            Snowflake channelId,
-            Snowflake currentUserId,
-            string emoji,
-            Snowflake messageId,
-            OperationAction onClickedAsync,
-            IResponseDelegator<IMessageReactionAdd> reactionAddDelegator,
-            IResponseDelegator<IMessageReactionRemove> reactionRemoveDelegator)
+                Snowflake? guildId,
+                Snowflake channelId,
+                Snowflake messageId,
+                Snowflake selfId,
+                string emojiName,
+                IObservable<IGuildDelete?> guildDeleted,
+                IObservable<IChannelDelete?> channelDeleted,
+                IObservable<IMessageDelete?> messageDeleted,
+                IDiscordRestChannelAPI channelApi,
+                IObservable<IMessageReactionAdd?> messageReactionAdded,
+                IObservable<IMessageReactionRemove?> messageReactionRemoved)
+            : base(
+                guildId,
+                channelId,
+                messageId,
+                guildDeleted,
+                channelDeleted,
+                messageDeleted,
+                Observable.Empty<ControlException>())
         {
-            _channelApi = channelApi;
             _channelId = channelId;
-            _currentUserId = currentUserId;
-            _emoji = emoji;
             _messageId = messageId;
-            _onClickedAsync = onClickedAsync;
-            _reactionAddDelegator = reactionAddDelegator;
-            _reactionRemoveDelegator = reactionRemoveDelegator;
+
+            _channelApi = channelApi;
+
+            _clickedBy = Observable.Merge(
+                HostDeleted.Throw<Snowflake>(),
+                Observable.Merge(
+                        messageReactionAdded
+                            .WhereNotNull()
+                            .Select(@event => (@event.MessageID, @event.UserID, @event.Emoji)),
+                        messageReactionRemoved
+                            .WhereNotNull()
+                            .Select(@event => (@event.MessageID, @event.UserID, @event.Emoji)))
+                    .Where(@event => (@event.MessageID == messageId)
+                        && (@event.UserID != selfId)
+                        && @event.Emoji.Name.HasValue
+                        && (@event.Emoji.Name.Value == emojiName))
+                    .Select(@event => @event.UserID));
         }
 
-        public override async Task<OperationResult> DestroyAsync()
+        public IObservable<Snowflake> ClickedBy
+            => _clickedBy;
+
+        protected override async ValueTask OnDisposingAsync(DisposalType type)
         {
-            var deleteReactionsResult = await _channelApi.DeleteAllReactionsForEmojiAsync(_channelId, _messageId, _emoji);
-            return deleteReactionsResult.IsSuccess
-                ? await base.DestroyAsync()
-                : OperationResult.FromError(deleteReactionsResult);
-        }
+            if (!IsHostDeleted)
+                await _channelApi.DeleteAllReactionsAsync(_channelId, _messageId);
 
-        protected override async Task<OperationResult> InitializeAsync(
-            CancellationToken cancellationToken)
-        {
-            Resources.Add(_reactionAddDelegator.RespondWith(RespondToReactionAddAsync));
-            Resources.Add(_reactionRemoveDelegator.RespondWith(RespondToReactionRemoveAsync));
-
-            var createReactionResult = await _channelApi.CreateReactionAsync(_channelId, _messageId, _emoji, cancellationToken);
-            return createReactionResult.IsSuccess
-                ? OperationResult.FromSuccess()
-                : OperationResult.FromError(createReactionResult);
-        }
-
-        private Task<EventResponseResult> RespondToReactionAddAsync(IMessageReactionAdd? gatewayEvent, CancellationToken cancellationToken)
-            => (gatewayEvent is not null)
-                ? RespondToReactionAsync(gatewayEvent.MessageID, gatewayEvent.UserID, gatewayEvent.Emoji, cancellationToken)
-                : Task.FromResult(EventResponseResult.FromSuccess());
-
-        private Task<EventResponseResult> RespondToReactionRemoveAsync(IMessageReactionRemove? gatewayEvent, CancellationToken cancellationToken)
-            => (gatewayEvent is not null)
-                ? RespondToReactionAsync(gatewayEvent.MessageID, gatewayEvent.UserID, gatewayEvent.Emoji, cancellationToken)
-                : Task.FromResult(EventResponseResult.FromSuccess());
-
-        private async Task<EventResponseResult> RespondToReactionAsync(
-            Snowflake messageId,
-            Snowflake userId,
-            IPartialEmoji emoji,
-            CancellationToken cancellationToken)
-        {
-            if ((messageId.Value == _messageId.Value)
-                && (userId.Value != _currentUserId.Value)
-                && emoji.Name.HasValue
-                && (emoji.Name.Value == _emoji))
-            {
-                var onClickedResult = await _onClickedAsync.Invoke(cancellationToken);
-                if (!onClickedResult.IsSuccess)
-                    return EventResponseResult.FromError(onClickedResult);
-            }
-
-            return EventResponseResult.FromSuccess();
+            await base.OnDisposingAsync(type);
         }
 
         private readonly IDiscordRestChannelAPI _channelApi;
         private readonly Snowflake _channelId;
-        private readonly Snowflake _currentUserId;
-        private readonly string _emoji;
+        private readonly IObservable<Snowflake> _clickedBy;
         private readonly Snowflake _messageId;
-        private readonly OperationAction _onClickedAsync;
-        private readonly IResponseDelegator<IMessageReactionAdd> _reactionAddDelegator;
-        private readonly IResponseDelegator<IMessageReactionRemove> _reactionRemoveDelegator;
     }
 }

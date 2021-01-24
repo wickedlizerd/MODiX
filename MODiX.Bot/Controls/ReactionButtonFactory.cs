@@ -1,22 +1,21 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
-using Remora.Discord.Core;
 using Remora.Discord.API.Abstractions.Gateway.Events;
 using Remora.Discord.API.Abstractions.Rest;
-using Remora.Discord.Gateway.Delegation;
-using Remora.Results;
+using Remora.Discord.Core;
 
 namespace Modix.Bot.Controls
 {
     public interface IReactionButtonFactory
     {
-        Task<ControlCreationResult<ReactionButton>> CreateAsync(
+        Task<ReactionButton> CreateAsync(
+            Snowflake? guildId,
             Snowflake channelId,
             Snowflake messageId,
-            string emoji,
-            OperationAction onClickedAsync,
-            CancellationToken cancellationToken = default);
+            string emojiName,
+            CancellationToken cancellationToken);
     }
 
     public class ReactionButtonFactory
@@ -24,36 +23,48 @@ namespace Modix.Bot.Controls
     {
         public ReactionButtonFactory(
             IDiscordRestChannelAPI channelApi,
-            IDiscordRestUserAPI userApi,
-            IResponseDelegator<IMessageReactionAdd> reactionAddDelegator,
-            IResponseDelegator<IMessageReactionRemove> reactionRemoveDelegator)
+            IObservable<IChannelDelete?> channelDeleted,
+            IObservable<IGuildDelete?> guildDeleted,
+            IObservable<IMessageDelete?> messageDeleted,
+            IObservable<IMessageReactionAdd?> messageReactionAdded,
+            IObservable<IMessageReactionRemove?> messageReactionRemoved,
+            IDiscordRestUserAPI userApi)
         {
             _channelApi = channelApi;
+            _channelDeleted = channelDeleted;
+            _guildDeleted = guildDeleted;
+            _messageDeleted = messageDeleted;
+            _messageReactionAdded = messageReactionAdded;
+            _messageReactionRemoved = messageReactionRemoved;
             _userApi = userApi;
-            _reactionAddDelegator = reactionAddDelegator;
-            _reactionRemoveDelegator = reactionRemoveDelegator;
         }
 
-        public Task<ControlCreationResult<ReactionButton>> CreateAsync(
+        public Task<ReactionButton> CreateAsync(
+                Snowflake? guildId,
                 Snowflake channelId,
                 Snowflake messageId,
-                string emoji,
-                OperationAction onClickedAsync,
-                CancellationToken cancellationToken = default)
+                string emojiName,
+                CancellationToken cancellationToken)
             => ReactionButton.CreateAsync(
-                _channelApi,
-                _userApi,
-                _reactionAddDelegator,
-                _reactionRemoveDelegator,
-                channelId,
-                messageId,
-                emoji,
-                onClickedAsync,
-                cancellationToken);
+                channelApi:             _channelApi,
+                userApi:                _userApi,
+                guildDeleted:           _guildDeleted,
+                channelDeleted:         _channelDeleted,
+                messageDeleted:         _messageDeleted,
+                messageReactionAdded:   _messageReactionAdded,
+                messageReactionRemoved: _messageReactionRemoved,
+                guildId:                guildId,
+                channelId:              channelId,
+                messageId:              messageId,
+                emojiName:              emojiName,
+                cancellationToken:      cancellationToken);
 
-        private readonly IDiscordRestChannelAPI _channelApi;
-        private readonly IDiscordRestUserAPI _userApi;
-        private readonly IResponseDelegator<IMessageReactionAdd> _reactionAddDelegator;
-        private readonly IResponseDelegator<IMessageReactionRemove> _reactionRemoveDelegator;
+        private readonly IDiscordRestChannelAPI                 _channelApi;
+        private readonly IObservable<IChannelDelete?>           _channelDeleted;
+        private readonly IObservable<IGuildDelete?>             _guildDeleted;
+        private readonly IObservable<IMessageDelete?>           _messageDeleted;
+        private readonly IObservable<IMessageReactionAdd?>      _messageReactionAdded;
+        private readonly IObservable<IMessageReactionRemove?>   _messageReactionRemoved;
+        private readonly IDiscordRestUserAPI                    _userApi;
     }
 }

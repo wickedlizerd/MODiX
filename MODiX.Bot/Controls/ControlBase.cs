@@ -1,77 +1,36 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Reactive.Linq;
 
-using Remora.Results;
+using Remora.Discord.API.Abstractions.Gateway.Events;
+using Remora.Discord.Core;
 
 namespace Modix.Bot.Controls
 {
     public abstract class ControlBase
-        : IDisposable
+        : AsyncDisposableBase
     {
-        protected static async Task<ControlCreationResult<TControl>> OnCreatingAsync<TControl>(
-                TControl control,
-                CancellationToken cancellationToken)
-            where TControl : ControlBase
-        {
-            try
-            {
-                var initializeResult = await control.InitializeAsync(cancellationToken);
-                if (!initializeResult.IsSuccess)
-                    return ControlCreationResult<TControl>.FromError(initializeResult);
+        protected ControlBase(
+                Snowflake? guildId,
+                IObservable<IGuildDelete?> guildDeleted,
+                IObservable<ControlException> hostDeleted)
+            => _hostDeleted = (guildId.HasValue
+                    ? Observable.Merge(
+                        hostDeleted,
+                        guildDeleted
+                            .WhereNotNull()
+                            .Where(@event => @event.GuildID == guildId.Value)
+                            .Select(@event => new ControlException($"The guild hosting this control {((@event.IsUnavailable.HasValue && @event.IsUnavailable.Value) ? "is unavailable" : "was deleted")}")))
+                    : hostDeleted)
+                .DoOnError(_ => _isHostDeleted = true);
 
-            }
-            catch (Exception ex)
-            {
-                control.Dispose();
+        protected IObservable<ControlException> HostDeleted
+            => _hostDeleted;
 
-                return ControlCreationResult<TControl>.FromError(ex);
-            }
+        protected bool IsHostDeleted
+            => _isHostDeleted;
 
-            return ControlCreationResult.FromControl(control);
-        }
+        private readonly IObservable<ControlException> _hostDeleted;
 
-        protected ControlBase()
-        {
-            _resources = new();
-        }
-
-        ~ControlBase()
-        {
-            if (!_hasDisposed)
-            {
-                OnDisposing(false);
-                _hasDisposed = true;
-            }
-        }
-
-        public virtual Task<OperationResult> DestroyAsync()
-            => Task.FromResult(OperationResult.FromSuccess());
-
-        public void Dispose()
-        {
-            if (!_hasDisposed)
-            {
-                OnDisposing(true);
-                GC.SuppressFinalize(this);
-                _hasDisposed = true;
-            }
-        }
-
-        protected CompositeDisposable Resources
-            => _resources;
-
-        protected virtual Task<OperationResult> InitializeAsync(CancellationToken cancellationToken)
-            => Task.FromResult(OperationResult.FromSuccess());
-
-        protected virtual void OnDisposing(bool disposeManagedResources)
-        {
-            if (disposeManagedResources)
-                Resources.Dispose();
-        }
-
-        private readonly CompositeDisposable _resources;
-
-        private bool _hasDisposed;
+        private bool _isHostDeleted;
     }
 }

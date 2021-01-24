@@ -34,8 +34,9 @@
             }
         }
 
+        private readonly IDisposable _subscription;
+
         private bool _hasDisposed;
-        private IDisposable _subscription;
         private T _value;
     }
 }

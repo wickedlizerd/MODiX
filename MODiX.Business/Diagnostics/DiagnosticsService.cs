@@ -20,14 +20,11 @@ namespace Modix.Business.Diagnostics
         IAsyncEnumerable<PingTestOutcome> PerformPingTest();
     }
 
-    public class DiagnosticsService
+    internal class DiagnosticsService
         : IDiagnosticsService
     {
-        public DiagnosticsService(
-            IOptions<DiagnosticsConfiguration> configuration)
-        {
-            _configuration = configuration;
-        }
+        public DiagnosticsService(IOptions<DiagnosticsConfiguration> configuration)
+            => _configuration = configuration;
 
         public ImmutableArray<string> PingTestEndpointNames
             => _configuration.Value.PingTestEndpointsByName?.Keys.ToImmutableArray()

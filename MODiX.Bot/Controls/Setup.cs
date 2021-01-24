@@ -6,7 +6,6 @@ namespace Modix.Bot.Controls
     {
         public static IServiceCollection AddControls(this IServiceCollection services)
             => services
-                .AddScoped<IMessageDialogFactory, MessageDialogFactory>()
                 .AddScoped<IReactionButtonFactory, ReactionButtonFactory>();
     }
 }

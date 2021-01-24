@@ -13,9 +13,9 @@ namespace Modix.Web.Client.Diagnostics
     {
         public DiagnosticsViewModel(IDiagnosticsContract diagnosticsContract)
         {
-            _pingTestStarted = new Subject<Unit>();
+            _pingTestStartRequested = new Subject<Unit>();
 
-            _pingTestStates = _pingTestStarted
+            _pingTestStates = _pingTestStartRequested
                 .Select(_ => diagnosticsContract.PerformPingTest()
                     .ToObservable())
                 .Switch()
@@ -37,8 +37,7 @@ namespace Modix.Web.Client.Diagnostics
                             status:         outcome.Status)),
                     _                               => states
                 })
-                .Publish()
-                .RefCount();
+                .Share();
 
             _isPingTestRunning = _pingTestStates
                 .Select(states => states.Any(state => !state.HasCompleted));
@@ -51,10 +50,10 @@ namespace Modix.Web.Client.Diagnostics
             => _pingTestStates;
 
         public void StartPingTest()
-            => _pingTestStarted.OnNext(Unit.Default);
+            => _pingTestStartRequested.OnNext(Unit.Default);
 
         private readonly IObservable<bool> _isPingTestRunning;
         private readonly IObservable<ImmutableList<PingTestState>> _pingTestStates;
-        private readonly Subject<Unit> _pingTestStarted;
+        private readonly Subject<Unit> _pingTestStartRequested;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using System.Reactive.PlatformServices;
 using System.Threading.Tasks;
 
 using Grpc.Net.Client;
@@ -24,6 +25,7 @@ namespace Modix.Web
             hostBuilder.RootComponents.Add<ApplicationView>("#application-root");
 
             hostBuilder.Services
+                .AddSingleton<ISystemClock, DefaultSystemClock>()
                 .AddSingleton(services => GrpcChannel.ForAddress(
                     hostBuilder.HostEnvironment.BaseAddress,
                     new GrpcChannelOptions

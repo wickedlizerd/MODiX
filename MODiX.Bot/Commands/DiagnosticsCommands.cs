@@ -2,6 +2,8 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -61,46 +63,33 @@ namespace Modix.Bot.Commands
             if (!messageCreationResult.IsSuccess)
                 return OperationResult.FromError(messageCreationResult);
 
-            var whenCancelledSource = new TaskCompletionSource();
-
-            var buttonCreationResult = await _buttonFactory.CreateAsync(
-                channelId:      _context.ChannelID,
-                messageId:      messageCreationResult.Entity.ID,
-                emoji:          "❌",
-                onClickedAsync: _ =>
-                {
-                    whenCancelledSource.SetResult();
-                    return Task.FromResult(OperationResult.FromSuccess());
-                });
-            if (!buttonCreationResult.IsSuccess)
-                return OperationResult.FromError(buttonCreationResult);
-
-            using var button = buttonCreationResult.Control;
+            await using var button = await _buttonFactory.CreateAsync(
+                guildId:            (_context is MessageContext messageContext) && messageContext.Message.GuildID.HasValue
+                    ? messageContext.Message.GuildID.Value
+                    : null as Snowflake?,
+                channelId:          _context.ChannelID,
+                messageId:          messageCreationResult.Entity.ID,
+                emojiName:          "❌",
+                cancellationToken:  CancellationToken.None);
 
             stopwatch.Stop();
+            var wasCancelled = false;
             var remaining = duration - stopwatch.Elapsed;
             if (remaining > TimeSpan.Zero)
-            {
-                try
-                {
-                    await Task.WhenAny(
-                        Task.Delay(remaining),
-                        whenCancelledSource.Task);
-                }
-                catch (TaskCanceledException) { }
-            }
+                await Task.WhenAny(
+                    Task.Delay(remaining),
+                    button.ClickedBy
+                        .Take(1)
+                        .Do(_ => wasCancelled = true)
+                        .ToTask());
 
             var editMessageResult = await _channelApi.EditMessageAsync(
                 channelID:  _context.ChannelID,
                 messageID:  messageCreationResult.Entity.ID,
-                content:    $"Delay ({duration.Humanize()}) {(whenCancelledSource.Task.IsCompleted ? "cancelled" : "completed")}");
-            if (!editMessageResult.IsSuccess)
-                return OperationResult.FromError(editMessageResult);
-
-            var destroyResult = await button.DestroyAsync();
-            return destroyResult.IsSuccess
+                content:    $"Delay ({duration.Humanize()}) {(wasCancelled ? "cancelled" : "completed")}");
+            return editMessageResult.IsSuccess
                 ? OperationResult.FromSuccess()
-                : OperationResult.FromError(destroyResult);
+                : OperationResult.FromError(editMessageResult);
         }
 
         [Command("ping")]
@@ -170,26 +159,26 @@ namespace Modix.Bot.Commands
             string FormatOutcome(PingTestOutcome outcome)
                 => outcome switch
                 {
-                    _ when (outcome.Latency >= TimeSpan.Zero)   => FormatLatency(outcome.Latency.Value.TotalMilliseconds),
-                    _                                           => outcome.Status.ToString().Humanize() + " ⚠️"
+                    _ when outcome.Latency >= TimeSpan.Zero => FormatLatency(outcome.Latency.Value.TotalMilliseconds),
+                    _                                       => outcome.Status.ToString().Humanize() + " ⚠️"
                 };
 
             string FormatLatency(double latency)
                 => $"{latency: 0}ms " + latency switch
                 {
-                    _ when (latency > 300)  => "💔",
-                    _ when (latency > 100)  => "💛", // Yellow heart
+                    _ when latency > 300    => "💔",
+                    _ when latency > 100    => "💛", // Yellow heart
                     _                       => "💚" // Green heart
                 };
 
             Optional<Color> GetLatencyColor(double? latency)
                 => latency switch
                 {
-                    _ when (latency is null)    => Color.Red,
-                    _ when (latency > 300)      => Color.Red,
-                    _ when (latency > 100)      => Color.Gold,
-                    _ when (latency <= 100)     => Color.Green,
-                    _                           => default
+                    _ when latency is null  => Color.Red,
+                    _ when latency > 300    => Color.Red,
+                    _ when latency > 100    => Color.Gold,
+                    _ when latency <= 100   => Color.Green,
+                    _                       => default
                 };
         }
 

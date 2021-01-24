@@ -20,9 +20,7 @@ namespace Modix.Web.Protocol.Diagnostics
 
         // Private constructor and initters are needed for deserialization
         private PingTestOutcome()
-        {
-            EndpointName = null!;
-        }
+            => EndpointName = null!;
 
         [ProtoMember(1)]
         public string EndpointName { get; private init; }

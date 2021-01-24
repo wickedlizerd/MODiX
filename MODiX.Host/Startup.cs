@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Reactive.PlatformServices;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -29,6 +30,7 @@ namespace Modix.Host
                 .AddResponseCompression(options => options
                     .MimeTypes = ResponseCompressionDefaults.MimeTypes
                         .Append("application/octet-stream"))
+                .AddSingleton<ISystemClock, DefaultSystemClock>()
                 .AddModixBot(_configuration)
                 .AddModixBusiness(_configuration)
                 .AddModixWebServer();

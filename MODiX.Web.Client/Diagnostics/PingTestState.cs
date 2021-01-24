@@ -8,17 +8,15 @@ namespace Modix.Web.Client.Diagnostics
         : PingTestOutcome
     {
         public PingTestState(
-                string endpointName,
-                bool hasCompleted,
-                TimeSpan? latency,
-                EndpointStatus status)
-            : base(
-                endpointName,
-                latency,
-                status)
-        {
-            HasCompleted = hasCompleted;
-        }
+                    string endpointName,
+                    bool hasCompleted,
+                    TimeSpan? latency,
+                    EndpointStatus status)
+                : base(
+                    endpointName,
+                    latency,
+                    status)
+            => HasCompleted = hasCompleted;
 
         public bool HasCompleted { get; init; }
     }

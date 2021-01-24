@@ -10,9 +10,7 @@ namespace Modix.Web
             IDisposable
     {
         protected ViewBase()
-        {
-            _observationsBySource = new Dictionary<object, IDisposable>();
-        }
+            => _observationsBySource = new Dictionary<object, IDisposable>();
 
         ~ViewBase()
         {

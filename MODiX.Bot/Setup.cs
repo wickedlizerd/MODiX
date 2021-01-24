@@ -23,7 +23,10 @@ namespace Modix.Bot
                     .ValidateDataAnnotations()
                     .ValidateOnStartup())
                 .AddDiscordGateway(serviceProvider => serviceProvider.GetRequiredService<IOptions<ModixBotConfiguration>>().Value.BotToken)
-                .Configure<DiscordGatewayClientOptions>(options => options.Intents = GatewayIntents.GuildMessages | GatewayIntents.GuildMessageReactions)
+                .Configure<DiscordGatewayClientOptions>(options => options.Intents =
+                    GatewayIntents.Guilds
+                    | GatewayIntents.GuildMessages
+                    | GatewayIntents.GuildMessageReactions)
                 .AddHostedService<ModixBot>()
                 .AddDiscordCommands()
                 .AddModixCommands()
