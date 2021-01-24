@@ -28,6 +28,7 @@
     <PackageReference Update="System.Linq.Async" Version="5.0.0" />
     <PackageReference Update="System.Net.Http.Json" Version="5.0.0" />
     <PackageReference Update="System.Reactive" Version="5.0.0" />
+    <PackageReference Update="System.Reactive.Linq" Version="5.0.0" />
     <PackageReference Update="System.ServiceModel.Primitives" Version="4.8.0" />
   </ItemGroup>
 

@@ -14,8 +14,7 @@ namespace Modix.Bot.Controls
             Snowflake? guildId,
             Snowflake channelId,
             Snowflake messageId,
-            string emojiName,
-            CancellationToken cancellationToken);
+            string emojiName);
     }
 
     public class ReactionButtonFactory
@@ -43,8 +42,7 @@ namespace Modix.Bot.Controls
                 Snowflake? guildId,
                 Snowflake channelId,
                 Snowflake messageId,
-                string emojiName,
-                CancellationToken cancellationToken)
+                string emojiName)
             => ReactionButton.CreateAsync(
                 channelApi:             _channelApi,
                 userApi:                _userApi,
@@ -56,8 +54,7 @@ namespace Modix.Bot.Controls
                 guildId:                guildId,
                 channelId:              channelId,
                 messageId:              messageId,
-                emojiName:              emojiName,
-                cancellationToken:      cancellationToken);
+                emojiName:              emojiName);
 
         private readonly IDiscordRestChannelAPI                 _channelApi;
         private readonly IObservable<IChannelDelete?>           _channelDeleted;

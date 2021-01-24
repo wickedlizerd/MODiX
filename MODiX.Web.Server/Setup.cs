@@ -7,15 +7,20 @@ using ProtoBuf.Grpc.Server;
 
 using Modix.Web.Protocol.Diagnostics;
 using Modix.Web.Server.Diagnostics;
+using Modix.Web.Protocol;
 
 namespace Modix.Web.Server
 {
     public static class Setup
     {
         public static IServiceCollection AddModixWebServer(this IServiceCollection services)
-            => services
+        {
+            ProtocolConfiguration.Apply();
+
+            return services
                 .Add(services => services.AddCodeFirstGrpc())
                 .AddScoped<IDiagnosticsContract, DiagnosticsContract>();
+        }
 
         public static IApplicationBuilder UseModixWebServer(this IApplicationBuilder application)
             => application

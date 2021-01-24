@@ -10,8 +10,22 @@ namespace Modix.Web.Server.Diagnostics
     public class DiagnosticsContract
         : IDiagnosticsContract
     {
-        public DiagnosticsContract(IDiagnosticsService diagnosticsService)
-            => _diagnosticsService = diagnosticsService;
+        public DiagnosticsContract(
+            IDiagnosticsManager diagnosticsManager,
+            IDiagnosticsService diagnosticsService)
+        {
+            _diagnosticsManager = diagnosticsManager;
+            _diagnosticsService = diagnosticsService;
+        }
+
+        public IAsyncEnumerable<SystemClockResponse> ObserveSystemClock()
+            => _diagnosticsManager.Now
+                .Select(now => new SystemClockResponse()
+                {
+                    Now = now
+                })
+                .ToAsyncEnumerable()
+                .WithSilentCancellation();
 
         public IAsyncEnumerable<PingTestResponse> PerformPingTest()
             => AsyncEnumerable.Empty<PingTestResponse>()
@@ -21,6 +35,7 @@ namespace Modix.Web.Server.Diagnostics
                 })
                 .Concat(_diagnosticsService.PerformPingTest());
 
+        private readonly IDiagnosticsManager _diagnosticsManager;
         private readonly IDiagnosticsService _diagnosticsService;
     }
 }

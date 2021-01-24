@@ -2,18 +2,25 @@
 using System.Reactive.Linq;
 using System.Reactive.PlatformServices;
 
-namespace Modix.Web
+namespace Modix.Business.Diagnostics
 {
-    public class ApplicationViewModel
+    public interface IDiagnosticsManager
     {
-        public ApplicationViewModel(ISystemClock systemClock)
+        IObservable<DateTimeOffset> Now { get; }
+    }
+
+    public class DiagnosticsManager
+        : IDiagnosticsManager
+    {
+        public DiagnosticsManager(ISystemClock systemClock)
             => Now = Observable.Timer(
                     dueTime:    TimeSpan.Zero,
                     period:     TimeSpan.FromMilliseconds(10))
                 .Select(_ => systemClock.UtcNow
                     .ToLocalTime()
                     .TruncateMilliseconds())
-                .DistinctUntilChanged();
+                .DistinctUntilChanged()
+                .ShareReplay(1);
 
         public IObservable<DateTimeOffset> Now { get; }
     }

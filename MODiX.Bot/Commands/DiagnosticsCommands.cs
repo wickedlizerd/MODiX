@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
-using System.Threading;
 using System.Threading.Tasks;
 
 using Humanizer;
@@ -33,13 +32,17 @@ namespace Modix.Bot.Commands
         public DiagnosticsCommands(
             IReactionButtonFactory buttonFactory,
             IDiscordRestChannelAPI channelApi,
+            IDiagnosticsManager diagnosticsManager,
             IDiagnosticsService diagnosticsService,
+            IMessageDialogFactory dialogFactory,
             ICommandContext context)
         {
             _buttonFactory = buttonFactory;
             _channelApi = channelApi;
             _context = context;
+            _diagnosticsManager = diagnosticsManager;
             _diagnosticsService = diagnosticsService;
+            _dialogFactory = dialogFactory;
         }
 
         [Command("echo")]
@@ -67,10 +70,9 @@ namespace Modix.Bot.Commands
                 guildId:            (_context is MessageContext messageContext) && messageContext.Message.GuildID.HasValue
                     ? messageContext.Message.GuildID.Value
                     : null as Snowflake?,
-                channelId:          _context.ChannelID,
-                messageId:          messageCreationResult.Entity.ID,
-                emojiName:          "❌",
-                cancellationToken:  CancellationToken.None);
+                channelId:  _context.ChannelID,
+                messageId:  messageCreationResult.Entity.ID,
+                emojiName:  "❌");
 
             stopwatch.Stop();
             var wasCancelled = false;
@@ -78,7 +80,7 @@ namespace Modix.Bot.Commands
             if (remaining > TimeSpan.Zero)
                 await Task.WhenAny(
                     Task.Delay(remaining),
-                    button.ClickedBy
+                    button.Clicked
                         .Take(1)
                         .Do(_ => wasCancelled = true)
                         .ToTask());
@@ -182,9 +184,33 @@ namespace Modix.Bot.Commands
                 };
         }
 
+        [Command("serverclock")]
+        public async Task<IResult> ServerClockAsync()
+        {
+            await using var dialog = await _dialogFactory.CreateAsync(
+                guildId:            (_context is MessageContext messageContext) && messageContext.Message.GuildID.HasValue
+                    ? messageContext.Message.GuildID.Value
+                    : null as Snowflake?,
+                channelId:          _context.ChannelID,
+                buttonEmojiNames:   new[] { "❌" },
+                content:            RenderServerTime(await _diagnosticsManager.Now.Take(1)));
+
+            await _diagnosticsManager.Now
+                .Sample(TimeSpan.FromSeconds(5))
+                .SelectMany(now => dialog.UpdateAsync(content: RenderServerTime(now)))
+                .TakeUntil(dialog.ButtonClicked);
+
+            return OperationResult.FromSuccess();
+
+            static string RenderServerTime(DateTimeOffset serverTime)
+                => $"Server Time: {serverTime:yyyy-MMM-dd hh:mm:ss tt K}";
+        }
+
         private readonly IReactionButtonFactory _buttonFactory;
         private readonly IDiscordRestChannelAPI _channelApi;
         private readonly ICommandContext _context;
+        private readonly IDiagnosticsManager _diagnosticsManager;
         private readonly IDiagnosticsService _diagnosticsService;
+        private readonly IMessageDialogFactory _dialogFactory;
     }
 }

@@ -11,24 +11,29 @@ namespace Modix.Bot.Controls
         : ChannelControlBase
     {
         protected MessageControlBase(
-                Snowflake? guildId,
-                Snowflake channelId,
-                Snowflake messageId,
-                IObservable<IGuildDelete?> guildDeleted,
-                IObservable<IChannelDelete?> channelDeleted,
-                IObservable<IMessageDelete?> messageDeleted,
-                IObservable<ControlException> hostDeleted)
-            : base(
-                guildId:            guildId,
-                channelId:          channelId,
-                guildDeleted:       guildDeleted,
-                channelDeleted:     channelDeleted,
-                hostDeleted:        Observable.Merge(
-                    hostDeleted,
-                    messageDeleted
-                        .WhereNotNull()
-                        .Where(@event => @event.ID == messageId)
-                        .Select(@event => new ControlException("The message hosting this control was deleted"))))
-        { }
+                    Snowflake? guildId,
+                    Snowflake channelId,
+                    Snowflake messageId,
+                    IObservable<IGuildDelete?> guildDeleted,
+                    IObservable<IChannelDelete?> channelDeleted,
+                    IObservable<IMessageDelete?> messageDeleted,
+                    IObservable<ControlException> hostDeleted)
+                : base(
+                    guildId:            guildId,
+                    channelId:          channelId,
+                    guildDeleted:       guildDeleted,
+                    channelDeleted:     channelDeleted,
+                    hostDeleted:        Observable.Merge(
+                        hostDeleted,
+                        messageDeleted
+                            .WhereNotNull()
+                            .Where(@event => @event.ID == messageId)
+                            .Select(@event => new ControlException("The message hosting this control was deleted"))))
+            => _messageId = messageId;
+
+        protected Snowflake MessageId
+            => _messageId;
+
+        private readonly Snowflake _messageId;
     }
 }

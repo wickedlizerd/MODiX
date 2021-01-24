@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 using Remora.Discord.API.Abstractions.Gateway.Events;
@@ -10,7 +9,7 @@ using Remora.Discord.Core;
 
 namespace Modix.Bot.Controls
 {
-    public class ReactionButton
+    public sealed class ReactionButton
         : MessageControlBase
     {
         public static async Task<ReactionButton> CreateAsync(
@@ -24,14 +23,13 @@ namespace Modix.Bot.Controls
             Snowflake? guildId,
             Snowflake channelId,
             Snowflake messageId,
-            string emojiName,
-            CancellationToken cancellationToken)
+            string emojiName)
         {
-            var getCurrentUserResult = await userApi.GetCurrentUserAsync(cancellationToken);
+            var getCurrentUserResult = await userApi.GetCurrentUserAsync();
             if (!getCurrentUserResult.IsSuccess)
                 throw new ControlException($"Uncable to create button: {getCurrentUserResult.ErrorReason}", getCurrentUserResult.Exception);
 
-            var createReactionResult = await channelApi.CreateReactionAsync(channelId, messageId, emojiName, cancellationToken);
+            var createReactionResult = await channelApi.CreateReactionAsync(channelId, messageId, emojiName);
             return !createReactionResult.IsSuccess
                 ? throw new ControlException($"Unable to create button: {createReactionResult.ErrorReason}", createReactionResult.Exception)
                 : new ReactionButton(
@@ -61,49 +59,47 @@ namespace Modix.Bot.Controls
                 IObservable<IMessageReactionAdd?> messageReactionAdded,
                 IObservable<IMessageReactionRemove?> messageReactionRemoved)
             : base(
-                guildId,
-                channelId,
-                messageId,
-                guildDeleted,
-                channelDeleted,
-                messageDeleted,
-                Observable.Empty<ControlException>())
+                guildId:        guildId,
+                channelId:      channelId,
+                messageId:      messageId,
+                guildDeleted:   guildDeleted,
+                channelDeleted: channelDeleted,
+                messageDeleted: messageDeleted,
+                hostDeleted:    Observable.Empty<ControlException>())
         {
-            _channelId = channelId;
-            _messageId = messageId;
-
             _channelApi = channelApi;
 
-            _clickedBy = Observable.Merge(
-                HostDeleted.Throw<Snowflake>(),
-                Observable.Merge(
-                        messageReactionAdded
-                            .WhereNotNull()
-                            .Select(@event => (@event.MessageID, @event.UserID, @event.Emoji)),
-                        messageReactionRemoved
-                            .WhereNotNull()
-                            .Select(@event => (@event.MessageID, @event.UserID, @event.Emoji)))
-                    .Where(@event => (@event.MessageID == messageId)
-                        && (@event.UserID != selfId)
-                        && @event.Emoji.Name.HasValue
-                        && (@event.Emoji.Name.Value == emojiName))
-                    .Select(@event => @event.UserID));
+            _clicked = Observable.Merge(
+                    HostDeleted.Throw<ReactionButtonClickedEvent>(),
+                    Observable.Merge(
+                            messageReactionAdded
+                                .WhereNotNull()
+                                .Select(@event => (@event.MessageID, @event.UserID, @event.Emoji)),
+                            messageReactionRemoved
+                                .WhereNotNull()
+                                .Select(@event => (@event.MessageID, @event.UserID, @event.Emoji)))
+                        .Where(@event => (@event.MessageID == messageId)
+                            && (@event.UserID != selfId)
+                            && @event.Emoji.Name.HasValue
+                            && (@event.Emoji.Name.Value == emojiName))
+                        .Select(@event => new ReactionButtonClickedEvent(
+                            emojiName:  emojiName,
+                            clickedBy:  @event.UserID)))
+                .Share();
         }
 
-        public IObservable<Snowflake> ClickedBy
-            => _clickedBy;
+        public IObservable<ReactionButtonClickedEvent> Clicked
+            => _clicked;
 
         protected override async ValueTask OnDisposingAsync(DisposalType type)
         {
             if (!IsHostDeleted)
-                await _channelApi.DeleteAllReactionsAsync(_channelId, _messageId);
+                await _channelApi.DeleteAllReactionsAsync(ChannelId, MessageId);
 
             await base.OnDisposingAsync(type);
         }
 
         private readonly IDiscordRestChannelAPI _channelApi;
-        private readonly Snowflake _channelId;
-        private readonly IObservable<Snowflake> _clickedBy;
-        private readonly Snowflake _messageId;
+        private readonly IObservable<ReactionButtonClickedEvent> _clicked;
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace System.Reactive.Linq
+﻿using System.Threading.Tasks;
+
+namespace System.Reactive.Linq
 {
     public static class ObservableExtensions
     {
@@ -11,6 +13,9 @@
                     observer.OnError(ex);
                 },
                 observer.OnCompleted));
+
+        public static IObservable<Unit> SelectMany<T>(this IObservable<T> source, Func<T, Task> selector)
+            => source.SelectMany(value => Observable.FromAsync(() => selector.Invoke(value)));
 
         public static IObservable<T> Throw<T>(this IObservable<Exception> source)
             => source.Select<Exception, T>(ex => throw ex);

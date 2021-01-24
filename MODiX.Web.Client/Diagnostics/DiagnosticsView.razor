@@ -7,6 +7,19 @@
 @inherits ViewBase<DiagnosticsViewModel>
 
 <div>
+    <div>
+        <span><strong>Server Clock:</strong></span>
+        @if (ObserveValue(ViewModel.IsServerClockRunning, false))
+        {
+            <button @onclick="ViewModel.ToggleServerClock">Stop</button>
+            <span>@(ObserveValue(ViewModel.ServerClock)?.ToString("yyyy-MMM-dd hh:mm:ss tt K") ?? "Loading...")</span>
+        }
+        else
+        {
+            <button @onclick="ViewModel.ToggleServerClock">Start</button>
+        }
+    </div>
+
     <button @onclick="ViewModel.StartPingTest" disabled="@ObserveValue(ViewModel.IsPingTestRunning, false)">Start Ping Test</button>
 
     <dl>

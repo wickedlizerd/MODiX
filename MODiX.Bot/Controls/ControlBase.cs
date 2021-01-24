@@ -13,7 +13,9 @@ namespace Modix.Bot.Controls
                 Snowflake? guildId,
                 IObservable<IGuildDelete?> guildDeleted,
                 IObservable<ControlException> hostDeleted)
-            => _hostDeleted = (guildId.HasValue
+        {
+            _guildId = guildId;
+            _hostDeleted = (guildId.HasValue
                     ? Observable.Merge(
                         hostDeleted,
                         guildDeleted
@@ -22,6 +24,10 @@ namespace Modix.Bot.Controls
                             .Select(@event => new ControlException($"The guild hosting this control {((@event.IsUnavailable.HasValue && @event.IsUnavailable.Value) ? "is unavailable" : "was deleted")}")))
                     : hostDeleted)
                 .DoOnError(_ => _isHostDeleted = true);
+        }
+
+        protected Snowflake? GuildId
+            => _guildId;
 
         protected IObservable<ControlException> HostDeleted
             => _hostDeleted;
@@ -29,6 +35,7 @@ namespace Modix.Bot.Controls
         protected bool IsHostDeleted
             => _isHostDeleted;
 
+        private readonly Snowflake? _guildId;
         private readonly IObservable<ControlException> _hostDeleted;
 
         private bool _isHostDeleted;

@@ -41,19 +41,40 @@ namespace Modix.Web.Client.Diagnostics
 
             _isPingTestRunning = _pingTestStates
                 .Select(states => states.Any(state => !state.HasCompleted));
+
+            _isServerClockRunning = new(false);
+
+            _serverClock = _isServerClockRunning
+                .Select(isServerClockRunning => isServerClockRunning
+                    ? diagnosticsContract.ObserveSystemClock()
+                        .ToObservable()
+                        .Select(systemClock => systemClock.Now.ToNullable())
+                    : Observable.Return<DateTimeOffset?>(null))
+                .Switch();
         }
 
         public IObservable<bool> IsPingTestRunning
             => _isPingTestRunning;
 
+        public IObservable<bool> IsServerClockRunning
+            => _isServerClockRunning;
+
         public IObservable<ImmutableList<PingTestState>> PingTestStates
             => _pingTestStates;
+
+        public IObservable<DateTimeOffset?> ServerClock
+            => _serverClock;
 
         public void StartPingTest()
             => _pingTestStartRequested.OnNext(Unit.Default);
 
+        public void ToggleServerClock()
+            => _isServerClockRunning.OnNext(!_isServerClockRunning.Value);
+
         private readonly IObservable<bool> _isPingTestRunning;
+        private readonly BehaviorSubject<bool> _isServerClockRunning;
         private readonly IObservable<ImmutableList<PingTestState>> _pingTestStates;
         private readonly Subject<Unit> _pingTestStartRequested;
+        private readonly IObservable<DateTimeOffset?> _serverClock;
     }
 }

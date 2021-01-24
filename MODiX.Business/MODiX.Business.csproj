@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MODiX.Common\MODiX.Common.csproj" />
     <ProjectReference Include="..\MODiX.Web.Protocol\MODiX.Web.Protocol.csproj" />
   </ItemGroup>
 

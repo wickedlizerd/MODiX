@@ -6,5 +6,10 @@
             => source
                 .Publish()
                 .RefCount();
+
+        public static IObservable<T> ShareReplay<T>(this IObservable<T> source, int bufferSize)
+            => source
+                .Replay(bufferSize)
+                .RefCount();
     }
 }

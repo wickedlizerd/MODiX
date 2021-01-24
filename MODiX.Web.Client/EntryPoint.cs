@@ -12,6 +12,7 @@ using ProtoBuf.Grpc.Client;
 
 using Modix.Web.Client.Diagnostics;
 using Modix.Web.Protocol.Diagnostics;
+using Modix.Web.Protocol;
 
 namespace Modix.Web
 {
@@ -20,6 +21,8 @@ namespace Modix.Web
         #pragma warning disable IDE1006 // MainAsync would not be valid
         public static async Task Main(string[] args)
         {
+            ProtocolConfiguration.Apply();
+
             var hostBuilder = WebAssemblyHostBuilder.CreateDefault(args);
 
             hostBuilder.RootComponents.Add<ApplicationView>("#application-root");
