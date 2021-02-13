@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 using Remora.Discord.API.Abstractions.Gateway.Events;
 using Remora.Discord.Gateway.Responders;
-using Remora.Discord.Gateway.Results;
+using Remora.Results;
 
 namespace Remora.Discord.Gateway.Reaction
 {
@@ -12,16 +12,16 @@ namespace Remora.Discord.Gateway.Reaction
             : IResponder<TGatewayEvent>
         where TGatewayEvent : IGatewayEvent
     {
-        public ReactiveResponder(IObserver<TGatewayEvent?> observer)
+        public ReactiveResponder(IObserver<TGatewayEvent> observer)
             => _observer = observer;
 
-        public Task<EventResponseResult> RespondAsync(TGatewayEvent? gatewayEvent, CancellationToken ct = default)
+        public Task<Result> RespondAsync(TGatewayEvent gatewayEvent, CancellationToken ct = default)
         {
             _observer.OnNext(gatewayEvent);
 
-            return Task.FromResult(EventResponseResult.FromSuccess());
+            return Task.FromResult(Result.FromSuccess());
         }
 
-        private readonly IObserver<TGatewayEvent?> _observer;
+        private readonly IObserver<TGatewayEvent> _observer;
     }
 }

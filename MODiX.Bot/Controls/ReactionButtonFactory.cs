@@ -22,11 +22,11 @@ namespace Modix.Bot.Controls
     {
         public ReactionButtonFactory(
             IDiscordRestChannelAPI channelApi,
-            IObservable<IChannelDelete?> channelDeleted,
-            IObservable<IGuildDelete?> guildDeleted,
-            IObservable<IMessageDelete?> messageDeleted,
-            IObservable<IMessageReactionAdd?> messageReactionAdded,
-            IObservable<IMessageReactionRemove?> messageReactionRemoved,
+            IObservable<IChannelDelete> channelDeleted,
+            IObservable<IGuildDelete> guildDeleted,
+            IObservable<IMessageDelete> messageDeleted,
+            IObservable<IMessageReactionAdd> messageReactionAdded,
+            IObservable<IMessageReactionRemove> messageReactionRemoved,
             IDiscordRestUserAPI userApi)
         {
             _channelApi = channelApi;
@@ -57,11 +57,11 @@ namespace Modix.Bot.Controls
                 emojiName:              emojiName);
 
         private readonly IDiscordRestChannelAPI                 _channelApi;
-        private readonly IObservable<IChannelDelete?>           _channelDeleted;
-        private readonly IObservable<IGuildDelete?>             _guildDeleted;
-        private readonly IObservable<IMessageDelete?>           _messageDeleted;
-        private readonly IObservable<IMessageReactionAdd?>      _messageReactionAdded;
-        private readonly IObservable<IMessageReactionRemove?>   _messageReactionRemoved;
+        private readonly IObservable<IChannelDelete>            _channelDeleted;
+        private readonly IObservable<IGuildDelete>              _guildDeleted;
+        private readonly IObservable<IMessageDelete>            _messageDeleted;
+        private readonly IObservable<IMessageReactionAdd>       _messageReactionAdded;
+        private readonly IObservable<IMessageReactionRemove>    _messageReactionRemoved;
         private readonly IDiscordRestUserAPI                    _userApi;
     }
 }

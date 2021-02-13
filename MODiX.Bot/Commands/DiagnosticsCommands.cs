@@ -46,12 +46,12 @@ namespace Modix.Bot.Commands
         }
 
         [Command("echo")]
-        public async Task<IResult> EchoAsync(string value)
+        public async Task<IResult> EchoAsync([Greedy]string value)
         {
             var result = await _channelApi.CreateMessageAsync(_context.ChannelID, content: value);
             return result.IsSuccess
-                ? OperationResult.FromSuccess()
-                : OperationResult.FromError(result);
+                ? Result.FromSuccess()
+                : Result.FromError(result.Error);
         }
 
         [Command("delay")]
@@ -64,7 +64,7 @@ namespace Modix.Bot.Commands
                 channelID:  _context.ChannelID,
                 content:    $"Delaying for {duration.Humanize()}...");
             if (!messageCreationResult.IsSuccess)
-                return OperationResult.FromError(messageCreationResult);
+                return Result.FromError(messageCreationResult);
 
             await using var button = await _buttonFactory.CreateAsync(
                 guildId:            (_context is MessageContext messageContext) && messageContext.Message.GuildID.HasValue
@@ -90,8 +90,8 @@ namespace Modix.Bot.Commands
                 messageID:  messageCreationResult.Entity.ID,
                 content:    $"Delay ({duration.Humanize()}) {(wasCancelled ? "cancelled" : "completed")}");
             return editMessageResult.IsSuccess
-                ? OperationResult.FromSuccess()
-                : OperationResult.FromError(editMessageResult);
+                ? Result.FromSuccess()
+                : Result.FromError(editMessageResult);
         }
 
         [Command("ping")]
@@ -99,8 +99,8 @@ namespace Modix.Bot.Commands
         {
             var result = await _channelApi.CreateMessageAsync(_context.ChannelID, content: "Pong!");
             return result.IsSuccess
-                ? OperationResult.FromSuccess()
-                : OperationResult.FromError(result);
+                ? Result.FromSuccess()
+                : Result.FromError(result);
         }
 
         [Command("pingtest")]
@@ -110,13 +110,13 @@ namespace Modix.Bot.Commands
             {
                 var result = await _channelApi.CreateMessageAsync(_context.ChannelID, content: "No endpoints configured for ping testing");
                 return result.IsSuccess
-                    ? OperationResult.FromSuccess()
-                    : OperationResult.FromError(result);
+                    ? Result.FromSuccess()
+                    : Result.FromError(result);
             }
 
             var createMessageResult = await _channelApi.CreateMessageAsync(_context.ChannelID, content: $"Pinging {_diagnosticsService.PingTestEndpointNames.Length} endpoints...");
             if (!createMessageResult.IsSuccess)
-                return OperationResult.FromError(createMessageResult);
+                return Result.FromError(createMessageResult);
 
             var pingTestOutcomes = await _diagnosticsService.PerformPingTest()
                 .ToArrayAsync();
@@ -155,8 +155,8 @@ namespace Modix.Bot.Commands
                 content:    "",
                 embed:      embed);
             return editMessageResult.IsSuccess
-                ? OperationResult.FromSuccess()
-                : OperationResult.FromError(editMessageResult);
+                ? Result.FromSuccess()
+                : Result.FromError(editMessageResult);
 
             string FormatOutcome(PingTestOutcome outcome)
                 => outcome switch
@@ -200,7 +200,7 @@ namespace Modix.Bot.Commands
                 .SelectMany(now => dialog.UpdateAsync(content: RenderServerTime(now)))
                 .TakeUntil(dialog.ButtonClicked);
 
-            return OperationResult.FromSuccess();
+            return Result.FromSuccess();
 
             static string RenderServerTime(DateTimeOffset serverTime)
                 => $"Server Time: {serverTime:yyyy-MMM-dd hh:mm:ss tt K}";

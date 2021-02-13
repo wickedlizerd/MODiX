@@ -18,9 +18,9 @@ namespace Modix.Bot.Controls
         public static async Task<MessageDialog> CreateAsync(
             IDiscordRestChannelAPI channelApi,
             IReactionButtonFactory buttonFactory,
-            IObservable<IGuildDelete?> guildDeleted,
-            IObservable<IChannelDelete?> channelDeleted,
-            IObservable<IMessageDelete?> messageDeleted,
+            IObservable<IGuildDelete> guildDeleted,
+            IObservable<IChannelDelete> channelDeleted,
+            IObservable<IMessageDelete> messageDeleted,
             Snowflake? guildId,
             Snowflake channelId,
             IReadOnlyList<string> buttonEmojiNames,
@@ -32,7 +32,7 @@ namespace Modix.Bot.Controls
                 content:    content,
                 embed:      embed);
             if (!createMessageResult.IsSuccess)
-                throw new ControlException($"Uncable to create dialog: {createMessageResult.ErrorReason}", createMessageResult.Exception);
+                throw ControlException.FromError("Uncable to create dialog", createMessageResult.Error);
 
             var buttons = (await Task.WhenAll(buttonEmojiNames
                     .Select(buttonEmojiName => buttonFactory.CreateAsync(
@@ -57,9 +57,9 @@ namespace Modix.Bot.Controls
                 Snowflake? guildId,
                 Snowflake channelId,
                 Snowflake messageId,
-                IObservable<IGuildDelete?> guildDeleted,
-                IObservable<IChannelDelete?> channelDeleted,
-                IObservable<IMessageDelete?> messageDeleted,
+                IObservable<IGuildDelete> guildDeleted,
+                IObservable<IChannelDelete> channelDeleted,
+                IObservable<IMessageDelete> messageDeleted,
                 ImmutableArray<ReactionButton> buttons,
                 IDiscordRestChannelAPI channelApi)
             : base(
@@ -94,7 +94,7 @@ namespace Modix.Bot.Controls
                 content:    content,
                 embed:      embed);
             if (!editMessageResult.IsSuccess)
-                throw new ControlException($"Unable to update the dialog: {editMessageResult.ErrorReason}", editMessageResult.Exception);
+                throw ControlException.FromError("Unable to update the dialog", editMessageResult.Error);
         }
 
         protected override async ValueTask OnDisposingAsync(DisposalType type)

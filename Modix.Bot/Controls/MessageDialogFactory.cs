@@ -25,9 +25,9 @@ namespace Modix.Bot.Controls
         public MessageDialogFactory(
             IDiscordRestChannelAPI channelApi,
             IReactionButtonFactory buttonFactory,
-            IObservable<IGuildDelete?> guildDeleted,
-            IObservable<IChannelDelete?> channelDeleted,
-            IObservable<IMessageDelete?> messageDeleted)
+            IObservable<IGuildDelete> guildDeleted,
+            IObservable<IChannelDelete> channelDeleted,
+            IObservable<IMessageDelete> messageDeleted)
         {
             _channelApi = channelApi;
             _buttonFactory = buttonFactory;
@@ -56,8 +56,8 @@ namespace Modix.Bot.Controls
 
         private readonly IDiscordRestChannelAPI _channelApi;
         private readonly IReactionButtonFactory _buttonFactory;
-        private readonly IObservable<IGuildDelete?> _guildDeleted;
-        private readonly IObservable<IChannelDelete?> _channelDeleted;
-        private readonly IObservable<IMessageDelete?> _messageDeleted;
+        private readonly IObservable<IGuildDelete> _guildDeleted;
+        private readonly IObservable<IChannelDelete> _channelDeleted;
+        private readonly IObservable<IMessageDelete> _messageDeleted;
     }
 }

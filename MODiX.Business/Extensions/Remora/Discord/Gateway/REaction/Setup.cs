@@ -22,8 +22,8 @@ namespace Remora.Discord.Gateway.Reaction
                 where TGatewayEvent : IGatewayEvent
             => services
                 .AddSingleton<Subject<TGatewayEvent>>()
-                .AddSingleton<IObserver<TGatewayEvent?>, Subject<TGatewayEvent?>>(serviceProvider => serviceProvider.GetRequiredService<Subject<TGatewayEvent?>>())
-                .AddSingleton<IObservable<TGatewayEvent?>, Subject<TGatewayEvent?>>(serviceProvider => serviceProvider.GetRequiredService<Subject<TGatewayEvent?>>())
+                .AddSingleton<IObserver<TGatewayEvent>, Subject<TGatewayEvent>>(serviceProvider => serviceProvider.GetRequiredService<Subject<TGatewayEvent>>())
+                .AddSingleton<IObservable<TGatewayEvent>, Subject<TGatewayEvent>>(serviceProvider => serviceProvider.GetRequiredService<Subject<TGatewayEvent>>())
                 .AddResponder<ReactiveResponder<TGatewayEvent>>();
     }
 }

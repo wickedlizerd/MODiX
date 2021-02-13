@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Remora.Discord.API.Abstractions.Gateway.Events;
 using Remora.Discord.API.Abstractions.Rest;
 using Remora.Discord.Core;
+using Remora.Results;
 
 namespace Modix.Bot.Controls
 {
@@ -15,11 +16,11 @@ namespace Modix.Bot.Controls
         public static async Task<ReactionButton> CreateAsync(
             IDiscordRestChannelAPI channelApi,
             IDiscordRestUserAPI userApi,
-            IObservable<IGuildDelete?> guildDeleted,
-            IObservable<IChannelDelete?> channelDeleted,
-            IObservable<IMessageDelete?> messageDeleted,
-            IObservable<IMessageReactionAdd?> messageReactionAdded,
-            IObservable<IMessageReactionRemove?> messageReactionRemoved,
+            IObservable<IGuildDelete> guildDeleted,
+            IObservable<IChannelDelete> channelDeleted,
+            IObservable<IMessageDelete> messageDeleted,
+            IObservable<IMessageReactionAdd> messageReactionAdded,
+            IObservable<IMessageReactionRemove> messageReactionRemoved,
             Snowflake? guildId,
             Snowflake channelId,
             Snowflake messageId,
@@ -27,11 +28,11 @@ namespace Modix.Bot.Controls
         {
             var getCurrentUserResult = await userApi.GetCurrentUserAsync();
             if (!getCurrentUserResult.IsSuccess)
-                throw new ControlException($"Uncable to create button: {getCurrentUserResult.ErrorReason}", getCurrentUserResult.Exception);
+                throw ControlException.FromError("Uncable to create button", getCurrentUserResult.Error);
 
             var createReactionResult = await channelApi.CreateReactionAsync(channelId, messageId, emojiName);
             return !createReactionResult.IsSuccess
-                ? throw new ControlException($"Unable to create button: {createReactionResult.ErrorReason}", createReactionResult.Exception)
+                ? throw ControlException.FromError("Uncable to create button", createReactionResult.Error)
                 : new ReactionButton(
                     guildId:                guildId,
                     channelId:              channelId,
@@ -52,12 +53,12 @@ namespace Modix.Bot.Controls
                 Snowflake messageId,
                 Snowflake selfId,
                 string emojiName,
-                IObservable<IGuildDelete?> guildDeleted,
-                IObservable<IChannelDelete?> channelDeleted,
-                IObservable<IMessageDelete?> messageDeleted,
+                IObservable<IGuildDelete> guildDeleted,
+                IObservable<IChannelDelete> channelDeleted,
+                IObservable<IMessageDelete> messageDeleted,
                 IDiscordRestChannelAPI channelApi,
-                IObservable<IMessageReactionAdd?> messageReactionAdded,
-                IObservable<IMessageReactionRemove?> messageReactionRemoved)
+                IObservable<IMessageReactionAdd> messageReactionAdded,
+                IObservable<IMessageReactionRemove> messageReactionRemoved)
             : base(
                 guildId:        guildId,
                 channelId:      channelId,
@@ -73,10 +74,8 @@ namespace Modix.Bot.Controls
                     HostDeleted.Throw<ReactionButtonClickedEvent>(),
                     Observable.Merge(
                             messageReactionAdded
-                                .WhereNotNull()
                                 .Select(@event => (@event.MessageID, @event.UserID, @event.Emoji)),
                             messageReactionRemoved
-                                .WhereNotNull()
                                 .Select(@event => (@event.MessageID, @event.UserID, @event.Emoji)))
                         .Where(@event => (@event.MessageID == messageId)
                             && (@event.UserID != selfId)
