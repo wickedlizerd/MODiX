@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 using Microsoft.AspNetCore.Components;
 
-namespace Modix.Web
+namespace Modix.Web.Client
 {
     public abstract class ViewBase<TViewModel>
         : ComponentBase,

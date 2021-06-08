@@ -1,0 +1,11 @@
+﻿@using Microsoft.AspNetCore.Authorization
+
+@page "/"
+
+@namespace Modix.Web.Client
+
+@attribute [Authorize]
+@inherits ViewBase<HomePageModel>
+
+<h1>Hello World!</h1>
+<h3>@ObserveValue(ViewModel.Now, default).DateTime.ToLongTimeString()</h3>

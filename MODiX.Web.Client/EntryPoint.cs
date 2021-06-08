@@ -5,16 +5,15 @@ using System.Threading.Tasks;
 using Grpc.Net.Client;
 using Grpc.Net.Client.Web;
 
+using Microsoft.AspNetCore.Components.WebAssembly.Browser;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
-using ProtoBuf.Grpc.Client;
-
+using Modix.Web.Client.Authentication;
 using Modix.Web.Client.Diagnostics;
-using Modix.Web.Protocol.Diagnostics;
 using Modix.Web.Protocol;
 
-namespace Modix.Web
+namespace Modix.Web.Client
 {
     public static class EntryPoint
     {
@@ -25,19 +24,22 @@ namespace Modix.Web
 
             var hostBuilder = WebAssemblyHostBuilder.CreateDefault(args);
 
-            hostBuilder.RootComponents.Add<ApplicationView>("#application-root");
+            hostBuilder.RootComponents.Add<ApplicationRoot>("#application-root");
 
             hostBuilder.Services
+                .AddAuthentication()
+                .AddAuthorizationCore()
                 .AddSingleton<ISystemClock, DefaultSystemClock>()
+                .AddSingleton<ILocalStorageManager, LocalStorageManager>()
                 .AddSingleton(services => GrpcChannel.ForAddress(
                     hostBuilder.HostEnvironment.BaseAddress,
                     new GrpcChannelOptions
                     {
                         HttpHandler = new GrpcWebHandler(GrpcWebMode.GrpcWebText, new HttpClientHandler())
                     }))
-                .AddSingleton(services => services.GetRequiredService<GrpcChannel>().CreateGrpcService<IDiagnosticsContract>())
-                .AddTransient<ApplicationViewModel>()
-                .AddTransient<DiagnosticsViewModel>();
+                .AddDiagnostics()
+                .AddTransient<ApplicationRootModel>()
+                .AddTransient<HomePageModel>();
 
             await using var host = hostBuilder.Build();
 

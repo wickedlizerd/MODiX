@@ -7,9 +7,11 @@
     <PackageReference Update="Grpc.Net.Client" Version="2.35.0" />
     <PackageReference Update="Grpc.Net.Client.Web" Version="2.35.0" />
     <PackageReference Update="Humanizer" Version="2.8.26" />
+    <PackageReference Update="Microsoft.AspNetCore.Components.Authorization" Version="5.0.3" />
     <PackageReference Update="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.3" />
     <PackageReference Update="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.3" />
     <PackageReference Update="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="5.0.3" />
+    <PackageReference Update="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
     <PackageReference Update="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
     <PackageReference Update="Microsoft.Extensions.Configuration.UserSecrets" Version="5.0.0" />
     <PackageReference Update="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
@@ -24,6 +26,7 @@
     <PackageReference Update="Remora.Discord" Version="3.0.2" />
     <PackageReference Update="Remora.Discord.Commands" Version="2.0.2" />
     <PackageReference Update="Remora.Results" Version="3.0.0" />
+    <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
     <PackageReference Update="System.Interactive.Async" Version="5.0.0" />
     <PackageReference Update="System.Linq.Async" Version="5.0.0" />
     <PackageReference Update="System.Net.Http.Json" Version="5.0.0" />

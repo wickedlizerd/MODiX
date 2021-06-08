@@ -1,0 +1,61 @@
+﻿@page "/signin"
+
+@using System.Reactive.Linq
+
+@using Microsoft.AspNetCore.WebUtilities;
+
+@inherits ViewBase<SigninPageModel>
+
+@inject NavigationManager NavigationManager
+
+@if (_isCodeMissing)
+{
+    <p>Bruh.</p>
+    <p>How the hell'd you get to this page without a code, bruh?</p>
+}
+else
+{
+    @switch (ObserveValue(ViewModel.Status, SigninStatus.Pending))
+    {
+        case SigninStatus.ServerFailure:
+            <p>Bruh.</p>
+            <p>The server says somethin' went wrong, bruh.</p>
+            <p>@ObserveValue(ViewModel.FailureMessage)</p>
+            break;
+        case SigninStatus.ProtocolError:
+            <p>Bruh.</p>
+            <p>The server returned some crazy bogus data, bruh.</p>
+            break;
+        case SigninStatus.Success:
+            <h1>Signed in.</h1>
+            break;
+        default:
+            <h1>Signing in...</h1>
+            break;
+    }
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var @params = QueryHelpers.ParseQuery(NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query);
+
+        ViewModel.Status
+            .Where(status => status == SigninStatus.Success)
+            .Subscribe(status => NavigationManager.NavigateTo(
+                (@params.TryGetValue("state", out var returnUri) && !string.IsNullOrWhiteSpace(returnUri))
+                    ? returnUri
+                    : ""));
+
+        if (@params.TryGetValue("code", out var code) && !string.IsNullOrWhiteSpace(code))
+            await ViewModel.SigninAsync(
+                code:           code,
+                redirectUri:    NavigationManager.ToAbsoluteUri("signin").AbsoluteUri);
+        else
+            _isCodeMissing = true;
+
+        StateHasChanged();
+    }
+
+    private bool _isCodeMissing;
+}

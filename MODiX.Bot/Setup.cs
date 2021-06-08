@@ -11,6 +11,7 @@ using Remora.Discord.Gateway.Extensions;
 using Modix.Bot.Commands;
 using Modix.Bot.Controls;
 using Modix.Bot.Parsers;
+using Modix.Business;
 
 namespace Modix.Bot
 {
@@ -18,11 +19,7 @@ namespace Modix.Bot
     {
         public static IServiceCollection AddModixBot(this IServiceCollection services, IConfiguration configuration)
             => services
-                .Add(services => services.AddOptions<ModixBotConfiguration>()
-                    .Bind(configuration.GetSection("MODiX").GetSection("Bot"))
-                    .ValidateDataAnnotations()
-                    .ValidateOnStartup())
-                .AddDiscordGateway(serviceProvider => serviceProvider.GetRequiredService<IOptions<ModixBotConfiguration>>().Value.BotToken)
+                .AddDiscordGateway(serviceProvider => serviceProvider.GetRequiredService<IOptions<DiscordConfiguration>>().Value.BotToken)
                 .Configure<DiscordGatewayClientOptions>(options => options.Intents =
                     GatewayIntents.Guilds
                     | GatewayIntents.GuildMessages

@@ -11,9 +11,7 @@ namespace Modix.Bot
         : BackgroundService
     {
         public ModixBot(DiscordGatewayClient client)
-        {
-            _client = client;
-        }
+            => _client = client;
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
             => _client.RunAsync(stoppingToken);

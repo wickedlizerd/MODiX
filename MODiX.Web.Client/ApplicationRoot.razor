@@ -1,0 +1,38 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Routing
+
+@namespace Modix.Web.Client
+
+@inherits ViewBase<ApplicationRootModel>
+<!-- CSS Isolation styles don't work on application root components. Need a nested div. -->
+<div name="root">
+    <nav>
+        <h2>Menu</h2>
+    </nav>
+    <section>
+        <CascadingAuthenticationState>
+            <Router AppAssembly="@typeof(ApplicationRoot).Assembly">
+                <Found Context="routeData">
+                    <AuthorizeRouteView RouteData="@routeData">
+                        <NotAuthorized>
+                            @if (context.User.Identity?.IsAuthenticated ?? false)
+                            {
+                                <p>Bruh.</p>
+                                <p>You ain't got permissions for that, bruh.</p>
+                            }
+                            else
+                            {
+                                <p>Bruh.</p>
+                                <p>You ain't logged in, bruh.</p>
+                            }
+                        </NotAuthorized>
+                    </AuthorizeRouteView>
+                </Found>
+                <NotFound>
+                    <p>Bruh.</p>
+                    <p>There ain't no page here, bruh.</p>
+                </NotFound>
+            </Router>
+        </CascadingAuthenticationState>
+    </section>
+</div>

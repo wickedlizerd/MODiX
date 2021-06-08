@@ -2,11 +2,11 @@
 using System.Reactive.Linq;
 using System.Reactive.PlatformServices;
 
-namespace Modix.Web
+namespace Modix.Web.Client
 {
-    public class ApplicationViewModel
+    public class HomePageModel
     {
-        public ApplicationViewModel(ISystemClock systemClock)
+        public HomePageModel(ISystemClock systemClock)
             => Now = Observable.Timer(
                     dueTime:    TimeSpan.Zero,
                     period:     TimeSpan.FromMilliseconds(10))

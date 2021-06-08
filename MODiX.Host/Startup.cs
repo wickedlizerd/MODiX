@@ -33,7 +33,7 @@ namespace Modix.Host
                 .AddSingleton<ISystemClock, DefaultSystemClock>()
                 .AddModixBot(_configuration)
                 .AddModixBusiness(_configuration)
-                .AddModixWebServer();
+                .AddModixWebServer(_configuration);
 
         public void Configure(IApplicationBuilder application)
         {
@@ -46,6 +46,7 @@ namespace Modix.Host
                     .UseWebAssemblyDebugging();
 
             application
+                .UseHttpsRedirection()
                 .UseBlazorFrameworkFiles()
                 .UseStaticFiles()
                 .UseModixWebServer()

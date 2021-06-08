@@ -1,6 +1,8 @@
-﻿@using Humanizer
+﻿@using System.Collections.Immutable
+
 @using Microsoft.AspNetCore.Components.Web
-@using System.Collections.Immutable
+
+@using Humanizer
 
 @namespace Modix.Web.Client.Diagnostics
 
@@ -26,7 +28,8 @@
         @foreach (var item in ObserveValue(ViewModel.PingTestStates, ImmutableList<PingTestState>.Empty))
         {
             <dt>@item.EndpointName</dt>
-            <dd>@(item.HasCompleted
+            <dd>
+                @(item.HasCompleted
                 ? (item.Latency >= TimeSpan.Zero)
                     ? $"{item.Latency.Value.TotalMilliseconds: 0}ms"
                     : item.Status.ToString().Humanize()

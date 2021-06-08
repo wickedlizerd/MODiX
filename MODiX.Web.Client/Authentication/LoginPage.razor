@@ -1,0 +1,25 @@
+﻿@page "/login"
+
+@using Microsoft.AspNetCore.WebUtilities;
+
+@inherits ViewBase<LoginPageModel>
+
+@inject NavigationManager NavigationManager
+
+@if (ObserveValue(ViewModel.LoginUri) is null)
+{
+    <h1>Loading...</h1>
+}
+else
+{
+    <h1><a href="@ObserveValue(ViewModel.LoginUri)">Login</a></h1>
+}
+
+@code {
+    protected override Task OnInitializedAsync()
+        => ViewModel.StartLoginAsync(
+            redirectUri:    NavigationManager.ToAbsoluteUri("signin").AbsoluteUri,
+            state:          QueryHelpers.ParseQuery(NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query).TryGetValue("returnuri", out var returnUri)
+                ? returnUri.ToString()
+                : null);
+}
