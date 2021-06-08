@@ -141,11 +141,11 @@ namespace Modix.Web.Server.Authentication
                     new Uri(Constants.BaseURL, "oauth2/authorize").AbsoluteUri,
                     new Dictionary<string, string?>()
                     {
-                        ["client_id"] = _discordConfiguration.Value.ClientId,
-                        ["redirect_uri"] = request.RedirectUri,
-                        ["response_type"] = "code",
-                        ["scope"] = "identify guilds",
-                        ["state"] = request.State
+                        ["client_id"]       = _discordConfiguration.Value.ClientId,
+                        ["redirect_uri"]    = request.RedirectUri,
+                        ["response_type"]   = "code",
+                        ["scope"]           = "identify",
+                        ["state"]           = request.State
                     })));
 
         private readonly IOptions<AuthenticationConfiguration> _authenticationConfiguration;

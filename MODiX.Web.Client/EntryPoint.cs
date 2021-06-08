@@ -2,6 +2,7 @@
 using System.Reactive.PlatformServices;
 using System.Threading.Tasks;
 
+using Grpc.Core;
 using Grpc.Net.Client;
 using Grpc.Net.Client.Web;
 
@@ -31,10 +32,18 @@ namespace Modix.Web.Client
                 .AddAuthorizationCore()
                 .AddSingleton<ISystemClock, DefaultSystemClock>()
                 .AddSingleton<ILocalStorageManager, LocalStorageManager>()
-                .AddSingleton(services => GrpcChannel.ForAddress(
+                .AddSingleton(serviceProvider => GrpcChannel.ForAddress(
                     hostBuilder.HostEnvironment.BaseAddress,
                     new GrpcChannelOptions
                     {
+                        Credentials = ChannelCredentials.Create(new SslCredentials(), CallCredentials.FromInterceptor((context, metadata) =>
+                        {
+                            var token = serviceProvider.GetRequiredService<IAuthenticationManager>().BearerToken;
+                            if (!string.IsNullOrWhiteSpace(token))
+                                metadata.Add("Authorization", $"Bearer {token}");
+
+                            return Task.CompletedTask;
+                        })),
                         HttpHandler = new GrpcWebHandler(GrpcWebMode.GrpcWebText, new HttpClientHandler())
                     }))
                 .AddDiagnostics()

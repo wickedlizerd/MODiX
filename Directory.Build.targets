@@ -7,6 +7,7 @@
     <PackageReference Update="Grpc.Net.Client" Version="2.35.0" />
     <PackageReference Update="Grpc.Net.Client.Web" Version="2.35.0" />
     <PackageReference Update="Humanizer" Version="2.8.26" />
+    <PackageReference Update="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.6" />
     <PackageReference Update="Microsoft.AspNetCore.Components.Authorization" Version="5.0.3" />
     <PackageReference Update="Microsoft.AspNetCore.Components.WebAssembly" Version="5.0.3" />
     <PackageReference Update="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.3" />

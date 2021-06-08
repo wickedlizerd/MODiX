@@ -12,11 +12,13 @@ namespace Modix.Web.Client.Authentication
 {
     public interface IAuthenticationManager
     {
+        string? BearerToken { get; }
+
         IObservable<AuthenticationTicket?> CurrentTicket { get; }
 
         Task<AuthenticationState> GetAuthenticationStateAsync();
 
-        void OnSignedIn(AuthenticationTicket ticket);
+        void OnSignedIn(string bearerToken, AuthenticationTicket ticket);
 
         void OnSignedOut();
     }
@@ -28,6 +30,7 @@ namespace Modix.Web.Client.Authentication
         public AuthenticationManager(
             ILocalStorageManager localStorageManager)
         {
+            _bearerToken            = null;
             _currentState           = _unauthenticatedState;
             _currentTicket          = new BehaviorSubject<AuthenticationTicket?>(null);
             _localStorageManager    = localStorageManager;
@@ -38,9 +41,10 @@ namespace Modix.Web.Client.Authentication
             {
                 try
                 {
+                    var token = await _localStorageManager.TryGetValueAsync<string>(BearerTokenStorageKey);
                     var ticket = await _localStorageManager.TryGetValueAsync<AuthenticationTicket>(CurrentTicketStorageKey);
-                    if (ticket != null)
-                        OnSignedIn(ticket);
+                    if ((token is not null) && (ticket is not null))
+                        OnSignedIn(token, ticket);
                 }
                 catch (Exception ex)
                 {
@@ -50,16 +54,20 @@ namespace Modix.Web.Client.Authentication
             }
         }
 
+        public string? BearerToken
+            => _bearerToken;
+
         public IObservable<AuthenticationTicket?> CurrentTicket
             => _currentTicket;
 
         public override Task<AuthenticationState> GetAuthenticationStateAsync()
             => Task.FromResult(_currentState);
 
-        public void OnSignedIn(AuthenticationTicket ticket)
+        public void OnSignedIn(string bearerToken, AuthenticationTicket ticket)
         {
-            SaveToLocalStorage(ticket);
+            SaveToLocalStorage(bearerToken, ticket);
 
+            _bearerToken = bearerToken;
             _currentTicket.OnNext(ticket);
 
             var state = new AuthenticationState(
@@ -75,10 +83,11 @@ namespace Modix.Web.Client.Authentication
             _currentState = state;
             NotifyAuthenticationStateChanged(Task.FromResult(_currentState));
 
-            async void SaveToLocalStorage(AuthenticationTicket ticket)
+            async void SaveToLocalStorage(string token, AuthenticationTicket ticket)
             {
                 try
                 {
+                    await _localStorageManager.SetValueAsync(BearerTokenStorageKey, token);
                     await _localStorageManager.SetValueAsync(CurrentTicketStorageKey, ticket);
                 }
                 catch (Exception ex)
@@ -93,6 +102,7 @@ namespace Modix.Web.Client.Authentication
         {
             ClearLocalStorage();
 
+            _bearerToken = null;
             _currentTicket.OnNext(null);
             _currentState = _unauthenticatedState;
             NotifyAuthenticationStateChanged(Task.FromResult(_currentState));
@@ -101,6 +111,7 @@ namespace Modix.Web.Client.Authentication
             {
                 try
                 {
+                    await _localStorageManager.RemoveKeyAsync(BearerTokenStorageKey);
                     await _localStorageManager.RemoveKeyAsync(CurrentTicketStorageKey);
                 }
                 catch (Exception ex)
@@ -114,8 +125,11 @@ namespace Modix.Web.Client.Authentication
         private readonly BehaviorSubject<AuthenticationTicket?> _currentTicket;
         private readonly ILocalStorageManager                   _localStorageManager;
 
+        private string?             _bearerToken;
         private AuthenticationState _currentState;
 
+        private const string BearerTokenStorageKey
+            = "AuthenticationManager.BearerToken";
         private const string CurrentTicketStorageKey
             = "AuthenticationManager.CurrentTicket";
 

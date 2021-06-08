@@ -9,9 +9,9 @@ using Modix.Web.Protocol.Diagnostics;
 
 namespace Modix.Web.Client.Diagnostics
 {
-    public class DiagnosticsViewModel
+    public class DiagnosticsPageModel
     {
-        public DiagnosticsViewModel(IDiagnosticsContract diagnosticsContract)
+        public DiagnosticsPageModel(IDiagnosticsContract diagnosticsContract)
         {
             _pingTestStartRequested = new Subject<Unit>();
 

@@ -1,0 +1,13 @@
+﻿@page "/logout"
+
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Web
+
+@namespace Modix.Web.Client.Authentication
+
+@inherits ViewBase<LogoutPageModel>
+
+@attribute [Authorize]
+@inject NavigationManager NavigationManager
+
+<h1><NavLink href="#" @onclick="ViewModel.Logout">Logout</NavLink></h1>

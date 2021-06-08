@@ -1,12 +1,16 @@
-﻿@using System.Collections.Immutable
+﻿@page "/diagnostics"
 
+@using System.Collections.Immutable
+
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Web
 
 @using Humanizer
 
 @namespace Modix.Web.Client.Diagnostics
 
-@inherits ViewBase<DiagnosticsViewModel>
+@attribute [Authorize]
+@inherits ViewBase<DiagnosticsPageModel>
 
 <div>
     <div>

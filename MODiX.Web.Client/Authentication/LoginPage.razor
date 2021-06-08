@@ -1,25 +1,60 @@
 ﻿@page "/login"
 
+@using System.Reactive.Linq
+
 @using Microsoft.AspNetCore.WebUtilities;
+
+@namespace Modix.Web.Client.Authentication
 
 @inherits ViewBase<LoginPageModel>
 
 @inject NavigationManager NavigationManager
 
-@if (ObserveValue(ViewModel.LoginUri) is null)
+@switch (ObserveValue(ViewModel.Status, LoginStatus.Loading))
 {
-    <h1>Loading...</h1>
-}
-else
-{
-    <h1><a href="@ObserveValue(ViewModel.LoginUri)">Login</a></h1>
+    case LoginStatus.Idle:
+        <h1><a href="@ObserveValue(ViewModel.LoginUri)">Login</a></h1>
+        break;
+    case LoginStatus.ServerFailure:
+        <p>Bruh.</p>
+        <p>The server says somethin' went wrong, bruh.</p>
+        <p>@ObserveValue(ViewModel.FailureMessage)</p>
+        break;
+    case LoginStatus.ProtocolError:
+        <p>Bruh.</p>
+        <p>The server returned some crazy bogus data, bruh.</p>
+        break;
+    case LoginStatus.Success:
+        <h1>Signed in.</h1>
+        break;
+    default:
+        <h1>Loading...</h1>
+        break;
 }
 
 @code {
     protected override Task OnInitializedAsync()
-        => ViewModel.StartLoginAsync(
-            redirectUri:    NavigationManager.ToAbsoluteUri("signin").AbsoluteUri,
-            state:          QueryHelpers.ParseQuery(NavigationManager.ToAbsoluteUri(NavigationManager.Uri).Query).TryGetValue("returnuri", out var returnUri)
-                ? returnUri.ToString()
-                : null);
+    {
+        var currentUri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+
+        var redirectUri = currentUri.GetComponents(UriComponents.SchemeAndServer | UriComponents.Path, UriFormat.Unescaped);
+        var @params = QueryHelpers.ParseQuery(currentUri.Query);
+
+        ViewModel.Status
+            .Where(status => status == LoginStatus.Success)
+            .Subscribe(status => NavigationManager.NavigateTo(
+                (@params.TryGetValue("state", out var returnUri) && !string.IsNullOrWhiteSpace(returnUri))
+                    ? returnUri
+                    : ""));
+
+        return (@params.TryGetValue("code", out var code) && !string.IsNullOrWhiteSpace(code))
+            ? ViewModel.CompleteLoginAsync(
+                code:           code,
+                redirectUri:    redirectUri)
+            : ViewModel.StartLoginAsync(
+                redirectUri:    redirectUri,
+                state:          @params.TryGetValue("returnuri", out var returnUri)
+                    ? returnUri.ToString()
+                    : null);
+    }
 }

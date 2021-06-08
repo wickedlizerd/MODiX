@@ -2,11 +2,14 @@
 using System.Linq;
 using System.Reactive.Linq;
 
+using Microsoft.AspNetCore.Authorization;
+
 using Modix.Business.Diagnostics;
 using Modix.Web.Protocol.Diagnostics;
 
 namespace Modix.Web.Server.Diagnostics
 {
+    [Authorize]
     public class DiagnosticsContract
         : IDiagnosticsContract
     {

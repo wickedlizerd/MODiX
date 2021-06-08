@@ -11,6 +11,6 @@ namespace Modix.Web.Client.Diagnostics
         public static IServiceCollection AddDiagnostics(this IServiceCollection services)
             => services
                 .AddContractClient<IDiagnosticsContract>()
-                .AddTransient<DiagnosticsViewModel>();
+                .AddTransient<DiagnosticsPageModel>();
     }
 }

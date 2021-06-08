@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Grpc.AspNetCore.Web" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="protobuf-net.BuildTools" />
     <PackageReference Include="protobuf-net.Grpc.AspNetCore" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" />

@@ -11,11 +11,9 @@ namespace Modix.Web.Client.Authentication
     {
         public static IServiceCollection AddAuthentication(this IServiceCollection services)
             => services
-                .AddSingleton<AuthenticationManager>()
-                .AddSingletonAlias<IAuthenticationManager, AuthenticationManager>()
-                .AddSingletonAlias<AuthenticationStateProvider, AuthenticationManager>()
+                .AddSingletonWithAliases<AuthenticationManager, IAuthenticationManager, AuthenticationStateProvider>()
                 .AddContractClient<IAuthenticationContract>()
                 .AddTransient<LoginPageModel>()
-                .AddTransient<SigninPageModel>();
+                .AddTransient<LogoutPageModel>();
     }
 }
