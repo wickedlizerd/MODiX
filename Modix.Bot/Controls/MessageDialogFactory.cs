@@ -16,7 +16,7 @@ namespace Modix.Bot.Controls
             Snowflake channelId,
             IReadOnlyList<string> buttonEmojiNames,
             Optional<string> content = default,
-            Optional<IEmbed> embed = default);
+            Optional<IReadOnlyList<IEmbed>> embeds = default);
     }
 
     public class MessageDialogFactory
@@ -41,7 +41,7 @@ namespace Modix.Bot.Controls
                 Snowflake channelId,
                 IReadOnlyList<string> buttonEmojiNames,
                 Optional<string> content = default,
-                Optional<IEmbed> embed = default)
+                Optional<IReadOnlyList<IEmbed>> embeds = default)
             => MessageDialog.CreateAsync(
                 channelApi:         _channelApi,
                 buttonFactory:      _buttonFactory,
@@ -52,7 +52,7 @@ namespace Modix.Bot.Controls
                 channelId:          channelId,
                 buttonEmojiNames:   buttonEmojiNames,
                 content:            content,
-                embed:              embed);
+                embeds:             embeds);
 
         private readonly IDiscordRestChannelAPI _channelApi;
         private readonly IReactionButtonFactory _buttonFactory;

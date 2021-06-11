@@ -25,12 +25,12 @@ namespace Modix.Bot.Controls
             Snowflake channelId,
             IReadOnlyList<string> buttonEmojiNames,
             Optional<string> content,
-            Optional<IEmbed> embed)
+            Optional<IReadOnlyList<IEmbed>> embeds)
         {
             var createMessageResult = await channelApi.CreateMessageAsync(
                 channelID:  channelId,
                 content:    content,
-                embed:      embed);
+                embeds:     embeds);
             if (!createMessageResult.IsSuccess)
                 throw ControlException.FromError("Uncable to create dialog", createMessageResult.Error);
 
@@ -86,13 +86,13 @@ namespace Modix.Bot.Controls
 
         public async Task UpdateAsync(
             Optional<string?> content = default,
-            Optional<IEmbed?> embed = default)
+            Optional<IReadOnlyList<IEmbed>> embeds = default)
         {
             var editMessageResult = await _channelApi.EditMessageAsync(
                 channelID:  ChannelId,
                 messageID:  MessageId,
                 content:    content,
-                embed:      embed);
+                embeds:     embeds);
             if (!editMessageResult.IsSuccess)
                 throw ControlException.FromError("Unable to update the dialog", editMessageResult.Error);
         }

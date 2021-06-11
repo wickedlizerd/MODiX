@@ -153,7 +153,7 @@ namespace Modix.Bot.Commands
                 channelID:  createMessageResult.Entity.ChannelID,
                 messageID:  createMessageResult.Entity.ID,
                 content:    "",
-                embed:      embed);
+                embeds:     new[] { embed });
             return editMessageResult.IsSuccess
                 ? Result.FromSuccess()
                 : Result.FromError(editMessageResult);
