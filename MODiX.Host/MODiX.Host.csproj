@@ -11,6 +11,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\MODiX.Bot\MODiX.Bot.csproj" />
+    <ProjectReference Include="..\MODiX.Data.Migrations\MODiX.Data.Migrations.csproj" />
     <ProjectReference Include="..\MODiX.Web.Client\MODiX.Web.Client.csproj" />
     <ProjectReference Include="..\MODiX.Web.Server\MODiX.Web.Server.csproj" />
   </ItemGroup>

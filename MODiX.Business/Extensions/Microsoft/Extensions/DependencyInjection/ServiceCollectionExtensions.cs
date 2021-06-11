@@ -12,9 +12,5 @@ namespace Microsoft.Extensions.DependencyInjection
 
             return services;
         }
-
-        public static IServiceCollection AddStartupAction<T>(this IServiceCollection services)
-                where T : StartupActionBase
-            => services.AddTransient<IHostedService, T>();
     }
 }

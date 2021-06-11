@@ -109,14 +109,15 @@ dotnet_naming_symbols.constants.required_modifiers = const
 dotnet_naming_style.constant_style.capitalization = pascal_case
 
 # Fields are camelCase and start with _
-dotnet_naming_rule.fields_should_be_camel_case.severity = suggestion
-dotnet_naming_rule.fields_should_be_camel_case.symbols = fields
-dotnet_naming_rule.fields_should_be_camel_case.style = field_style
+dotnet_naming_rule.private_fields_should_be_camel_case_with_underscore.severity = suggestion
+dotnet_naming_rule.private_fields_should_be_camel_case_with_underscore.symbols = private_fields
+dotnet_naming_rule.private_fields_should_be_camel_case_with_underscore.style = private_field_style
 
-dotnet_naming_symbols.fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
 
-dotnet_naming_style.field_style.capitalization = camel_case
-dotnet_naming_style.field_style.required_prefix = _
+dotnet_naming_style.private_field_style.capitalization = camel_case
+dotnet_naming_style.private_field_style.required_prefix = _
 
 # Locals and parameters are camelCase
 dotnet_naming_rule.locals_should_be_camel_case.severity = suggestion

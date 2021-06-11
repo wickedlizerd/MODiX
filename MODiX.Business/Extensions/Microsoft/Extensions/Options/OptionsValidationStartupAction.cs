@@ -11,11 +11,8 @@ namespace Microsoft.Extensions.Options
             : StartupActionBase
         where TOptions : class, new()
     {
-        public OptionsValidationStartupAction(
-            IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
+        public OptionsValidationStartupAction(IServiceProvider serviceProvider)
+            => _serviceProvider = serviceProvider;
 
         protected override Task OnStartupAsync(CancellationToken cancellationToken)
         {

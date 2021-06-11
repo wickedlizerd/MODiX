@@ -4,7 +4,9 @@ using Microsoft.Extensions.Options;
 
 using Remora.Discord.Gateway.Reaction;
 
+using Modix.Business.Authorization;
 using Modix.Business.Diagnostics;
+using Modix.Business.Users;
 
 namespace Modix.Business
 {
@@ -16,7 +18,9 @@ namespace Modix.Business
                     .Bind(configuration.GetSection("Discord"))
                     .ValidateDataAnnotations()
                     .ValidateOnStartup())
+                .AddGatewayReaction()
+                .AddAuthorization(configuration)
                 .AddDiagnostics(configuration)
-                .AddGatewayReaction();
+                .AddUsers(configuration);
     }
 }

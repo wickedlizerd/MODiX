@@ -1,7 +1,19 @@
-﻿namespace System.Reactive.Linq
+﻿using System.Threading.Tasks;
+
+namespace System.Reactive.Linq
 {
     public static class ObservableExtensions
     {
+        public static IObservable<Unit> SelectMany<TSource>(
+                this IObservable<TSource>   source,
+                Func<TSource, ValueTask>    action)
+            => source.SelectMany(async value =>
+            {
+                await action.Invoke(value);
+
+                return Unit.Default;
+            });
+
         public static IObservable<T> Share<T>(this IObservable<T> source)
             => source
                 .Publish()

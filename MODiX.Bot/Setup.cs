@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 using Remora.Discord.API.Abstractions.Gateway.Commands;
@@ -17,13 +15,15 @@ namespace Modix.Bot
 {
     public static class Setup
     {
-        public static IServiceCollection AddModixBot(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddModixBot(this IServiceCollection services)
             => services
                 .AddDiscordGateway(serviceProvider => serviceProvider.GetRequiredService<IOptions<DiscordConfiguration>>().Value.BotToken)
                 .Configure<DiscordGatewayClientOptions>(options => options.Intents =
                     GatewayIntents.Guilds
+                    | GatewayIntents.GuildMembers
                     | GatewayIntents.GuildMessages
-                    | GatewayIntents.GuildMessageReactions)
+                    | GatewayIntents.GuildMessageReactions
+                    | GatewayIntents.GuildPresences)
                 .AddHostedService<ModixBot>()
                 .AddDiscordCommands()
                 .AddModixCommands()

@@ -32,7 +32,7 @@ namespace Modix.Web.Server.Authentication
                         .IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(authenticationConfiguration.Value.TokenSignatureSecret)))
                 .AddScopedWithAlias<AuthenticationContract, IAuthenticationContract>()
                 .Add(services => services.AddOptions<AuthenticationConfiguration>()
-                    .Bind(configuration.GetSection("Authentication"))
+                    .Bind(configuration.GetSection("MODiX:Web:Server:Authentication"))
                     .ValidateDataAnnotations()
                     .ValidateOnStartup());
 

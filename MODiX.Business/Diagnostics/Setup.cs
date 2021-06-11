@@ -9,7 +9,7 @@ namespace Modix.Business.Diagnostics
         public static IServiceCollection AddDiagnostics(this IServiceCollection services, IConfiguration configuration)
             => services
                 .Add(services => services.AddOptions<DiagnosticsConfiguration>()
-                    .Bind(configuration.GetSection("MODiX").GetSection("Business").GetSection("Diagnostics"))
+                    .Bind(configuration.GetSection("MODiX:Business:Diagnostics"))
                     .ValidateDataAnnotations()
                     .ValidateOnStartup())
                 .AddSingleton<IDiagnosticsManager, DiagnosticsManager>()
