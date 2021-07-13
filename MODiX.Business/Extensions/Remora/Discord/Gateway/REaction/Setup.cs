@@ -13,7 +13,10 @@ namespace Remora.Discord.Gateway.Reaction
         public static IServiceCollection AddGatewayReaction(this IServiceCollection services)
             => services
                 .AddGatewayReaction<IChannelDelete>()
+                .AddGatewayReaction<IChannelUpdate>()
+                .AddGatewayReaction<IGuildCreate>()
                 .AddGatewayReaction<IGuildDelete>()
+                .AddGatewayReaction<IGuildUpdate>()
                 .AddGatewayReaction<IGuildMemberAdd>()
                 .AddGatewayReaction<IGuildMemberUpdate>()
                 .AddGatewayReaction<IMessageCreate>()
@@ -21,8 +24,7 @@ namespace Remora.Discord.Gateway.Reaction
                 .AddGatewayReaction<IMessageReactionAdd>()
                 .AddGatewayReaction<IMessageReactionRemove>()
                 .AddGatewayReaction<IMessageUpdate>()
-                .AddGatewayReaction<IPresenceUpdate>()
-            ;
+                .AddGatewayReaction<IPresenceUpdate>();
 
         public static IServiceCollection AddGatewayReaction<TGatewayEvent>(this IServiceCollection services)
                 where TGatewayEvent : IGatewayEvent

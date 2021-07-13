@@ -16,7 +16,7 @@ namespace Modix.Web.Client
         {
             if (!_hasDisposed)
             {
-                OnDisposing(disposeManagedResources: false);
+                OnDisposing(DisposalType.Managed);
                 _hasDisposed = true;
             }
         }
@@ -25,7 +25,7 @@ namespace Modix.Web.Client
         {
             if (!_hasDisposed)
             {
-                OnDisposing(disposeManagedResources: true);
+                OnDisposing(DisposalType.Managed);
                 GC.SuppressFinalize(this);
                 _hasDisposed = true;
             }
@@ -51,9 +51,9 @@ namespace Modix.Web.Client
                 where T : class
             => ObserveValueInternal(source, default);
 
-        protected virtual void OnDisposing(bool disposeManagedResources)
+        protected virtual void OnDisposing(DisposalType disposalType)
         {
-            if (disposeManagedResources)
+            if (disposalType == DisposalType.Managed)
             {
                 foreach (var observation in _observationsBySource.Values)
                     observation.Dispose();

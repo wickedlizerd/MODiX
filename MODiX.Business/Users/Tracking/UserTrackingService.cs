@@ -6,13 +6,15 @@ using System.Threading.Tasks;
 using Modix.Common.ObjectModel;
 using Modix.Data.Users;
 
+using Snowflake = Remora.Discord.Core.Snowflake;
+
 namespace Modix.Business.Users.Tracking
 {
     public interface IUserTrackingService
     {
         ValueTask TrackUserAsync(
-            ulong               guildId,
-            ulong               userId,
+            Snowflake           guildId,
+            Snowflake           userId,
             Optional<string>    username,
             Optional<ushort>    discriminator,
             Optional<string?>   avatarHash,
@@ -34,8 +36,8 @@ namespace Modix.Business.Users.Tracking
         }
 
         public async ValueTask TrackUserAsync(
-            ulong               guildId,
-            ulong               userId,
+            Snowflake           guildId,
+            Snowflake           userId,
             Optional<string>    username,
             Optional<ushort>    discriminator,
             Optional<string?>   avatarHash,
@@ -52,7 +54,7 @@ namespace Modix.Business.Users.Tracking
 
             using (var @lock = await _userTrackingCache.LockAsync(cancellationToken))
             {
-                var currentModel = _userTrackingCache.TryGetModel(userId);
+                var currentModel = _userTrackingCache.TryGetEntry(userId);
 
                 isSaveNeeded = (currentModel is null)
                     || (username.IsSpecified && (currentModel.Username != username))
@@ -61,11 +63,11 @@ namespace Modix.Business.Users.Tracking
                     || (nickname.IsSpecified && !currentModel.NicknamesByGuildId.Contains(new(guildId, nickname.Value)));
 
                 if (isSaveNeeded)
-                    _userTrackingCache.RemoveModel(userId);
+                    _userTrackingCache.RemoveEntry(userId);
 
-                var nicknamesByGuildId = currentModel?.NicknamesByGuildId ?? ImmutableDictionary<ulong, string?>.Empty;
+                var nicknamesByGuildId = currentModel?.NicknamesByGuildId ?? ImmutableDictionary<Snowflake, string?>.Empty;
 
-                _userTrackingCache.SetModel(new(
+                _userTrackingCache.SetEntry(new(
                     userId:             userId,
                     username:           username,
                     discriminator:      discriminator,

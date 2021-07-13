@@ -12,7 +12,7 @@ using Modix.Web.Protocol.Authentication;
 
 namespace Modix.Web.Server.Authentication
 {
-    public static class AuthenticationSetup
+    public static class Setup
     {
         public static IServiceCollection AddAuthentication(this IServiceCollection services, IConfiguration configuration)
             => services

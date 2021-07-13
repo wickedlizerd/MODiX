@@ -2,16 +2,17 @@
 using System.Reactive.PlatformServices;
 using System.Threading.Tasks;
 
-using Grpc.Core;
-using Grpc.Net.Client;
-using Grpc.Net.Client.Web;
-
 using Microsoft.AspNetCore.Components.WebAssembly.Browser;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
+using Grpc.Core;
+using Grpc.Net.Client;
+using Grpc.Net.Client.Web;
+
 using Modix.Web.Client.Authentication;
 using Modix.Web.Client.Diagnostics;
+using Modix.Web.Client.Guilds;
 using Modix.Web.Protocol;
 
 namespace Modix.Web.Client
@@ -47,6 +48,7 @@ namespace Modix.Web.Client
                         HttpHandler = new GrpcWebHandler(GrpcWebMode.GrpcWebText, new HttpClientHandler())
                     }))
                 .AddDiagnostics()
+                .AddGuilds()
                 .AddTransient<ApplicationRootModel>()
                 .AddTransient<HomePageModel>();
 

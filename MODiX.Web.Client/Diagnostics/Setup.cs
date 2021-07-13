@@ -6,7 +6,7 @@ using Modix.Web.Protocol.Diagnostics;
 
 namespace Modix.Web.Client.Diagnostics
 {
-    public static class DiagnosticsSetup
+    public static class Setup
     {
         public static IServiceCollection AddDiagnostics(this IServiceCollection services)
             => services

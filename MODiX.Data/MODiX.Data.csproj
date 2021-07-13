@@ -7,6 +7,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="Remora.Discord.API.Abstractions" />
   </ItemGroup>
 
   <ItemGroup>

@@ -16,8 +16,245 @@ namespace Modix.Data.Migrations.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "5.0.6")
+                .HasAnnotation("ProductVersion", "5.0.7")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+            modelBuilder.Entity("Modix.Data.Auditing.AuditedActionCategoryEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("AuditedActionCategories", "Auditing");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 16777216,
+                            Name = "Administration"
+                        });
+                });
+
+            modelBuilder.Entity("Modix.Data.Auditing.AuditedActionEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTimeOffset>("Performed")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long?>("PerformedById")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("TypeId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PerformedById");
+
+                    b.HasIndex("TypeId");
+
+                    b.ToTable("AuditedActions", "Auditing");
+                });
+
+            modelBuilder.Entity("Modix.Data.Auditing.AuditedActionTypeEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("AuditedActionTypes", "Auditing");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 16777216,
+                            CategoryId = 16777216,
+                            Name = "Administration"
+                        });
+                });
+
+            modelBuilder.Entity("Modix.Data.Permissions.GuildPermissionMappingEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<long>("CreationId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DeletionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("GuildId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("GuildPermission")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreationId");
+
+                    b.HasIndex("DeletionId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.ToTable("GuildPermissionMappingEntity");
+                });
+
+            modelBuilder.Entity("Modix.Data.Permissions.PermissionCategoryEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("PermissionCategories", "Permissions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 16777216,
+                            Description = "Permissions related to administration of the application",
+                            Name = "Administration"
+                        });
+                });
+
+            modelBuilder.Entity("Modix.Data.Permissions.PermissionEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId", "Name")
+                        .IsUnique();
+
+                    b.ToTable("Permissions", "Permissions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 16843008,
+                            CategoryId = 16777216,
+                            Description = "Allows reading of application permissions information",
+                            Name = "PermissionsRead"
+                        },
+                        new
+                        {
+                            Id = 16843264,
+                            CategoryId = 16777216,
+                            Description = "Allows editing of application permissions assignments",
+                            Name = "PermissionsEdit"
+                        },
+                        new
+                        {
+                            Id = 16908544,
+                            CategoryId = 16777216,
+                            Description = "Allows reading of application diagnostics information",
+                            Name = "DiagnosticsRead"
+                        },
+                        new
+                        {
+                            Id = 16908800,
+                            CategoryId = 16777216,
+                            Description = "Allows execution of application diagnostics tests",
+                            Name = "DiagnosticsExecute"
+                        });
+                });
+
+            modelBuilder.Entity("Modix.Data.Permissions.RolePermissionMappingEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<long>("CreationId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DeletionId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("GuildId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("RoleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreationId");
+
+                    b.HasIndex("DeletionId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.ToTable("RolePermissionMappingEntity");
+                });
 
             modelBuilder.Entity("Modix.Data.Users.GuildUserEntity", b =>
                 {
@@ -136,6 +373,95 @@ namespace Modix.Data.Migrations.Migrations
                     b.ToTable("UserVersions", "Users");
                 });
 
+            modelBuilder.Entity("Modix.Data.Auditing.AuditedActionEntity", b =>
+                {
+                    b.HasOne("Modix.Data.Users.UserEntity", "PerformedBy")
+                        .WithMany()
+                        .HasForeignKey("PerformedById");
+
+                    b.HasOne("Modix.Data.Auditing.AuditedActionTypeEntity", "Type")
+                        .WithMany()
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PerformedBy");
+
+                    b.Navigation("Type");
+                });
+
+            modelBuilder.Entity("Modix.Data.Auditing.AuditedActionTypeEntity", b =>
+                {
+                    b.HasOne("Modix.Data.Auditing.AuditedActionCategoryEntity", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Modix.Data.Permissions.GuildPermissionMappingEntity", b =>
+                {
+                    b.HasOne("Modix.Data.Auditing.AuditedActionEntity", "Creation")
+                        .WithMany()
+                        .HasForeignKey("CreationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Modix.Data.Auditing.AuditedActionEntity", "Deletion")
+                        .WithMany()
+                        .HasForeignKey("DeletionId");
+
+                    b.HasOne("Modix.Data.Permissions.PermissionEntity", "Permission")
+                        .WithMany()
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Creation");
+
+                    b.Navigation("Deletion");
+
+                    b.Navigation("Permission");
+                });
+
+            modelBuilder.Entity("Modix.Data.Permissions.PermissionEntity", b =>
+                {
+                    b.HasOne("Modix.Data.Permissions.PermissionCategoryEntity", "Category")
+                        .WithMany("Permissions")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Modix.Data.Permissions.RolePermissionMappingEntity", b =>
+                {
+                    b.HasOne("Modix.Data.Auditing.AuditedActionEntity", "Creation")
+                        .WithMany()
+                        .HasForeignKey("CreationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Modix.Data.Auditing.AuditedActionEntity", "Deletion")
+                        .WithMany()
+                        .HasForeignKey("DeletionId");
+
+                    b.HasOne("Modix.Data.Permissions.PermissionEntity", "Permission")
+                        .WithMany()
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Creation");
+
+                    b.Navigation("Deletion");
+
+                    b.Navigation("Permission");
+                });
+
             modelBuilder.Entity("Modix.Data.Users.GuildUserEntity", b =>
                 {
                     b.HasOne("Modix.Data.Users.UserEntity", "User")
@@ -191,6 +517,11 @@ namespace Modix.Data.Migrations.Migrations
                     b.Navigation("PreviousVersion");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Modix.Data.Permissions.PermissionCategoryEntity", b =>
+                {
+                    b.Navigation("Permissions");
                 });
 #pragma warning restore 612, 618
         }

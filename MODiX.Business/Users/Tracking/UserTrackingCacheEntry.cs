@@ -3,18 +3,20 @@ using System.Collections.Immutable;
 
 using Modix.Common.ObjectModel;
 
+using Snowflake = Remora.Discord.Core.Snowflake;
+
 namespace Modix.Business.Users.Tracking
 {
-    internal record UserTrackingModel
+    public record UserTrackingCacheEntry
     {
-        public UserTrackingModel(
-            ulong                               userId,
-            Optional<string>                    username,
-            Optional<ushort>                    discriminator,
-            Optional<string?>                   avatarHash,
-            ImmutableDictionary<ulong, string?> nicknamesByGuildId,
-            DateTimeOffset                      lastUpdated,
-            DateTimeOffset                      lastSaved)
+        public UserTrackingCacheEntry(
+            Snowflake                               userId,
+            Optional<string>                        username,
+            Optional<ushort>                        discriminator,
+            Optional<string?>                       avatarHash,
+            ImmutableDictionary<Snowflake, string?> nicknamesByGuildId,
+            DateTimeOffset                          lastUpdated,
+            DateTimeOffset                          lastSaved)
         {
             UserId              = userId;
             Username            = username;
@@ -25,7 +27,7 @@ namespace Modix.Business.Users.Tracking
             LastSaved           = lastSaved;
         }
 
-        public ulong UserId { get; init; }
+        public Snowflake UserId { get; init; }
 
         public Optional<string> Username { get; init; }
 
@@ -33,7 +35,7 @@ namespace Modix.Business.Users.Tracking
 
         public Optional<string?> AvatarHash { get; init; }
 
-        public ImmutableDictionary<ulong, string?> NicknamesByGuildId { get; init; }
+        public ImmutableDictionary<Snowflake, string?> NicknamesByGuildId { get; init; }
 
         public DateTimeOffset LastUpdated { get; init; }
 

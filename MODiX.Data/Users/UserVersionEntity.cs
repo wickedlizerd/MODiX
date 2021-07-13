@@ -2,6 +2,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+using Remora.Discord.Core;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -14,13 +16,18 @@ namespace Modix.Data.Users
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; init; }
 
+        [Required]
         [ForeignKey(nameof(User))]
-        public ulong UserId { get; init; }
+        public Snowflake UserId { get; init; }
+
+        [Required]
+        public DateTimeOffset Created { get; init; }
 
         [Required]
         public string Username { get; init; }
             = null!;
 
+        [Required]
         public ushort Discriminator { get; init; }
 
         public string? AvatarHash { get; init; }
@@ -28,8 +35,6 @@ namespace Modix.Data.Users
         public long? PreviousVersionId { get; set; }
 
         public long? NextVersionId { get; set; }
-
-        public DateTimeOffset Created { get; init; }
 
         public UserEntity User { get; init; }
             = null!;
@@ -46,7 +51,7 @@ namespace Modix.Data.Users
         {
             entityBuilder
                 .Property(x => x.UserId)
-                .HasConversion<long>();
+                .HasConversion(SnowflakeValueConverter.Default);
 
             entityBuilder
                 .Property(x => x.Created)

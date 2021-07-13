@@ -26,17 +26,17 @@ namespace Modix.Web.Server.Authentication
         : IAuthenticationContract
     {
         public AuthenticationContract(
-            IOptions<AuthenticationConfiguration> authenticationConfiguration,
-            DiscordHttpClient discordClient,
-            IOptions<DiscordConfiguration> discordConfiguration,
-            IServiceScopeFactory serviceScopeFactory,
-            ISystemClock systemClock)
+            IOptions<AuthenticationConfiguration>   authenticationConfiguration,
+            DiscordHttpClient                       discordClient,
+            IOptions<DiscordConfiguration>          discordConfiguration,
+            IServiceScopeFactory                    serviceScopeFactory,
+            ISystemClock                            systemClock)
         {
-            _authenticationConfiguration = authenticationConfiguration;
-            _discordClient = discordClient;
-            _discordConfiguration = discordConfiguration;
-            _serviceScopeFactory = serviceScopeFactory;
-            _systemClock = systemClock;
+            _authenticationConfiguration    = authenticationConfiguration;
+            _discordClient                  = discordClient;
+            _discordConfiguration           = discordConfiguration;
+            _serviceScopeFactory            = serviceScopeFactory;
+            _systemClock                    = systemClock;
         }
 
         public async Task<CompleteLoginResponse> CompleteLoginAsync(CompleteLoginRequest request, CancellationToken cancellationToken)

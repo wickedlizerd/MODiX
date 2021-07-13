@@ -8,9 +8,11 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
+using Remora.Discord.API.Abstractions.Gateway.Events;
+
 using Modix.Common.ObjectModel;
 
-using Remora.Discord.API.Abstractions.Gateway.Events;
+using Snowflake = Remora.Discord.Core.Snowflake;
 
 namespace Modix.Business.Users.Tracking
 {
@@ -30,16 +32,16 @@ namespace Modix.Business.Users.Tracking
                     guildMemberAdded
                         .Where(@event => @event.User.HasValue)
                         .SelectMany(@event => TrackUserAsync(
-                            guildId:            @event.GuildID.Value,
-                            userId:             @event.User.Value!.ID.Value,
+                            guildId:            @event.GuildID,
+                            userId:             @event.User.Value!.ID,
                             username:           @event.User.Value.Username,
                             discriminator:      @event.User.Value.Discriminator,
                             avatarHash:         @event.User.Value.Avatar?.Value,
                             nickname:           @event.Nickname)),
                     guildMemberUpdated
                         .SelectMany(@event => TrackUserAsync(
-                            guildId:            @event.GuildID.Value,
-                            userId:             @event.User.ID.Value,
+                            guildId:            @event.GuildID,
+                            userId:             @event.User.ID,
                             username:           @event.User.Username,
                             discriminator:      @event.User.Discriminator,
                             avatarHash:         @event.User.Avatar?.Value,
@@ -47,8 +49,8 @@ namespace Modix.Business.Users.Tracking
                     messageCreated
                         .Where(@event => @event.GuildID.HasValue)
                         .SelectMany(@event => TrackUserAsync(
-                            guildId:            @event.GuildID.Value.Value,
-                            userId:             @event.Author.ID.Value,
+                            guildId:            @event.GuildID.Value,
+                            userId:             @event.Author.ID,
                             username:           @event.Author.Username,
                             discriminator:      @event.Author.Discriminator,
                             avatarHash:         @event.Author.Avatar?.Value,
@@ -58,8 +60,8 @@ namespace Modix.Business.Users.Tracking
                     messageReactionAdded
                         .Where(@event => @event.GuildID.HasValue && @event.Member.HasValue)
                         .SelectMany(@event => TrackUserAsync(
-                            guildId:            @event.GuildID.Value.Value,
-                            userId:             @event.UserID.Value,
+                            guildId:            @event.GuildID.Value,
+                            userId:             @event.UserID,
                             username:           @event.Member.Value!.User.HasValue
                                 ? @event.Member.Value.User.Value.Username
                                 : Optional.Unspecified<string>(),
@@ -75,8 +77,8 @@ namespace Modix.Business.Users.Tracking
                     messageUpdated
                         .Where(@event => @event.GuildID.HasValue && @event.Author.HasValue)
                         .SelectMany(@event => TrackUserAsync(
-                            guildId:            @event.GuildID.Value.Value,
-                            userId:             @event.Author.Value!.ID.Value,
+                            guildId:            @event.GuildID.Value,
+                            userId:             @event.Author.Value!.ID,
                             username:           @event.Author.Value.Username,
                             discriminator:      @event.Author.Value.Discriminator,
                             avatarHash:         @event.Author.Value.Avatar?.Value,
@@ -86,8 +88,8 @@ namespace Modix.Business.Users.Tracking
                     presenceUpdated
                         .Where(@event => @event.User.ID.HasValue)
                         .SelectMany(@event => TrackUserAsync(
-                            guildId:            @event.GuildID.Value,
-                            userId:             @event.User.ID.Value!.Value,
+                            guildId:            @event.GuildID,
+                            userId:             @event.User.ID.Value,
                             username:           @event.User.Username,
                             discriminator:      @event.User.Discriminator,
                             avatarHash:         @event.User.Avatar.HasValue
@@ -104,8 +106,8 @@ namespace Modix.Business.Users.Tracking
                 .Subscribe();
 
         private async ValueTask TrackUserAsync(
-            ulong               guildId,
-            ulong               userId,
+            Snowflake           userId,
+            Snowflake           guildId,
             Optional<string>    username,
             Optional<ushort>    discriminator,
             Optional<string?>   avatarHash,

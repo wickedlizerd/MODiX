@@ -37,15 +37,15 @@ namespace Modix.Business.Users.Tracking
                     // For those, we will perform a save, and re-add them to the cache, with a new LastSave timestamp.
                     // The rest will be discarded.
 
-                    IReadOnlyList<UserTrackingModel> trackingModelsToSave;
+                    IReadOnlyList<UserTrackingCacheEntry> trackingModelsToSave;
                     using (var @lock = await userTrackingCache.LockAsync(CancellationToken.None))
                     {
-                        trackingModelsToSave = userTrackingCache.RemoveModels(userTrackingConfiguration.Value.CacheTimeout ?? UserTrackingDefaults.DefaultCacheTimeout)
+                        trackingModelsToSave = userTrackingCache.RemoveOldEntries(userTrackingConfiguration.Value.CacheTimeout ?? UserTrackingDefaults.DefaultCacheTimeout)
                             .Where(trackingModel => trackingModel.LastUpdated > trackingModel.LastSaved)
                             .ToArray();
 
                         foreach(var trackingModel in trackingModelsToSave)
-                            userTrackingCache.SetModel(trackingModel with
+                            userTrackingCache.SetEntry(trackingModel with
                             {
                                 LastSaved = now
                             });

@@ -5,11 +5,11 @@ using System.Reactive.Linq;
 using Microsoft.AspNetCore.Authorization;
 
 using Modix.Business.Diagnostics;
+using Modix.Data.Administration;
 using Modix.Web.Protocol.Diagnostics;
 
 namespace Modix.Web.Server.Diagnostics
 {
-    [Authorize]
     public class DiagnosticsContract
         : IDiagnosticsContract
     {
@@ -21,6 +21,7 @@ namespace Modix.Web.Server.Diagnostics
             _diagnosticsService = diagnosticsService;
         }
 
+        [Authorize(nameof(AdministrationPermission.DiagnosticsRead))]
         public IAsyncEnumerable<SystemClockResponse> ObserveSystemClock()
             => _diagnosticsManager.Now
                 .Select(now => new SystemClockResponse()

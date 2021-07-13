@@ -2,13 +2,15 @@
 
 using Modix.Common.ObjectModel;
 
+using Snowflake = Remora.Discord.Core.Snowflake;
+
 namespace Modix.Data.Users
 {
     public class UserMergeModel
     {
         public UserMergeModel(
-            ulong               guildId,
-            ulong               userId,
+            Snowflake           guildId,
+            Snowflake           userId,
             Optional<string>    username,
             Optional<ushort>    discriminator,
             Optional<string?>   avatarHash,
@@ -24,9 +26,9 @@ namespace Modix.Data.Users
             Timestamp       = timestamp;
         }
 
-        public ulong GuildId { get; }
+        public Snowflake GuildId { get; }
 
-        public ulong UserId { get; }
+        public Snowflake UserId { get; }
 
         public Optional<string> Username { get; }
 

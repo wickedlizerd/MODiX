@@ -6,6 +6,7 @@ using Remora.Discord.Gateway.Reaction;
 
 using Modix.Business.Authorization;
 using Modix.Business.Diagnostics;
+using Modix.Business.Guilds;
 using Modix.Business.Users;
 
 namespace Modix.Business
@@ -21,6 +22,7 @@ namespace Modix.Business
                 .AddGatewayReaction()
                 .AddAuthorization(configuration)
                 .AddDiagnostics(configuration)
+                .AddGuilds()
                 .AddUsers(configuration);
     }
 }

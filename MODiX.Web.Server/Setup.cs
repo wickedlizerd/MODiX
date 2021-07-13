@@ -4,9 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 using ProtoBuf.Grpc.Server;
 
+using Modix.Web.Protocol;
 using Modix.Web.Server.Authentication;
 using Modix.Web.Server.Diagnostics;
-using Modix.Web.Protocol;
+using Modix.Web.Server.Guilds;
 
 namespace Modix.Web.Server
 {
@@ -20,7 +21,8 @@ namespace Modix.Web.Server
                 .Add(services => services.AddCodeFirstGrpc())
                 .AddAuthentication(configuration)
                 .AddAuthorization()
-                .AddDiagnostics();
+                .AddDiagnostics()
+                .AddGuilds();
         }
 
         public static IApplicationBuilder UseModixWebServer(this IApplicationBuilder application)
@@ -34,6 +36,7 @@ namespace Modix.Web.Server
                 })
                 .UseEndpoints(endpoints => endpoints
                     .MapAuthentication()
-                    .MapDiagnostics());
+                    .MapDiagnostics()
+                    .MapGuilds());
     }
 }

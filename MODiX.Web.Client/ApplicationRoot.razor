@@ -6,13 +6,27 @@
 @inherits ViewBase<ApplicationRootModel>
 <!-- CSS Isolation styles don't work on application root components. Need a nested div. -->
 <div name="root">
-    <nav>
-        <h2>Menu</h2>
-        <NavLink href="">Home</NavLink>
-        <NavLink href="login">Login</NavLink>
-        <NavLink href="logout">Logout</NavLink>
-        <NavLink href="diagnostics">Diagnostics</NavLink>
-    </nav>
+    <div name="nav-container">
+        <div name="nav-header">
+            @if (ObserveValue(ViewModel.IsGuildSelected, false))
+            {
+                <img src="@ObserveValue(ViewModel.SelectedGuildIconUri)" />
+                <h2>@ObserveValue(ViewModel.SelectedGuildName)</h2>
+            }
+            else
+            {
+                <h2>Loading...</h2>
+            }
+        </div>
+        <hr />
+        <nav>
+            <h3>Menu</h3>
+            <NavLink href="">Home</NavLink>
+            <NavLink href="login">Login</NavLink>
+            <NavLink href="logout">Logout</NavLink>
+            <NavLink href="diagnostics">Diagnostics</NavLink>
+        </nav>
+    </div>
     <section>
         <CascadingAuthenticationState>
             <Router AppAssembly="@typeof(ApplicationRoot).Assembly">

@@ -10,7 +10,7 @@
     align-items: stretch;
 }
 
-nav {
+[name='nav-container'] {
     position: sticky;
     height: 100%;
     display: flex;
@@ -20,4 +20,25 @@ nav {
     padding: 1em;
     margin: 0 1em 0 0;
     box-shadow: .25rem 0 .75rem rgba(0, 0, 0, .05);
+}
+
+[name='nav-header'] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+nav {
+    display: flex;
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-direction: column;
+}
+
+h2, h3 {
+    margin-block: 0.3em;
+}
+
+hr {
+    width: 100%;
 }

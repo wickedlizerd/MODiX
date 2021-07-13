@@ -85,6 +85,7 @@ namespace Modix.Data.Users
                 var newUserVersion = new UserVersionEntity()
                 {
                     UserId              = model.UserId,
+                    Created             = model.Timestamp,
                     Username            = model.Username.IsSpecified
                         ? model.Username.Value
                         : currentUserVersion?.Username ?? "UNKNOWN",
@@ -94,8 +95,7 @@ namespace Modix.Data.Users
                     AvatarHash          = model.AvatarHash.IsSpecified
                         ? model.AvatarHash.Value
                         : currentUserVersion?.AvatarHash,
-                    PreviousVersionId   = currentUserVersion?.Id,
-                    Created             = model.Timestamp
+                    PreviousVersionId   = currentUserVersion?.Id
                 };
                 await _modixDbContext.AddAsync(newUserVersion, cancellationToken);
                 if (currentUserVersion is not null)
@@ -125,11 +125,11 @@ namespace Modix.Data.Users
                 {
                     GuildId             = model.GuildId,
                     UserId              = model.UserId,
+                    Created             = model.Timestamp,
                     Nickname            = model.Nickname.IsSpecified
                         ? model.Nickname.Value
                         : currentGuildUserVersion?.Nickname,
-                    PreviousVersionId   = currentGuildUserVersion?.Id,
-                    Created             = model.Timestamp
+                    PreviousVersionId   = currentGuildUserVersion?.Id
                 };
                 await _modixDbContext.AddAsync(newGuildUserVersion, cancellationToken);
                 if (currentGuildUserVersion is not null)
