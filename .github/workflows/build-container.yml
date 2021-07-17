@@ -42,6 +42,7 @@ jobs:
         uses: docker/build-push-action@v2.6.1
         with:
           context: .
+          file: MODiX.Host/Dockerfile
           target: dotnet-test
           push: false
           cache-to: type=gha, scope=${{github.repository}}
@@ -54,27 +55,29 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-2.0
           flavor: |
             latest=${{ github.event_name == 'push' }}
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v2.6.1
         with:
           context: .
+          file: MODiX.Host/Dockerfile
           push: ${{ github.event_name == 'push' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-to: type=gha, scope=${{github.repository}}
           cache-from: type=gha, scope=${{github.repository}}
 
-  publish:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Sleep for 15 seconds
-        if: ${{ github.event_name == 'push' }}
-        run: sleep 15s
-        shell: bash
+  #publish:
+  #  runs-on: ubuntu-latest
+  #  needs: build
+  #  steps:
+  #    - name: Sleep for 15 seconds
+  #      if: ${{ github.event_name == 'push' }}
+  #      run: sleep 15s
+  #      shell: bash
         
-      - name: Signal New Build
-        uses: enflo/curl-action@fabe347922c7a9e88bafa15c4b7d6326ea802695
-        if: ${{ github.event_name == 'push' }}
-        with:
-          curl: -X POST ${{ secrets.MODIX_UPDATE_WEBHOOK }}
+  #    - name: Signal New Build
+  #      uses: enflo/curl-action@fabe347922c7a9e88bafa15c4b7d6326ea802695
+  #      if: ${{ github.event_name == 'push' }}
+  #      with:
+  #        curl: -X POST ${{ secrets.MODIX_UPDATE_WEBHOOK }}
