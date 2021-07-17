@@ -2,6 +2,14 @@
 {
     public static class ObservableExtensions
     {
+        public static IObservable<T> OnSubscribing<T>(this IObservable<T> source, Action onSubscribing)
+            => Observable.Create<T>(observer =>
+            {
+                onSubscribing.Invoke();
+
+                return source.Subscribe(observer);
+            });
+
         public static IObservable<T> WhereNotNull<T>(this IObservable<T?> source)
                 where T : struct
             => Observable.Create<T>(observer => source.Subscribe(

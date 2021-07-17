@@ -4,6 +4,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 using Remora.Discord.API.Abstractions.Gateway.Events;
 
@@ -13,25 +14,44 @@ namespace Modix.Business.Guilds.Tracking
         : ReactiveBehaviorBase
     {
         public GuildTrackingEventListeningBehavior(
-                IObservable<IGuildCreate>   guildCreated,
-                IObservable<IGuildDelete>   guildDeleted,
-                IGuildTrackingCache         guildTrackingCache,
-                IObservable<IGuildUpdate>   guildUpdated)
+                    IObservable<IGuildCreate>                       guildCreated,
+                    IObservable<IGuildDelete>                       guildDeleted,
+                    IGuildTrackingCache                             guildTrackingCache,
+                    IObservable<IGuildUpdate>                       guildUpdated,
+                    ILogger<GuildTrackingEventListeningBehavior>    logger)
+                : base(logger)
             => _behavior = Observable.Merge(
-                guildCreated
-                    .Do(@event => guildTrackingCache.SetEntry(new GuildTrackingCacheEntry(
-                        id:     @event.ID,
-                        name:   @event.Name,
-                        icon:   @event.Icon)))
-                    .Select(_ => Unit.Default),
-                guildUpdated
-                    .Do(@event => guildTrackingCache.SetEntry(new GuildTrackingCacheEntry(
-                        id:     @event.ID,
-                        name:   @event.Name,
-                        icon:   @event.Icon)))
+                Observable.Merge(
+                        guildCreated
+                            .Select(@event => new GuildTrackingCacheEntry(
+                                id:     @event.ID,
+                                name:   @event.Name,
+                                icon:   @event.Icon)),
+                        guildUpdated
+                            .Select(@event => new GuildTrackingCacheEntry(
+                                id:     @event.ID,
+                                name:   @event.Name,
+                                icon:   @event.Icon)))
+                    .Select(entry => Observable.FromAsync(async (cancellationToken) =>
+                    {
+                        using var @lock = await guildTrackingCache.LockAsync(cancellationToken);
+
+                        GuildTrackingLogMessages.GuildTracking(Logger, entry);
+                        guildTrackingCache.SetEntry(entry);
+                        GuildTrackingLogMessages.GuildTracked(Logger, entry);
+                    }))
+                    .Switch()
                     .Select(_ => Unit.Default),
                 guildDeleted
-                    .Do(@event => guildTrackingCache.RemoveEntry(@event.GuildID))
+                    .Select(@event => Observable.FromAsync(async (cancellationToken) => 
+                    {
+                        using var @lock = await guildTrackingCache.LockAsync(cancellationToken);
+
+                        GuildTrackingLogMessages.GuildUnTracking(Logger, @event.GuildID);
+                        guildTrackingCache.RemoveEntry(@event.GuildID);
+                        GuildTrackingLogMessages.GuildUnTracked(Logger, @event.GuildID);
+                    }))
+                    .Switch()
                     .Select(_ => Unit.Default));
 
         protected override IDisposable Start(IScheduler scheduler)

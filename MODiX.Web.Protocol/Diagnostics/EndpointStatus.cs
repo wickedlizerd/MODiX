@@ -1,4 +1,6 @@
-﻿namespace Modix.Web.Protocol.Diagnostics
+﻿#pragma warning disable CA1069 // Enum values are duplicated because IPStatus duplicates them.
+
+namespace Modix.Web.Protocol.Diagnostics
 {
     public enum EndpointStatus
     {

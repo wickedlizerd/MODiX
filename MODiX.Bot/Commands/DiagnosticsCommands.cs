@@ -193,9 +193,9 @@ namespace Modix.Bot.Commands
                     : null as Snowflake?,
                 channelId:          _context.ChannelID,
                 buttonEmojiNames:   new[] { "❌" },
-                content:            RenderServerTime(await _diagnosticsManager.Now.Take(1)));
+                content:            RenderServerTime(await _diagnosticsManager.SystemClock.Take(1)));
 
-            await _diagnosticsManager.Now
+            await _diagnosticsManager.SystemClock
                 .Sample(TimeSpan.FromSeconds(5))
                 .SelectMany(now => dialog.UpdateAsync(content: RenderServerTime(now)))
                 .TakeUntil(dialog.ButtonClicked);

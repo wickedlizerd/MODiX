@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Extensions.Options
 {
@@ -11,7 +12,10 @@ namespace Microsoft.Extensions.Options
             : StartupActionBase
         where TOptions : class, new()
     {
-        public OptionsValidationStartupAction(IServiceProvider serviceProvider)
+        public OptionsValidationStartupAction(
+                    ILogger<OptionsValidationStartupAction<TOptions>>   logger,
+                    IServiceProvider                                    serviceProvider)
+                : base(logger)
             => _serviceProvider = serviceProvider;
 
         protected override Task OnStartupAsync(CancellationToken cancellationToken)

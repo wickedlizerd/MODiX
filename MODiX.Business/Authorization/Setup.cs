@@ -11,6 +11,5 @@ namespace Modix.Business.Authorization
                 .Bind(configuration.GetSection("MODiX:Business:Authorization"))
                 .ValidateDataAnnotations()
                 .ValidateOnStartup());
-
     }
 }

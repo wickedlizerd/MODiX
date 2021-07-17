@@ -18,9 +18,9 @@ namespace Modix.Web.Server.Guilds
             => Task.FromResult(new GetIdentifiersResponse(
                 identifiers: _guildTrackingCache.EnumerateEntries()
                     .Select(entry => new GuildIdentifier(
-                        id: entry.Id.Value,
-                        name: entry.Name,
-                        iconHash: entry.Icon?.Value))
+                        id:         entry.Id.Value,
+                        name:       entry.Name,
+                        iconHash:   entry.Icon?.Value))
                     .ToImmutableArray()));
 
         private readonly IGuildTrackingCache _guildTrackingCache;

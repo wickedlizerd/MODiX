@@ -3,6 +3,8 @@ using System.Reactive.PlatformServices;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
+
 using Modix.Common.ObjectModel;
 using Modix.Data.Users;
 
@@ -26,10 +28,12 @@ namespace Modix.Business.Users.Tracking
         : IUserTrackingService
     {
         public UserTrackingService(
-            ISystemClock        systemClock,
-            IUsersRepository    usersRepository,
-            IUserTrackingCache  userTrackingCache)
+            ILogger<UserTrackingService>    logger,
+            ISystemClock                    systemClock,
+            IUsersRepository                usersRepository,
+            IUserTrackingCache              userTrackingCache)
         {
+            _logger             = logger;
             _systemClock        = systemClock;
             _usersRepository    = usersRepository;
             _userTrackingCache  = userTrackingCache;
@@ -44,6 +48,8 @@ namespace Modix.Business.Users.Tracking
             Optional<string?>   nickname,
             CancellationToken   cancellationToken)
         {
+            UserTrackingLogMessages.UserTracking(_logger, userId, guildId, username, discriminator, avatarHash, nickname);
+
             var now = _systemClock.UtcNow;
             bool isSaveNeeded;
 
@@ -54,20 +60,24 @@ namespace Modix.Business.Users.Tracking
 
             using (var @lock = await _userTrackingCache.LockAsync(cancellationToken))
             {
-                var currentModel = _userTrackingCache.TryGetEntry(userId);
+                UserTrackingLogMessages.CacheEntryRetrieving(_logger, userId);
+                var currentEntry = _userTrackingCache.TryGetEntry(userId);
+                if (currentEntry is null)
+                {
+                    UserTrackingLogMessages.CacheEntryNotFound(_logger, userId);
+                    isSaveNeeded = true;
+                }
+                else
+                {
+                    UserTrackingLogMessages.CacheEntryRetrieved(_logger, currentEntry);
+                    isSaveNeeded = (username.IsSpecified && (currentEntry.Username != username))
+                        || (discriminator.IsSpecified && (currentEntry.Discriminator != discriminator))
+                        || (avatarHash.IsSpecified && (currentEntry.AvatarHash != avatarHash))
+                        || (nickname.IsSpecified && !currentEntry.NicknamesByGuildId.Contains(new(guildId, nickname.Value)));
+                }
 
-                isSaveNeeded = (currentModel is null)
-                    || (username.IsSpecified && (currentModel.Username != username))
-                    || (discriminator.IsSpecified && (currentModel.Discriminator != discriminator))
-                    || (avatarHash.IsSpecified && (currentModel.AvatarHash != avatarHash))
-                    || (nickname.IsSpecified && !currentModel.NicknamesByGuildId.Contains(new(guildId, nickname.Value)));
-
-                if (isSaveNeeded)
-                    _userTrackingCache.RemoveEntry(userId);
-
-                var nicknamesByGuildId = currentModel?.NicknamesByGuildId ?? ImmutableDictionary<Snowflake, string?>.Empty;
-
-                _userTrackingCache.SetEntry(new(
+                var nicknamesByGuildId = currentEntry?.NicknamesByGuildId ?? ImmutableDictionary<Snowflake, string?>.Empty;
+                var newEntry = new UserTrackingCacheEntry(
                     userId:             userId,
                     username:           username,
                     discriminator:      discriminator,
@@ -76,10 +86,33 @@ namespace Modix.Business.Users.Tracking
                     nicknamesByGuildId: nickname.IsSpecified
                         ? nicknamesByGuildId.SetItem(guildId, nickname.Value)
                         : nicknamesByGuildId,
-                    lastSaved:          isSaveNeeded ? now : (currentModel?.LastSaved ?? now)));
+                    lastSaved:          isSaveNeeded ? now : (currentEntry?.LastSaved ?? now));
+
+                if (currentEntry is null)
+                {
+                    UserTrackingLogMessages.CacheEntryAdding(_logger, newEntry);
+                    _userTrackingCache.SetEntry(newEntry);
+                    UserTrackingLogMessages.CacheEntryAdded(_logger, newEntry);
+                }
+                else if (isSaveNeeded)
+                {
+                    // If we're going to save the model, move it to the back of the queue
+                    UserTrackingLogMessages.CacheEntryResetting(_logger, currentEntry);
+                    _userTrackingCache.RemoveEntry(userId);
+                    _userTrackingCache.SetEntry(newEntry);
+                    UserTrackingLogMessages.CacheEntryReset(_logger, newEntry);
+                }
+                else
+                {
+                    UserTrackingLogMessages.CacheEntryReplacing(_logger, currentEntry);
+                    _userTrackingCache.SetEntry(newEntry);
+                    UserTrackingLogMessages.CacheEntryReplaced(_logger, newEntry);
+                }
             }
 
-            if(isSaveNeeded)
+            if (isSaveNeeded)
+            {
+                UserTrackingLogMessages.CacheEntrySaving(_logger, userId, guildId);
                 await _usersRepository.MergeAsync(
                     new UserMergeModel(
                         guildId:        guildId,
@@ -90,8 +123,13 @@ namespace Modix.Business.Users.Tracking
                         nickname:       nickname,
                         timestamp:      now),
                     cancellationToken:  cancellationToken);
+                UserTrackingLogMessages.CacheEntrySaved(_logger, userId, guildId);
+            }
+
+            UserTrackingLogMessages.UserTracked(_logger, userId, guildId);
         }
 
+        private readonly ILogger            _logger;
         private readonly ISystemClock       _systemClock;
         private readonly IUsersRepository   _usersRepository;
         private readonly IUserTrackingCache _userTrackingCache;

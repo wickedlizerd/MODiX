@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
+using Modix.Host.Logging;
+
 namespace Modix.Host
 {
     public static class EntryPoint
@@ -15,6 +17,7 @@ namespace Modix.Host
                 })
                 .ConfigureWebHostDefaults(webHost => webHost
                     .UseStartup<Startup>())
+                .ConfigureLogging()
                 .Build();
 
             host.Run();

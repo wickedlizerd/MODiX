@@ -9,6 +9,7 @@ using System.Threading;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Modix.Data.Users;
@@ -19,16 +20,20 @@ namespace Modix.Business.Users.Tracking
         : ReactiveBehaviorBase
     {
         public UserTrackingCacheCleaningBehavior(
-                IServiceScopeFactory                serviceScopeFactory,
-                ISystemClock                        systemClock,
-                IUserTrackingCache                  userTrackingCache,
-                IOptions<UserTrackingConfiguration> userTrackingConfiguration)
+                    ILogger<UserTrackingCacheCleaningBehavior>  logger,
+                    IServiceScopeFactory                        serviceScopeFactory,
+                    ISystemClock                                systemClock,
+                    IUserTrackingCache                          userTrackingCache,
+                    IOptions<UserTrackingConfiguration>         userTrackingConfiguration)
+                : base(logger)
             // Each time the oldest entry in the cache changes (and isn't null), wait until CacheTimeout after it was added, then run a cleanup.
             => _behavior = userTrackingCache.OldestEntryAdded
                 .WhereNotNull()
                 .Delay(oldestEntryAdded => Observable.Timer(dueTime: oldestEntryAdded + (userTrackingConfiguration.Value.CacheTimeout ?? UserTrackingDefaults.DefaultCacheTimeout)))
-                .SelectMany(async _ =>
+                .Select(_ => Observable.FromAsync(async () =>
                 {
+                    UserTrackingLogMessages.CacheCleaning(Logger);
+
                     using var serviceScope = serviceScopeFactory.CreateScope();
 
                     var now = systemClock.UtcNow;
@@ -37,35 +42,55 @@ namespace Modix.Business.Users.Tracking
                     // For those, we will perform a save, and re-add them to the cache, with a new LastSave timestamp.
                     // The rest will be discarded.
 
-                    IReadOnlyList<UserTrackingCacheEntry> trackingModelsToSave;
+                    IReadOnlyList<UserTrackingCacheEntry> entriesToSave;
                     using (var @lock = await userTrackingCache.LockAsync(CancellationToken.None))
                     {
-                        trackingModelsToSave = userTrackingCache.RemoveOldEntries(userTrackingConfiguration.Value.CacheTimeout ?? UserTrackingDefaults.DefaultCacheTimeout)
+                        var timeout = userTrackingConfiguration.Value.CacheTimeout ?? UserTrackingDefaults.DefaultCacheTimeout;
+
+                        UserTrackingLogMessages.CacheEntriesRemoving(Logger, timeout);
+                        entriesToSave = userTrackingCache.RemoveOldEntries(timeout)
                             .Where(trackingModel => trackingModel.LastUpdated > trackingModel.LastSaved)
                             .ToArray();
+                        UserTrackingLogMessages.CacheEntriesRemoved(Logger);
 
-                        foreach(var trackingModel in trackingModelsToSave)
-                            userTrackingCache.SetEntry(trackingModel with
-                            {
-                                LastSaved = now
-                            });
+                        if (entriesToSave.Count is 0)
+                            UserTrackingLogMessages.CacheEntriesResetNotNeeded(Logger);
+                        else
+                        {
+                            UserTrackingLogMessages.CacheEntriesResetting(Logger, entriesToSave.Count);
+                            foreach (var entry in entriesToSave)
+                                userTrackingCache.SetEntry(entry with
+                                {
+                                    LastSaved = now
+                                });
+                            UserTrackingLogMessages.CacheEntriesReset(Logger, entriesToSave.Count);
+                        }
                     }
 
-                    if (trackingModelsToSave.Count is not 0)
+                    if (entriesToSave.Count is 0)
+                        UserTrackingLogMessages.CacheEntriesSaveNotNeeded(Logger);
+                    else
+                    {
+                        UserTrackingLogMessages.CacheEntriesSaving(Logger, entriesToSave.Count);
                         await serviceScope.ServiceProvider.GetRequiredService<IUsersRepository>()
                             .MergeAsync(
-                                trackingModelsToSave
-                                    .SelectMany(trackingModel => trackingModel.NicknamesByGuildId
+                                entriesToSave
+                                    .SelectMany(entry => entry.NicknamesByGuildId
                                         .Select(nicknameByGuildId => new UserMergeModel(
                                             guildId:        nicknameByGuildId.Key,
-                                            userId:         trackingModel.UserId,
-                                            username:       trackingModel.Username,
-                                            discriminator:  trackingModel.Discriminator,
-                                            avatarHash:     trackingModel.AvatarHash,
+                                            userId:         entry.UserId,
+                                            username:       entry.Username,
+                                            discriminator:  entry.Discriminator,
+                                            avatarHash:     entry.AvatarHash,
                                             nickname:       nicknameByGuildId.Value,
-                                            timestamp:      trackingModel.LastUpdated))),
+                                            timestamp:      entry.LastUpdated))),
                                 CancellationToken.None);
-                });
+                        UserTrackingLogMessages.CacheEntriesSaved(Logger, entriesToSave.Count);
+                    }
+
+                    UserTrackingLogMessages.CacheCleaned(Logger);
+                }))
+                .Switch();
 
         protected override IDisposable Start(IScheduler scheduler)
             => _behavior

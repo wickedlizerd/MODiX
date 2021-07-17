@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 using Remora.Discord.API.Abstractions.Gateway.Events;
 
@@ -20,13 +21,15 @@ namespace Modix.Business.Users.Tracking
         : ReactiveBehaviorBase
     {
         public UserTrackingEventListeningBehavior(
-            IObservable<IGuildMemberAdd>        guildMemberAdded,
-            IObservable<IGuildMemberUpdate>     guildMemberUpdated,
-            IObservable<IMessageCreate>         messageCreated,
-            IObservable<IMessageReactionAdd>    messageReactionAdded,
-            IObservable<IMessageUpdate>         messageUpdated,
-            IObservable<IPresenceUpdate>        presenceUpdated,
-            IServiceScopeFactory                serviceScopeFactory)
+                IObservable<IGuildMemberAdd>                guildMemberAdded,
+                IObservable<IGuildMemberUpdate>             guildMemberUpdated,
+                ILogger<UserTrackingEventListeningBehavior> logger,
+                IObservable<IMessageCreate>                 messageCreated,
+                IObservable<IMessageReactionAdd>            messageReactionAdded,
+                IObservable<IMessageUpdate>                 messageUpdated,
+                IObservable<IPresenceUpdate>                presenceUpdated,
+                IServiceScopeFactory                        serviceScopeFactory)
+            : base(logger)
         {
             _behavior = Observable.Merge(
                     guildMemberAdded
@@ -115,6 +118,7 @@ namespace Modix.Business.Users.Tracking
         {
             using var serviceScope = _serviceScopeFactory.CreateScope();
 
+            UserTrackingLogMessages.UserTracking(Logger, guildId, userId, username, discriminator, avatarHash, nickname);
             await serviceScope.ServiceProvider.GetRequiredService<IUserTrackingService>().TrackUserAsync(
                 guildId:            guildId,
                 userId:             userId,
@@ -123,6 +127,7 @@ namespace Modix.Business.Users.Tracking
                 avatarHash:         avatarHash,
                 nickname:           nickname,
                 cancellationToken:  CancellationToken.None);
+            UserTrackingLogMessages.UserTracked(Logger, guildId, userId);
         }
 
         private readonly IObservable<Unit>      _behavior;

@@ -2,26 +2,32 @@
 using System.Reactive.Linq;
 using System.Reactive.PlatformServices;
 
+using Microsoft.Extensions.Logging;
+
 namespace Modix.Business.Diagnostics
 {
     public interface IDiagnosticsManager
     {
-        IObservable<DateTimeOffset> Now { get; }
+        IObservable<DateTimeOffset> SystemClock { get; }
     }
 
     public class DiagnosticsManager
         : IDiagnosticsManager
     {
-        public DiagnosticsManager(ISystemClock systemClock)
-            => Now = Observable.Timer(
+        public DiagnosticsManager(
+                ILogger<DiagnosticsManager> logger,
+                ISystemClock                systemClock)
+            => SystemClock = Observable.Timer(
                     dueTime:    TimeSpan.Zero,
                     period:     TimeSpan.FromMilliseconds(10))
+                .OnSubscribing(() => DiagnosticsLogMessages.SystemClockStarting(logger))
                 .Select(_ => systemClock.UtcNow
                     .ToLocalTime()
                     .TruncateMilliseconds())
                 .DistinctUntilChanged()
+                .Finally(() => DiagnosticsLogMessages.SystemClockStopping(logger))
                 .ShareReplay(1);
 
-        public IObservable<DateTimeOffset> Now { get; }
+        public IObservable<DateTimeOffset> SystemClock { get; }
     }
 }

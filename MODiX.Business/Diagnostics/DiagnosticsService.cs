@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Modix.Web.Protocol.Diagnostics;
@@ -23,34 +24,56 @@ namespace Modix.Business.Diagnostics
     internal class DiagnosticsService
         : IDiagnosticsService
     {
-        public DiagnosticsService(IOptions<DiagnosticsConfiguration> configuration)
-            => _configuration = configuration;
+        public DiagnosticsService(
+            IOptions<DiagnosticsConfiguration>  configuration,
+            ILogger<DiagnosticsService>         logger)
+        {
+            _configuration  = configuration;
+            _logger         = logger;
+        }
 
         public ImmutableArray<string> PingTestEndpointNames
             => _configuration.Value.PingTestEndpointsByName?.Keys.ToImmutableArray()
                 ?? ImmutableArray<string>.Empty;
 
         public IAsyncEnumerable<PingTestOutcome> PerformPingTest()
-            => _configuration.Value.PingTestEndpointsByName?
-                    .Select(endpointByName => Observable.FromAsync(cancellationToken => PingEndpointAsync(endpointByName.Key, endpointByName.Value, cancellationToken)))
-                    .Merge()
-                    .ToAsyncEnumerable()
-                ?? AsyncEnumerable.Empty<PingTestOutcome>();
+        {
+            if (_configuration.Value.PingTestEndpointsByName is null or { Count: 0 })
+            {
+                DiagnosticsLogMessages.PingTestEndpointsNotConfigured(_logger);
+                return AsyncEnumerable.Empty<PingTestOutcome>();
+            }
+
+            DiagnosticsLogMessages.PingTestPerforming(_logger, _configuration.Value.PingTestEndpointsByName.Count);
+
+            var timeout = _configuration.Value.PingTestTimeout ?? DiagnosticsDefaults.DefaultPingTestTimeout;
+
+            return _configuration.Value.PingTestEndpointsByName
+                .Select(endpointByName => Observable.FromAsync(cancellationToken => PingEndpointAsync(endpointByName.Key, endpointByName.Value, timeout, cancellationToken)))
+                .Merge()
+                .Finally(() => DiagnosticsLogMessages.PingTestPerformed(_logger))
+                .ToAsyncEnumerable();
+        }
 
         private async Task<PingTestOutcome> PingEndpointAsync(
-            string endpointName,
-            string endpoint,
-            CancellationToken cancellationToken)
+            string              endpointName,
+            string              endpoint,
+            TimeSpan            timeout,
+            CancellationToken   cancellationToken)
         {
+            DiagnosticsLogMessages.PingTestEndpointPinging(_logger, endpointName, endpoint, timeout);
+
             using var ping = new Ping();
 
-            var pingOperation = ping.SendPingAsync(endpoint, (int)(_configuration.Value.PingTestTimeout?.TotalMilliseconds ?? DiagnosticsDefaults.DefaultPingTestTimeout.TotalMilliseconds));
+            var pingOperation = ping.SendPingAsync(endpoint);
 
             cancellationToken.Register(ping.SendAsyncCancel);
 
             try
             {
                 var result = await pingOperation;
+
+                DiagnosticsLogMessages.PingTestEndpointPinged(_logger, endpointName, endpoint, result?.Status, result?.RoundtripTime);
 
                 return new PingTestOutcome(
                     endpointName:   endpointName,
@@ -59,8 +82,10 @@ namespace Modix.Business.Diagnostics
                         : null,
                     status:         (EndpointStatus)(result?.Status ?? IPStatus.Unknown));
             }
-            catch
+            catch(Exception ex)
             {
+                DiagnosticsLogMessages.PingTestEndpointPingFailed(_logger, endpointName, endpoint, ex);
+
                 return new PingTestOutcome(
                     endpointName:   endpointName,
                     latency:        null,
@@ -69,5 +94,6 @@ namespace Modix.Business.Diagnostics
         }
 
         private readonly IOptions<DiagnosticsConfiguration> _configuration;
+        private readonly ILogger                            _logger;
     }
 }

@@ -12,6 +12,7 @@ namespace Modix.Common.ObjectModel
             => Optional<T>.Unspecified;
     }
 
+    // TODO: Get rid of this, I think. I honestly can't remember why I wrote this, but there was a specific reason, and I think it was related to how Remora's Optional<T> mishandled nulls. That's been fixed now, so this should be okay to drop.
     public readonly struct Optional<T>
         : IEquatable<Optional<T>>
     {

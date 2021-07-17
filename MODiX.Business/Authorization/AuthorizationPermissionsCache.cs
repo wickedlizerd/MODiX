@@ -1,5 +1,7 @@
 ﻿using System.Reactive.PlatformServices;
 
+using Microsoft.Extensions.Logging;
+
 using Remora.Discord.Core;
 
 using Modix.Business.Caching;
@@ -13,8 +15,12 @@ namespace Modix.Business.Authorization
         : FifoCacheBase<(Snowflake guildId, Snowflake userId), AuthorizationPermissionsCacheEntry>,
             IAuthorizationPermissionsCache
     {
-        public AuthorizationPermissionsCache(ISystemClock systemClock)
-            : base(systemClock) { }
+        public AuthorizationPermissionsCache(
+                ILogger<AuthorizationPermissionsCache>  logger, 
+                ISystemClock                            systemClock)
+            : base(
+                logger,
+                systemClock) { }
 
         protected override (Snowflake guildId, Snowflake userId) SelectKey(AuthorizationPermissionsCacheEntry entry)
             => (entry.GuildId, entry.UserId);

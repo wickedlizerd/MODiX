@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -29,18 +30,23 @@ namespace Modix.Web.Server.Authentication
             IOptions<AuthenticationConfiguration>   authenticationConfiguration,
             DiscordHttpClient                       discordClient,
             IOptions<DiscordConfiguration>          discordConfiguration,
+            ILogger<AuthenticationContract>         logger,
             IServiceScopeFactory                    serviceScopeFactory,
             ISystemClock                            systemClock)
         {
             _authenticationConfiguration    = authenticationConfiguration;
             _discordClient                  = discordClient;
             _discordConfiguration           = discordConfiguration;
+            _logger                         = logger;
             _serviceScopeFactory            = serviceScopeFactory;
             _systemClock                    = systemClock;
         }
 
         public async Task<CompleteLoginResponse> CompleteLoginAsync(CompleteLoginRequest request, CancellationToken cancellationToken)
         {
+            AuthenticationLogMessages.LoginCompleting(_logger, request);
+
+            AuthenticationLogMessages.TokenGrantAcquiring(_logger);
             var tokenGrantResult = await _discordClient.PostAsync<OAuthTokenGrant>(
                 "oauth2/token",
                 requestBuilder => requestBuilder
@@ -51,16 +57,27 @@ namespace Modix.Web.Server.Authentication
                     .AddContent(new StringContent("authorization_code"),                        "grant_type"),
                 ct: cancellationToken);
             if (!tokenGrantResult.IsSuccess)
-                return new LoginFailure(tokenGrantResult.Error.Message + ": " + tokenGrantResult.Inner?.Error?.Message);
+            {
+                var error = tokenGrantResult.Unwrap();
+                AuthenticationLogMessages.TokenGrantAcquisitionFailed(_logger, error);
+                return new LoginFailure(error.Message);
+            }
+            AuthenticationLogMessages.TokenGrantAcquired(_logger, tokenGrantResult.Entity);
 
             var authenticationHeader = new AuthenticationHeaderValue(tokenGrantResult.Entity.TokenType, tokenGrantResult.Entity.AccessToken).ToString();
 
+            AuthenticationLogMessages.UserRetrieving(_logger);
             var getUserResult = await _discordClient.GetAsync<User>(
                 "users/@me",
                 request => request.AddHeader("Authorization", authenticationHeader),
                 ct: cancellationToken);
             if (!getUserResult.IsSuccess)
-                return new LoginFailure(getUserResult.Error.Message + ": " + getUserResult.Inner?.Error?.Message);
+            {
+                var error = getUserResult.Unwrap();
+                AuthenticationLogMessages.UserRetrievalFailed(_logger, error);
+                return new LoginFailure(error.Message);
+            }
+            AuthenticationLogMessages.UserRetrieved(_logger, getUserResult.Entity);
 
             RevokeTokens(tokenGrantResult.Entity.AccessToken, tokenGrantResult.Entity.RefreshToken);
 
@@ -68,7 +85,7 @@ namespace Modix.Web.Server.Authentication
             var created = _systemClock.UtcNow;
             var expires = created + _authenticationConfiguration.Value.TokenLifetime;
 
-            return new LoginSuccess(
+            var response = new LoginSuccess(
                 ticket:         new AuthenticationTicket(
                     userId:         userId,
                     created:        created,
@@ -89,6 +106,9 @@ namespace Modix.Web.Server.Authentication
                     })
                     .RawData);
 
+            AuthenticationLogMessages.LoginCompleted(_logger, response);
+            return response;
+
             async void RevokeTokens(string accessToken, string refreshToken)
             {
                 try
@@ -97,46 +117,45 @@ namespace Modix.Web.Server.Authentication
 
                     var discordClient = serviceScope.ServiceProvider.GetRequiredService<DiscordHttpClient>();
 
-                    var revokeAccessTokenOperation = discordClient.PostAsync(
-                        "oauth2/token/revoke",
-                        request => request
-                            .AddContent(new StringContent(_discordConfiguration.Value.ClientId),        "client_id")
-                            .AddContent(new StringContent(_discordConfiguration.Value.ClientSecret),    "client_secret")
-                            .AddContent(new StringContent(accessToken),                                 "token")
-                            .AddContent(new StringContent("access_token"),                              "token_type_hint"),
-                        ct: cancellationToken);
-
-                    var revokeRefreshTokenOperation = discordClient.PostAsync(
-                        "oauth2/token/revoke",
-                        request => request
-                            .AddContent(new StringContent(_discordConfiguration.Value.ClientId),        "client_id")
-                            .AddContent(new StringContent(_discordConfiguration.Value.ClientSecret),    "client_secret")
-                            .AddContent(new StringContent(refreshToken),                                "token")
-                            .AddContent(new StringContent("refresh_token"),                             "token_type_hint"),
-                        ct: cancellationToken);
-
-                    var results = await Task.WhenAll(revokeAccessTokenOperation, revokeRefreshTokenOperation);
-
-                    var revokeAccessTokenResult = results[0];
-                    if (!revokeAccessTokenResult.IsSuccess)
-                        // TODO: Implement Logging
-                        System.Diagnostics.Debug.WriteLine("Error revoking access token: " + revokeAccessTokenResult.Error.Message + ": " + revokeAccessTokenResult.Inner?.Error?.Message);
-
-                    var revokeRefreshTokenResult = results[1];
-                    if (!revokeRefreshTokenResult.IsSuccess)
-                        // TODO: Implement Logging
-                        System.Diagnostics.Debug.WriteLine("Error revoking access token: " + revokeRefreshTokenResult.Error.Message + ": " + revokeRefreshTokenResult.Inner?.Error?.Message);
+                    await Task.WhenAll(
+                        RevokeTokenAsync(discordClient, accessToken, "access_token", cancellationToken),
+                        RevokeTokenAsync(discordClient, refreshToken, "refresh_token", cancellationToken));
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
-                    // TODO: Implement Logging
-                    System.Diagnostics.Debug.WriteLine("Exception revoking authentication tokens: " + ex.Message);
+                    AuthenticationLogMessages.TokenRevocationEncounteredException(_logger, ex);
+                }
+
+                async Task RevokeTokenAsync(
+                    DiscordHttpClient discordClient,
+                    string token,
+                    string tokenTypeHint,
+                    CancellationToken cancellationToken)
+                {
+                    AuthenticationLogMessages.TokenRevoking(_logger, tokenTypeHint);
+                    var revokeTokenResult = await discordClient.PostAsync(
+                            "oauth2/token/revoke",
+                            request => request
+                                .AddContent(new StringContent(_discordConfiguration.Value.ClientId),        "client_id")
+                                .AddContent(new StringContent(_discordConfiguration.Value.ClientSecret),    "client_secret")
+                                .AddContent(new StringContent(token),                                       "token")
+                                .AddContent(new StringContent(tokenTypeHint),                               "token_type_hint"),
+                            ct: cancellationToken);
+                    if (!revokeTokenResult.IsSuccess)
+                    {
+                        AuthenticationLogMessages.TokenRevocationFailed(_logger, tokenTypeHint, revokeTokenResult.Unwrap());
+                    }
+                    else
+                        AuthenticationLogMessages.TokenRevoked(_logger, tokenTypeHint);
                 }
             }
         }
 
         public Task<StartLoginResponse> StartLoginAsync(StartLoginRequest request, CancellationToken cancellationToken)
-            => Task.FromResult(new StartLoginResponse(
+        {
+            AuthenticationLogMessages.LoginStarting(_logger, request);
+
+            var response = new StartLoginResponse(
                 QueryHelpers.AddQueryString(
                     new Uri(Constants.BaseURL, "oauth2/authorize").AbsoluteUri,
                     new Dictionary<string, string?>()
@@ -146,12 +165,17 @@ namespace Modix.Web.Server.Authentication
                         ["response_type"]   = "code",
                         ["scope"]           = "identify",
                         ["state"]           = request.State
-                    })));
+                    }));
 
-        private readonly IOptions<AuthenticationConfiguration> _authenticationConfiguration;
-        private readonly DiscordHttpClient _discordClient;
-        private readonly IOptions<DiscordConfiguration> _discordConfiguration;
-        private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly ISystemClock _systemClock;
+            AuthenticationLogMessages.LoginStarted(_logger, response);
+            return Task.FromResult(response);
+        }
+
+        private readonly IOptions<AuthenticationConfiguration>  _authenticationConfiguration;
+        private readonly DiscordHttpClient                      _discordClient;
+        private readonly IOptions<DiscordConfiguration>         _discordConfiguration;
+        private readonly ILogger                                _logger;
+        private readonly IServiceScopeFactory                   _serviceScopeFactory;
+        private readonly ISystemClock                           _systemClock;
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Remora.Discord.Core;
 
+using Microsoft.Extensions.Logging;
+
 using Modix.Business.Caching;
 
 namespace Modix.Business.Guilds.Tracking
@@ -11,6 +13,9 @@ namespace Modix.Business.Guilds.Tracking
         : PersistentCacheBase<Snowflake, GuildTrackingCacheEntry>,
             IGuildTrackingCache
     {
+        public GuildTrackingCache(ILogger<GuildTrackingCache> logger)
+            : base(logger) { }
+
         protected override Snowflake SelectKey(GuildTrackingCacheEntry entry)
             => entry.Id;
     }

@@ -1,8 +1,10 @@
 ﻿using System.Reactive.PlatformServices;
 
-using Modix.Business.Caching;
+using Microsoft.Extensions.Logging;
 
-using Snowflake = Remora.Discord.Core.Snowflake;
+using Remora.Discord.Core;
+
+using Modix.Business.Caching;
 
 namespace Modix.Business.Users.Tracking
 {
@@ -13,8 +15,12 @@ namespace Modix.Business.Users.Tracking
         : FifoCacheBase<Snowflake, UserTrackingCacheEntry>,
             IUserTrackingCache
     {
-        public UserTrackingCache(ISystemClock systemClock)
-            : base(systemClock) { }
+        public UserTrackingCache(
+                ILogger<UserTrackingCache>  logger,
+                ISystemClock                systemClock)
+            : base(
+                logger,
+                systemClock) { }
 
         protected override Snowflake SelectKey(UserTrackingCacheEntry entry)
             => entry.UserId;
