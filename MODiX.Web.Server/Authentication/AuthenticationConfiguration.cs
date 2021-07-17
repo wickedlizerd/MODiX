@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Modix.Web.Protocol.Authentication
+namespace Modix.Web.Server.Authentication
 {
     public class AuthenticationConfiguration
     {
