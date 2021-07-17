@@ -33,6 +33,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MODiX.Data", "MODiX.Data\MO
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MODiX.Data.Migrations", "MODiX.Data.Migrations\MODiX.Data.Migrations.csproj", "{BF11288A-1D03-4086-AC2E-370223318042}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{2A778BF1-7F72-4500-BE1C-EBC89DBECCF9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{6DFD4FD8-39B0-4E67-9B7F-365021300401}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build-container.yml = .github\workflows\build-container.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -78,6 +85,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6DFD4FD8-39B0-4E67-9B7F-365021300401} = {2A778BF1-7F72-4500-BE1C-EBC89DBECCF9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {466FA6BB-E892-4504-B914-C235E3C2B6D2}
