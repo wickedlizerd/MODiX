@@ -69,7 +69,7 @@ namespace Modix.Web.Server.Authorization
             var grantedPermissionIdsResult = await _authorizationService.GetGrantedPermissionIdsAsync(guildId, userId, _httpContextAccessor.HttpContext.RequestAborted);
             if (!grantedPermissionIdsResult.IsSuccess)
             {
-                AuthorizationLogMessages.GrantedPermissionIdsRetrievalFailed(_logger, guildId, userId, grantedPermissionIdsResult.Unwrap());
+                AuthorizationLogMessages.GrantedPermissionIdsRetrievalFailed(_logger, guildId, userId, grantedPermissionIdsResult.Error);
                 return;
             }
             AuthorizationLogMessages.GrantedPermissionIdsRetrieved(_logger, guildId, userId, grantedPermissionIdsResult.Entity.Count);

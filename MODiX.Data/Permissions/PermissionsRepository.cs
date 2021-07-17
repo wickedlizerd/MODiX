@@ -4,9 +4,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-using Modix.Common.ObjectModel;
-
-using Snowflake = Remora.Discord.Core.Snowflake;
+using Remora.Discord.Core;
 
 namespace Modix.Data.Permissions
 {
@@ -42,13 +40,13 @@ namespace Modix.Data.Permissions
             var query = _modixDbContext.Set<GuildPermissionMappingEntity>()
                 .AsQueryable();
 
-            if (guildId.IsSpecified)
+            if (guildId.HasValue)
             {
                 PermissionsLogMessages.GuildPermissionMappingsEnumerationAddingGuildIdClause(_logger, guildId.Value);
                 query = query.Where(gpm => gpm.GuildId == guildId.Value);
             }
 
-            if (isDeleted.IsSpecified)
+            if (isDeleted.HasValue)
             {
                 PermissionsLogMessages.GuildPermissionMappingsEnumerationAddingIsDeletedClause(_logger, isDeleted.Value);
                 query = isDeleted.Value
@@ -90,13 +88,13 @@ namespace Modix.Data.Permissions
             var query = _modixDbContext.Set<RolePermissionMappingEntity>()
                 .AsQueryable();
 
-            if (guildId.IsSpecified)
+            if (guildId.HasValue)
             {
                 PermissionsLogMessages.RolePermissionMappingsEnumerationAddingGuildIdClause(_logger, guildId.Value);
                 query = query.Where(gpm => gpm.GuildId == guildId.Value);
             }
 
-            if (isDeleted.IsSpecified)
+            if (isDeleted.HasValue)
             {
                 PermissionsLogMessages.RolePermissionMappingsEnumerationAddingIsDeletedClause(_logger, isDeleted.Value);
                 query = isDeleted.Value

@@ -4,11 +4,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 using Remora.Discord.API.Abstractions.Gateway.Events;
+using Remora.Discord.Core;
 
-using Modix.Common.ObjectModel;
 using Modix.Business.Messaging;
-
-using Snowflake = Remora.Discord.Core.Snowflake;
 
 namespace Modix.Business.Users.Tracking
 {
@@ -77,16 +75,16 @@ namespace Modix.Business.Users.Tracking
                     userId:             notification.UserID,
                     username:           notification.Member.Value!.User.HasValue
                         ? notification.Member.Value.User.Value.Username
-                        : Optional.Unspecified<string>(),
+                        : default(Optional<string>),
                     discriminator:      notification.Member.Value.User.HasValue
                         ? notification.Member.Value.User.Value.Discriminator
-                        : Optional.Unspecified<ushort>(),
+                        : default(Optional<ushort>),
                     avatarHash:         notification.Member.Value.User.HasValue
                         ? notification.Member.Value.User.Value.Avatar?.Value
-                        : Optional.Unspecified<string?>(),
+                        : default,
                     nickname:           notification.Member.HasValue
                         ? notification.Member.Value.Nickname
-                        : Optional.Unspecified<string?>(),
+                        : default,
                     cancellationToken:  cancellationToken)
                 : Task.CompletedTask;
 
@@ -102,7 +100,7 @@ namespace Modix.Business.Users.Tracking
                     avatarHash:         notification.Author.Value.Avatar?.Value,
                     nickname:           notification.Member.HasValue
                         ? notification.Member.Value.Nickname
-                        : Optional.Unspecified<string?>(),
+                        : default,
                     cancellationToken:  cancellationToken)
                 : Task.CompletedTask;
 

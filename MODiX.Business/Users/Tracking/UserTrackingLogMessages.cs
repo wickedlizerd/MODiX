@@ -3,9 +3,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Structured;
 
-using Modix.Common.ObjectModel;
-
-using Snowflake = Remora.Discord.Core.Snowflake;
+using Remora.Discord.Core;
 
 namespace Modix.Business.Users.Tracking
 {

@@ -27,11 +27,11 @@
     <PackageReference Update="protobuf-net.BuildTools" Version="3.0.101" />
     <PackageReference Update="protobuf-net.Grpc" Version="1.0.152" />
     <PackageReference Update="protobuf-net.Grpc.AspNetCore" Version="1.0.152" />
-    <PackageReference Update="Remora.Discord" Version="3.0.36" />
-    <PackageReference Update="Remora.Discord.API.Abstractions" Version="23.0.0" />
-    <PackageReference Update="Remora.Discord.Commands" Version="4.0.1" />
-    <PackageReference Update="Remora.Discord.Core" Version="3.0.0" />
-    <PackageReference Update="Remora.Results" Version="4.0.1" />
+    <PackageReference Update="Remora.Discord" Version="3.0.38" />
+    <PackageReference Update="Remora.Discord.API.Abstractions" Version="23.0.2" />
+    <PackageReference Update="Remora.Discord.Commands" Version="4.0.3" />
+    <PackageReference Update="Remora.Discord.Core" Version="3.1.0" />
+    <PackageReference Update="Remora.Results" Version="5.0.0" />
     <PackageReference Update="Serilog.AspNetCore" Version="4.1.0" />
     <PackageReference Update="Serilog.Expressions" Version="3.2.0" />
     <PackageReference Update="Serilog.Sinks.Seq" Version="5.0.1" />

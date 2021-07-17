@@ -79,9 +79,8 @@ namespace Modix.Business.Authorization
             var guildMemberResult = await _discordRestGuildAPI.GetGuildMemberAsync(guildId, userId, cancellationToken);
             if (!guildMemberResult.IsSuccess)
             {
-                var error = guildMemberResult.Unwrap();
-                AuthorizationLogMessages.GuildMemberRetrievalFailed(_logger, error);
-                return Result<IReadOnlyCollection<int>>.FromError(error);
+                AuthorizationLogMessages.GuildMemberRetrievalFailed(_logger, guildMemberResult.Error);
+                return Result<IReadOnlyCollection<int>>.FromError(guildMemberResult.Error);
             }
 
             var guildMember = guildMemberResult.Entity;

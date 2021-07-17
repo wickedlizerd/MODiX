@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Immutable;
 
-using Modix.Common.ObjectModel;
-
-using Snowflake = Remora.Discord.Core.Snowflake;
+using Remora.Discord.Core;
 
 namespace Modix.Business.Users.Tracking
 {

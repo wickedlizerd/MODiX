@@ -5,10 +5,9 @@ using System.Threading.Tasks;
 
 using Microsoft.Extensions.Logging;
 
-using Modix.Common.ObjectModel;
-using Modix.Data.Users;
+using Remora.Discord.Core;
 
-using Snowflake = Remora.Discord.Core.Snowflake;
+using Modix.Data.Users;
 
 namespace Modix.Business.Users.Tracking
 {
@@ -70,10 +69,10 @@ namespace Modix.Business.Users.Tracking
                 else
                 {
                     UserTrackingLogMessages.CacheEntryRetrieved(_logger, currentEntry);
-                    isSaveNeeded = (username.IsSpecified && (currentEntry.Username != username))
-                        || (discriminator.IsSpecified && (currentEntry.Discriminator != discriminator))
-                        || (avatarHash.IsSpecified && (currentEntry.AvatarHash != avatarHash))
-                        || (nickname.IsSpecified && !currentEntry.NicknamesByGuildId.Contains(new(guildId, nickname.Value)));
+                    isSaveNeeded = (username.HasValue && (currentEntry.Username != username))
+                        || (discriminator.HasValue && (currentEntry.Discriminator != discriminator))
+                        || (avatarHash.HasValue && (currentEntry.AvatarHash != avatarHash))
+                        || (nickname.HasValue && !currentEntry.NicknamesByGuildId.Contains(new(guildId, nickname.Value)));
                 }
 
                 var nicknamesByGuildId = currentEntry?.NicknamesByGuildId ?? ImmutableDictionary<Snowflake, string?>.Empty;
@@ -83,7 +82,7 @@ namespace Modix.Business.Users.Tracking
                     discriminator:      discriminator,
                     avatarHash:         avatarHash,
                     lastUpdated:        now,
-                    nicknamesByGuildId: nickname.IsSpecified
+                    nicknamesByGuildId: nickname.HasValue
                         ? nicknamesByGuildId.SetItem(guildId, nickname.Value)
                         : nicknamesByGuildId,
                     lastSaved:          isSaveNeeded ? now : (currentEntry?.LastSaved ?? now));

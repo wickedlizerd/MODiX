@@ -97,9 +97,9 @@ namespace Modix.Data.Users
                 .Where(uv => (uv.UserId == model.UserId) && (uv.NextVersionId == null))
                 .FirstOrDefaultAsync(cancellationToken);
             if ((currentUserVersion is not null)
-                    && (!model.Username.IsSpecified         || (model.Username.Value        == currentUserVersion.Username))
-                    && (!model.Discriminator.IsSpecified    || (model.Discriminator.Value   == currentUserVersion.Discriminator))
-                    && (!model.AvatarHash.IsSpecified       || (model.AvatarHash.Value      == currentUserVersion.AvatarHash)))
+                    && (!model.Username.HasValue        || (model.Username.Value        == currentUserVersion.Username))
+                    && (!model.Discriminator.HasValue   || (model.Discriminator.Value   == currentUserVersion.Discriminator))
+                    && (!model.AvatarHash.HasValue      || (model.AvatarHash.Value      == currentUserVersion.AvatarHash)))
                 UsersLogMessages.UserCurrentVersionUpToDate(_logger, model.UserId, currentUserVersion.Id);
             else
             {
@@ -108,13 +108,13 @@ namespace Modix.Data.Users
                 {
                     UserId              = model.UserId,
                     Created             = model.Timestamp,
-                    Username            = model.Username.IsSpecified
+                    Username            = model.Username.HasValue
                         ? model.Username.Value
                         : currentUserVersion?.Username ?? "UNKNOWN",
-                    Discriminator       = model.Discriminator.IsSpecified
+                    Discriminator       = model.Discriminator.HasValue
                         ? model.Discriminator.Value
                         : currentUserVersion?.Discriminator ?? 0,
-                    AvatarHash          = model.AvatarHash.IsSpecified
+                    AvatarHash          = model.AvatarHash.HasValue
                         ? model.AvatarHash.Value
                         : currentUserVersion?.AvatarHash,
                     PreviousVersionId   = currentUserVersion?.Id
@@ -152,7 +152,7 @@ namespace Modix.Data.Users
                 .Where(guv => (guv.GuildId == model.GuildId) && (guv.UserId == model.UserId) && (guv.NextVersionId == null))
                 .FirstOrDefaultAsync(cancellationToken);
             if ((currentGuildUserVersion is not null)
-                    && (!model.Nickname.IsSpecified || (model.Nickname.Value == currentGuildUserVersion.Nickname)))
+                    && (!model.Nickname.HasValue || (model.Nickname.Value == currentGuildUserVersion.Nickname)))
                 UsersLogMessages.GuildUserCurrentVersionUpToDate(_logger, model.GuildId, model.UserId, currentGuildUserVersion.Id);
             else
             {
@@ -162,7 +162,7 @@ namespace Modix.Data.Users
                     GuildId             = model.GuildId,
                     UserId              = model.UserId,
                     Created             = model.Timestamp,
-                    Nickname            = model.Nickname.IsSpecified
+                    Nickname            = model.Nickname.HasValue
                         ? model.Nickname.Value
                         : currentGuildUserVersion?.Nickname,
                     PreviousVersionId   = currentGuildUserVersion?.Id

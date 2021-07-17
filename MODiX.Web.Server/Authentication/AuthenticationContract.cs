@@ -58,9 +58,8 @@ namespace Modix.Web.Server.Authentication
                 ct: cancellationToken);
             if (!tokenGrantResult.IsSuccess)
             {
-                var error = tokenGrantResult.Unwrap();
-                AuthenticationLogMessages.TokenGrantAcquisitionFailed(_logger, error);
-                return new LoginFailure(error.Message);
+                AuthenticationLogMessages.TokenGrantAcquisitionFailed(_logger, tokenGrantResult.Error);
+                return new LoginFailure(tokenGrantResult.Error.Message);
             }
             AuthenticationLogMessages.TokenGrantAcquired(_logger, tokenGrantResult.Entity);
 
@@ -73,9 +72,8 @@ namespace Modix.Web.Server.Authentication
                 ct: cancellationToken);
             if (!getUserResult.IsSuccess)
             {
-                var error = getUserResult.Unwrap();
-                AuthenticationLogMessages.UserRetrievalFailed(_logger, error);
-                return new LoginFailure(error.Message);
+                AuthenticationLogMessages.UserRetrievalFailed(_logger, getUserResult.Error);
+                return new LoginFailure(getUserResult.Error.Message);
             }
             AuthenticationLogMessages.UserRetrieved(_logger, getUserResult.Entity);
 
@@ -142,9 +140,7 @@ namespace Modix.Web.Server.Authentication
                                 .AddContent(new StringContent(tokenTypeHint),                               "token_type_hint"),
                             ct: cancellationToken);
                     if (!revokeTokenResult.IsSuccess)
-                    {
-                        AuthenticationLogMessages.TokenRevocationFailed(_logger, tokenTypeHint, revokeTokenResult.Unwrap());
-                    }
+                        AuthenticationLogMessages.TokenRevocationFailed(_logger, tokenTypeHint, revokeTokenResult.Error);
                     else
                         AuthenticationLogMessages.TokenRevoked(_logger, tokenTypeHint);
                 }
