@@ -24,8 +24,8 @@ namespace Modix.Bot
                     | GatewayIntents.GuildMessageReactions
                     | GatewayIntents.GuildPresences)
                 .AddHostedService<ModixBot>()
-                .AddDiscordCommands()
-                .AddModixCommands()
+                //.AddDiscordCommands()
+                //.AddModixCommands()
                 .AddParsers();
     }
 }
