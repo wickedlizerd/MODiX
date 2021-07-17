@@ -12,13 +12,13 @@ namespace Modix.Web.Client.Authentication
 {
     public interface IAuthenticationManager
     {
-        IObservable<ulong?> ActiveGuildId { get; }
+        ulong? ActiveGuildId { get; set; }
+
+        IObservable<ulong?> ActiveGuildIdChanged { get; }
 
         string? BearerToken { get; }
 
         IObservable<AuthenticationTicket?> CurrentTicket { get; }
-
-        void ActivateGuild(ulong guildId);
 
         Task<AuthenticationState> GetAuthenticationStateAsync();
 
@@ -33,10 +33,10 @@ namespace Modix.Web.Client.Authentication
     {
         public AuthenticationManager(ILocalStorageManager localStorageManager)
         {
-            _activeGuildId          = new(null);
+            _activeGuildIdChanged   = new();
             _bearerToken            = null;
             _currentState           = _unauthenticatedState;
-            _currentTicket          = new BehaviorSubject<AuthenticationTicket?>(null);
+            _currentTicket          = new(null);
             _localStorageManager    = localStorageManager;
 
             TryLoadFromLocalStorage();
@@ -47,7 +47,7 @@ namespace Modix.Web.Client.Authentication
                 {
                     var guildId = await _localStorageManager.TryGetValueAsync<ulong>(ActiveGuildIdStorageKey);
                     if (guildId is not null)
-                        ActivateGuild(guildId.Value);
+                        ActiveGuildId = guildId.Value;
 
                     var token   = await _localStorageManager.TryGetObjectAsync<string>(BearerTokenStorageKey);
                     var ticket  = await _localStorageManager.TryGetObjectAsync<AuthenticationTicket>(CurrentTicketStorageKey);
@@ -62,20 +62,27 @@ namespace Modix.Web.Client.Authentication
             }
         }
 
-        public IObservable<ulong?> ActiveGuildId
-            => _activeGuildId;
+        public ulong? ActiveGuildId
+        {
+            get => _activeGuildId;
+            set
+            {
+                if (value != _activeGuildId)
+                {
+                    _activeGuildId = value;
+                    _activeGuildIdChanged.OnNext(value);
+                }
+            }
+        }
+
+        public IObservable<ulong?> ActiveGuildIdChanged
+            => _activeGuildIdChanged;
 
         public string? BearerToken
             => _bearerToken;
 
         public IObservable<AuthenticationTicket?> CurrentTicket
             => _currentTicket;
-
-        public void ActivateGuild(ulong guildId)
-        {
-            if (guildId != _activeGuildId.Value)
-                _activeGuildId.OnNext(guildId);
-        }
 
         public override Task<AuthenticationState> GetAuthenticationStateAsync()
             => Task.FromResult(_currentState);
@@ -139,10 +146,11 @@ namespace Modix.Web.Client.Authentication
             }
         }
 
-        private readonly BehaviorSubject<ulong?>                _activeGuildId;
+        private readonly Subject<ulong?>                        _activeGuildIdChanged;
         private readonly BehaviorSubject<AuthenticationTicket?> _currentTicket;
         private readonly ILocalStorageManager                   _localStorageManager;
 
+        private ulong?              _activeGuildId;
         private string?             _bearerToken;
         private AuthenticationState _currentState;
 

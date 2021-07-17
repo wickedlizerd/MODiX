@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -6,6 +7,7 @@ using ProtoBuf.Grpc.Server;
 
 using Modix.Web.Protocol;
 using Modix.Web.Server.Authentication;
+using Modix.Web.Server.Authorization;
 using Modix.Web.Server.Diagnostics;
 using Modix.Web.Server.Guilds;
 
@@ -18,9 +20,10 @@ namespace Modix.Web.Server
             ProtocolConfiguration.Apply();
 
             return services
+                .AddHttpContextAccessor()
                 .Add(services => services.AddCodeFirstGrpc())
                 .AddAuthentication(configuration)
-                .AddAuthorization()
+                .AddModixAuthorization()
                 .AddDiagnostics()
                 .AddGuilds();
         }

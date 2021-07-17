@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+
+using Modix.Business.Messaging;
 
 namespace Modix.Business.Guilds.Tracking
 {
@@ -8,6 +9,6 @@ namespace Modix.Business.Guilds.Tracking
         public static IServiceCollection AddGuildTracking(this IServiceCollection services)
             => services
                 .AddSingleton<IGuildTrackingCache, GuildTrackingCache>()
-                .AddReactiveBehavior<GuildTrackingEventListeningBehavior>();
+                .AddNotificationHandler<GuildTrackingNotificationHandler>();
     }
 }

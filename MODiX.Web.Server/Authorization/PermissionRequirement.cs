@@ -40,6 +40,6 @@ namespace Modix.Web.Server.Authorization
             => $"{PermissionCategory}.{PermissionName}({PermissionId})";
 
         private static readonly Regex _parseRegex
-            = new(@"^(?<category>\w+)\.(?<name>\w+)\((?<id>)\)$");
+            = new(@"^(?<category>\w+)\.(?<name>\w+)\((?<id>\d+)\)$");
     }
 }

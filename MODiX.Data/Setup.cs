@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
+using Modix.Data.Permissions;
 using Modix.Data.Users;
 
 namespace Modix.Data
@@ -16,6 +17,7 @@ namespace Modix.Data
                     options.UseNpgsql(configuration.GetConnectionString("MODiX.Data"), optionsBuilder => optionsBuilder
                         .MigrationsAssembly("MODiX.Data.Migrations")))
                 .AddSingleton<ITransactionScopeFactory, TransactionScopeFactory>()
+                .AddPermissions()
                 .AddUsers();
     }
 }

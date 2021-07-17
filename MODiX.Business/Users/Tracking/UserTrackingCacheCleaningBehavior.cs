@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.PlatformServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -17,61 +16,87 @@ using Modix.Data.Users;
 namespace Modix.Business.Users.Tracking
 {
     internal class UserTrackingCacheCleaningBehavior
-        : ReactiveBehaviorBase
+        : BackgroundService
     {
         public UserTrackingCacheCleaningBehavior(
-                    ILogger<UserTrackingCacheCleaningBehavior>  logger,
-                    IServiceScopeFactory                        serviceScopeFactory,
-                    ISystemClock                                systemClock,
-                    IUserTrackingCache                          userTrackingCache,
-                    IOptions<UserTrackingConfiguration>         userTrackingConfiguration)
-                : base(logger)
+            ILogger<UserTrackingCacheCleaningBehavior>  logger,
+            IServiceScopeFactory                        serviceScopeFactory,
+            ISystemClock                                systemClock,
+            IUserTrackingCache                          userTrackingCache,
+            IOptions<UserTrackingConfiguration>         userTrackingConfiguration)
+        {
+            _logger                     = logger;
+            _serviceScopeFactory        = serviceScopeFactory;
+            _systemClock                = systemClock;
+            _userTrackingCache          = userTrackingCache;
+            _userTrackingConfiguration  = userTrackingConfiguration;
+        }
+
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
             // Each time the oldest entry in the cache changes (and isn't null), wait until CacheTimeout after it was added, then run a cleanup.
-            => _behavior = userTrackingCache.OldestEntryAdded
+            var timer = _userTrackingCache.OldestEntryAdded
                 .WhereNotNull()
-                .Delay(oldestEntryAdded => Observable.Timer(dueTime: oldestEntryAdded + (userTrackingConfiguration.Value.CacheTimeout ?? UserTrackingDefaults.DefaultCacheTimeout)))
-                .Select(_ => Observable.FromAsync(async () =>
+                .Delay(oldestEntryAdded => Observable.Timer(dueTime: oldestEntryAdded + (_userTrackingConfiguration.Value.CacheTimeout ?? UserTrackingDefaults.DefaultCacheTimeout)))
+                .Publish();
+
+            var whenStopped = ListenAsync();
+
+            using var timerConnection = timer.Connect();
+            stoppingToken.Register(() => timerConnection.Dispose());
+
+            await whenStopped;
+
+            async Task ListenAsync()
+            {
+                while(!stoppingToken.IsCancellationRequested)
                 {
-                    UserTrackingLogMessages.CacheCleaning(Logger);
+                    await timer.FirstAsync();
 
-                    using var serviceScope = serviceScopeFactory.CreateScope();
+                    using var serviceScope = _serviceScopeFactory.CreateScope();
+                    using var logScope = _logger.BeginScope(new[]
+                    {
+                        new KeyValuePair<string, object?>("ScopeId", Guid.NewGuid())
+                    });
 
-                    var now = systemClock.UtcNow;
+                    UserTrackingLogMessages.CacheCleaning(_logger);
+
+                    var now = _systemClock.UtcNow;
 
                     // Retrieve all expired models from the cache, and pick out the ones that have been updated since the last save.
                     // For those, we will perform a save, and re-add them to the cache, with a new LastSave timestamp.
                     // The rest will be discarded.
 
                     IReadOnlyList<UserTrackingCacheEntry> entriesToSave;
-                    using (var @lock = await userTrackingCache.LockAsync(CancellationToken.None))
+                    using (var @lock = await _userTrackingCache.LockAsync(stoppingToken))
                     {
-                        var timeout = userTrackingConfiguration.Value.CacheTimeout ?? UserTrackingDefaults.DefaultCacheTimeout;
+                        var timeout = _userTrackingConfiguration.Value.CacheTimeout ?? UserTrackingDefaults.DefaultCacheTimeout;
 
-                        UserTrackingLogMessages.CacheEntriesRemoving(Logger, timeout);
-                        entriesToSave = userTrackingCache.RemoveOldEntries(timeout)
+                        UserTrackingLogMessages.CacheEntriesRemoving(_logger, timeout);
+                        entriesToSave = _userTrackingCache.RemoveOldEntries(timeout)
                             .Where(trackingModel => trackingModel.LastUpdated > trackingModel.LastSaved)
                             .ToArray();
-                        UserTrackingLogMessages.CacheEntriesRemoved(Logger);
+                        UserTrackingLogMessages.CacheEntriesRemoved(_logger);
 
                         if (entriesToSave.Count is 0)
-                            UserTrackingLogMessages.CacheEntriesResetNotNeeded(Logger);
+                            UserTrackingLogMessages.CacheEntriesResetNotNeeded(_logger);
                         else
                         {
-                            UserTrackingLogMessages.CacheEntriesResetting(Logger, entriesToSave.Count);
+                            UserTrackingLogMessages.CacheEntriesResetting(_logger, entriesToSave.Count);
                             foreach (var entry in entriesToSave)
-                                userTrackingCache.SetEntry(entry with
+                                _userTrackingCache.SetEntry(entry with
                                 {
                                     LastSaved = now
                                 });
-                            UserTrackingLogMessages.CacheEntriesReset(Logger, entriesToSave.Count);
+                            UserTrackingLogMessages.CacheEntriesReset(_logger, entriesToSave.Count);
                         }
                     }
 
                     if (entriesToSave.Count is 0)
-                        UserTrackingLogMessages.CacheEntriesSaveNotNeeded(Logger);
+                        UserTrackingLogMessages.CacheEntriesSaveNotNeeded(_logger);
                     else
                     {
-                        UserTrackingLogMessages.CacheEntriesSaving(Logger, entriesToSave.Count);
+                        UserTrackingLogMessages.CacheEntriesSaving(_logger, entriesToSave.Count);
                         await serviceScope.ServiceProvider.GetRequiredService<IUsersRepository>()
                             .MergeAsync(
                                 entriesToSave
@@ -84,19 +109,19 @@ namespace Modix.Business.Users.Tracking
                                             avatarHash:     entry.AvatarHash,
                                             nickname:       nicknameByGuildId.Value,
                                             timestamp:      entry.LastUpdated))),
-                                CancellationToken.None);
-                        UserTrackingLogMessages.CacheEntriesSaved(Logger, entriesToSave.Count);
+                                stoppingToken);
+                        UserTrackingLogMessages.CacheEntriesSaved(_logger, entriesToSave.Count);
                     }
 
-                    UserTrackingLogMessages.CacheCleaned(Logger);
-                }))
-                .Switch();
+                    UserTrackingLogMessages.CacheCleaned(_logger);
+                }
+            }
+        }
 
-        protected override IDisposable Start(IScheduler scheduler)
-            => _behavior
-                .SubscribeOn(scheduler)
-                .Subscribe();
-
-        private readonly IObservable<Unit> _behavior;
+        private readonly ILogger                                _logger;
+        private readonly IServiceScopeFactory                   _serviceScopeFactory;
+        private readonly ISystemClock                           _systemClock;
+        private readonly IUserTrackingCache                     _userTrackingCache;
+        private readonly IOptions<UserTrackingConfiguration>    _userTrackingConfiguration;
     }
 }

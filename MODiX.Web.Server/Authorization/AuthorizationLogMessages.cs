@@ -201,7 +201,7 @@ namespace Modix.Web.Server.Authorization
             = LoggerMessage.Define<Snowflake>(
                     LogLevel.Debug,
                     EventType.UserIdRetrieved.ToEventId(),
-                    "Retrieving user ID ({UserId})")
+                    "User ID retrieved ({UserId})")
                 .WithoutException();
 
         public static void UserIdRetrieving(ILogger logger)

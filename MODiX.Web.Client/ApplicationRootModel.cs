@@ -20,7 +20,8 @@ namespace Modix.Web.Client
                 .ShareReplay(1);
 
             var selectedGuild = Observable.CombineLatest(
-                    authenticationManager.ActiveGuildId,
+                    authenticationManager.ActiveGuildIdChanged
+                        .StartWith(authenticationManager.ActiveGuildId),
                     AvailableGuilds,
                     (activeGuildId, availableGuilds) =>
                     {
@@ -28,7 +29,7 @@ namespace Modix.Web.Client
                         if (activeGuild is null)
                         {
                             activeGuild = availableGuilds.First();
-                            authenticationManager.ActivateGuild(activeGuild.Id);
+                            authenticationManager.ActiveGuildId = activeGuild.Id;
                         }
 
                         return activeGuild;

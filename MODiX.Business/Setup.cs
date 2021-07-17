@@ -2,11 +2,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-using Remora.Discord.Gateway.Reaction;
-
 using Modix.Business.Authorization;
 using Modix.Business.Diagnostics;
 using Modix.Business.Guilds;
+using Modix.Business.Messaging;
 using Modix.Business.Users;
 
 namespace Modix.Business
@@ -19,7 +18,7 @@ namespace Modix.Business
                     .Bind(configuration.GetSection("Discord"))
                     .ValidateDataAnnotations()
                     .ValidateOnStartup())
-                .AddGatewayReaction()
+                .AddMessaging(configuration)
                 .AddAuthorization(configuration)
                 .AddDiagnostics(configuration)
                 .AddGuilds()

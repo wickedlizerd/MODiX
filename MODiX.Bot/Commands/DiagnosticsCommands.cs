@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 
 using Humanizer;
@@ -17,7 +15,6 @@ using Remora.Discord.Commands.Contexts;
 using Remora.Discord.Core;
 using Remora.Results;
 
-using Modix.Bot.Controls;
 using Modix.Business.Diagnostics;
 using Modix.Web.Protocol.Diagnostics;
 
@@ -30,19 +27,15 @@ namespace Modix.Bot.Commands
             = "❌";
 
         public DiagnosticsCommands(
-            IReactionButtonFactory buttonFactory,
             IDiscordRestChannelAPI channelApi,
             IDiagnosticsManager diagnosticsManager,
             IDiagnosticsService diagnosticsService,
-            IMessageDialogFactory dialogFactory,
             ICommandContext context)
         {
-            _buttonFactory = buttonFactory;
             _channelApi = channelApi;
             _context = context;
             _diagnosticsManager = diagnosticsManager;
             _diagnosticsService = diagnosticsService;
-            _dialogFactory = dialogFactory;
         }
 
         [Command("echo")]
@@ -55,44 +48,8 @@ namespace Modix.Bot.Commands
         }
 
         [Command("delay")]
-        public async Task<IResult> DelayAsync(TimeSpan duration)
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-
-            var messageCreationResult = await _channelApi.CreateMessageAsync(
-                channelID:  _context.ChannelID,
-                content:    $"Delaying for {duration.Humanize()}...");
-            if (!messageCreationResult.IsSuccess)
-                return Result.FromError(messageCreationResult);
-
-            await using var button = await _buttonFactory.CreateAsync(
-                guildId:            (_context is MessageContext messageContext) && messageContext.Message.GuildID.HasValue
-                    ? messageContext.Message.GuildID.Value
-                    : null as Snowflake?,
-                channelId:  _context.ChannelID,
-                messageId:  messageCreationResult.Entity.ID,
-                emojiName:  "❌");
-
-            stopwatch.Stop();
-            var wasCancelled = false;
-            var remaining = duration - stopwatch.Elapsed;
-            if (remaining > TimeSpan.Zero)
-                await Task.WhenAny(
-                    Task.Delay(remaining),
-                    button.Clicked
-                        .Take(1)
-                        .Do(_ => wasCancelled = true)
-                        .ToTask());
-
-            var editMessageResult = await _channelApi.EditMessageAsync(
-                channelID:  _context.ChannelID,
-                messageID:  messageCreationResult.Entity.ID,
-                content:    $"Delay ({duration.Humanize()}) {(wasCancelled ? "cancelled" : "completed")}");
-            return editMessageResult.IsSuccess
-                ? Result.FromSuccess()
-                : Result.FromError(editMessageResult);
-        }
+        public Task<IResult> DelayAsync(TimeSpan duration)
+            => Task.FromException<IResult>(new NotImplementedException());
 
         [Command("ping")]
         public async Task<IResult> PingAsync()
@@ -185,32 +142,12 @@ namespace Modix.Bot.Commands
         }
 
         [Command("serverclock")]
-        public async Task<IResult> ServerClockAsync()
-        {
-            await using var dialog = await _dialogFactory.CreateAsync(
-                guildId:            (_context is MessageContext messageContext) && messageContext.Message.GuildID.HasValue
-                    ? messageContext.Message.GuildID.Value
-                    : null as Snowflake?,
-                channelId:          _context.ChannelID,
-                buttonEmojiNames:   new[] { "❌" },
-                content:            RenderServerTime(await _diagnosticsManager.SystemClock.Take(1)));
+        public Task<IResult> ServerClockAsync()
+            => Task.FromException<IResult>(new NotImplementedException());
 
-            await _diagnosticsManager.SystemClock
-                .Sample(TimeSpan.FromSeconds(5))
-                .SelectMany(now => dialog.UpdateAsync(content: RenderServerTime(now)))
-                .TakeUntil(dialog.ButtonClicked);
-
-            return Result.FromSuccess();
-
-            static string RenderServerTime(DateTimeOffset serverTime)
-                => $"Server Time: {serverTime:yyyy-MMM-dd hh:mm:ss tt K}";
-        }
-
-        private readonly IReactionButtonFactory _buttonFactory;
         private readonly IDiscordRestChannelAPI _channelApi;
         private readonly ICommandContext _context;
         private readonly IDiagnosticsManager _diagnosticsManager;
         private readonly IDiagnosticsService _diagnosticsService;
-        private readonly IMessageDialogFactory _dialogFactory;
     }
 }

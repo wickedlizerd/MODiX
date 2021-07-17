@@ -1,7 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+
+using Modix.Business.Messaging;
 
 namespace Modix.Business.Users.Tracking
 {
@@ -14,8 +15,8 @@ namespace Modix.Business.Users.Tracking
                     .ValidateDataAnnotations()
                     .ValidateOnStartup())
                 .AddSingleton<IUserTrackingCache, UserTrackingCache>()
-                .AddReactiveBehavior<UserTrackingEventListeningBehavior>()
-                .AddReactiveBehavior<UserTrackingCacheCleaningBehavior>()
+                .AddNotificationHandler<UserTrackingNotificationHandler>()
+                .AddHostedService<UserTrackingCacheCleaningBehavior>()
                 .AddScoped<IUserTrackingService, UserTrackingService>();
     }
 }

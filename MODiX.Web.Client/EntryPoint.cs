@@ -14,6 +14,7 @@ using Modix.Web.Client.Authentication;
 using Modix.Web.Client.Diagnostics;
 using Modix.Web.Client.Guilds;
 using Modix.Web.Protocol;
+using Modix.Web.Protocol.Authorization;
 
 namespace Modix.Web.Client
 {
@@ -39,9 +40,12 @@ namespace Modix.Web.Client
                     {
                         Credentials = ChannelCredentials.Create(new SslCredentials(), CallCredentials.FromInterceptor((context, metadata) =>
                         {
-                            var token = serviceProvider.GetRequiredService<IAuthenticationManager>().BearerToken;
-                            if (!string.IsNullOrWhiteSpace(token))
-                                metadata.Add("Authorization", $"Bearer {token}");
+                            var authenticationManager = serviceProvider.GetRequiredService<IAuthenticationManager>();
+
+                            if (!string.IsNullOrWhiteSpace(authenticationManager.BearerToken))
+                                metadata.Add("Authorization", $"Bearer {authenticationManager.BearerToken}");
+                            if (authenticationManager.ActiveGuildId.HasValue)
+                                metadata.Add(AuthorizationConstants.GuildIdHeaderName, authenticationManager.ActiveGuildId.Value.ToString());
 
                             return Task.CompletedTask;
                         })),
