@@ -3,6 +3,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 using Modix.Data.Permissions;
 using Modix.Data.Users;
@@ -13,9 +14,11 @@ namespace Modix.Data
     {
         public static IServiceCollection AddModixData(this IServiceCollection services, IConfiguration configuration)
             => services
-                .AddDbContext<ModixDbContext>(options =>
-                    options.UseNpgsql(configuration.GetConnectionString("MODiX.Data"), optionsBuilder => optionsBuilder
-                        .MigrationsAssembly("MODiX.Data.Migrations")))
+                .Add(services => services.AddOptions<DataConfiguration>()
+                    .Bind(configuration.GetSection("MODiX:Data"))
+                    .ValidateDataAnnotations()
+                    .ValidateOnStartup())
+                .AddDbContext<ModixDbContext>()
                 .AddSingleton<ITransactionScopeFactory, TransactionScopeFactory>()
                 .AddPermissions()
                 .AddUsers();

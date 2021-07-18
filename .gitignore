@@ -1,6 +1,7 @@
 .vs
 bin
 obj
-logs
 
 *.*proj.user
+
+MODiX.Web.Client\Properties\launchSettings.json
