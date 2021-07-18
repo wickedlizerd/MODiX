@@ -1,7 +1,5 @@
 ﻿using System;
 
-using Microsoft.Extensions.Hosting;
-
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
