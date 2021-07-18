@@ -129,7 +129,7 @@ namespace Modix.Business.Users.Tracking
             Optional<string?>   nickname,
             CancellationToken   cancellationToken)
         {
-            UserTrackingLogMessages.UserTracking(_logger, guildId, userId, username, discriminator, avatarHash, nickname);
+            UserTrackingLogMessages.UserTracking(_logger, userId, guildId, username, discriminator, avatarHash, nickname);
             await _userTrackingService.TrackUserAsync(
                 guildId:            guildId,
                 userId:             userId,
@@ -138,7 +138,7 @@ namespace Modix.Business.Users.Tracking
                 avatarHash:         avatarHash,
                 nickname:           nickname,
                 cancellationToken:  cancellationToken);
-            UserTrackingLogMessages.UserTracked(_logger, guildId, userId);
+            UserTrackingLogMessages.UserTracked(_logger, userId, guildId);
         }
 
         private readonly ILogger                _logger;
