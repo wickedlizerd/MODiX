@@ -20,9 +20,9 @@ namespace Modix.Host
                 })
                 .ConfigureAppConfiguration((context, builder) =>
                 {
-                    var keyPerFilePath = context.Configuration.GetSection("MODiX:Host:SecretsFilesPath").Value;
-                    if (!string.IsNullOrWhiteSpace(keyPerFilePath))
-                        builder.AddKeyPerFile(keyPerFilePath);
+                    var secretsFilesPath = context.Configuration["SECRETS_FILES_PATH"];
+                    if (!string.IsNullOrWhiteSpace(secretsFilesPath))
+                        builder.AddKeyPerFile(secretsFilesPath);
                 })
                 .ConfigureWebHostDefaults(webHost => webHost
                     .UseStartup<Startup>())
