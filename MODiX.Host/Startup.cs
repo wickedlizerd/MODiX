@@ -44,8 +44,9 @@ namespace Modix.Host
 
         public void Configure(IApplicationBuilder application)
         {
-            application
-                .UseResponseCompression();
+            // TODO: Figure out how to make this work with gRPC-Web?
+            //application
+            //    .UseResponseCompression();
 
             if (_webHostEnvironment.IsDevelopment())
                 application

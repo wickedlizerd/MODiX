@@ -4,4 +4,4 @@ obj
 
 *.*proj.user
 
-MODiX.Web.Client\Properties\launchSettings.json
+MODiX.Web.Client/Properties/launchSettings.json
