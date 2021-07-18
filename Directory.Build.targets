@@ -15,6 +15,7 @@
     <PackageReference Update="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
     <PackageReference Update="Microsoft.EntityFrameworkCore.Design" Version="5.0.7" />
     <PackageReference Update="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
+    <PackageReference Update="Microsoft.Extensions.Configuration.KeyPerFile" Version="5.0.8" />
     <PackageReference Update="Microsoft.Extensions.Configuration.UserSecrets" Version="5.0.0" />
     <PackageReference Update="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
     <PackageReference Update="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
