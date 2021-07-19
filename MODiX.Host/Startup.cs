@@ -30,10 +30,9 @@ namespace Modix.Host
 
         public void ConfigureServices(IServiceCollection services)
             => services
-                // TODO: Figure out how to make this work with gRPC-Web?
-                //.AddResponseCompression(options => options
-                //    .MimeTypes = ResponseCompressionDefaults.MimeTypes
-                //        .Append("application/octet-stream"))
+                .AddResponseCompression(options => options
+                    .MimeTypes = ResponseCompressionDefaults.MimeTypes
+                        .Append("application/octet-stream"))
                 .AddSingleton<ISystemClock, DefaultSystemClock>()
                 .AddLogging(_configuration)
                 .AddModixBot()
@@ -44,9 +43,8 @@ namespace Modix.Host
 
         public void Configure(IApplicationBuilder application)
         {
-            // TODO: Figure out how to make this work with gRPC-Web?
-            //application
-            //    .UseResponseCompression();
+            application
+                .UseResponseCompression();
 
             if (_webHostEnvironment.IsDevelopment())
                 application
