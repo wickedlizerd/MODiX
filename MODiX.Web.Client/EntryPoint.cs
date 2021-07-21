@@ -13,7 +13,6 @@ using Grpc.Net.Client.Web;
 using Modix.Web.Client.Authentication;
 using Modix.Web.Client.Diagnostics;
 using Modix.Web.Client.Guilds;
-using Modix.Web.Protocol;
 using Modix.Web.Protocol.Authorization;
 
 namespace Modix.Web.Client
@@ -23,8 +22,6 @@ namespace Modix.Web.Client
         #pragma warning disable IDE1006 // MainAsync would not be valid
         public static async Task Main(string[] args)
         {
-            ProtocolConfiguration.Apply();
-
             var hostBuilder = WebAssemblyHostBuilder.CreateDefault(args);
 
             hostBuilder.RootComponents.Add<ApplicationRoot>("#application-root");

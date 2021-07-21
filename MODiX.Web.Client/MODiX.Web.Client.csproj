@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <RootNamespace>Modix.Web.Client</RootNamespace>
-    <PublishTrimmed>false</PublishTrimmed>
   </PropertyGroup>
 
   <ItemGroup>

@@ -25,7 +25,7 @@ namespace Modix.Web.Protocol.Diagnostics
         [ProtoMember(1)]
         public string EndpointName { get; private init; }
 
-        [ProtoMember(2, DataFormat = DataFormat.WellKnown)]
+        [ProtoMember(2)]
         public TimeSpan? Latency { get; private init; }
 
         [ProtoMember(3)]

@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
 using ProtoBuf.Meta;
 
 namespace Modix.Web.Protocol
 {
-    public static class ProtocolConfiguration
+    public static class ModuleInitializer
     {
-        public static void Apply()
+        [ModuleInitializer]
+        public static void Initialize()
             => RuntimeTypeModel.Default
                 .Add(typeof(DateTimeOffset), applyDefaultBehaviour: false)
                 .SetSurrogate(typeof(DateTimeOffsetModel));
