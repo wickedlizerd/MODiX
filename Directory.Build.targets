@@ -13,7 +13,7 @@
     <PackageReference Update="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.0-preview.6.21355.2" />
     <PackageReference Update="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.0-preview.6.21355.2" />
     <PackageReference Update="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
-    <PackageReference Update="Microsoft.EntityFrameworkCore.Design" Version="5.0.7" />
+    <PackageReference Update="Microsoft.EntityFrameworkCore.Design" Version="5.0.8" />
     <PackageReference Update="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0-preview.6.21352.12" />
     <PackageReference Update="Microsoft.Extensions.Configuration.KeyPerFile" Version="6.0.0-preview.6.21355.2" />
     <PackageReference Update="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0-preview.6.21352.12" />
@@ -40,7 +40,7 @@
     <PackageReference Update="Serilog.Expressions" Version="3.2.0" />
     <PackageReference Update="Serilog.Sinks.Seq" Version="5.0.1" />
     <PackageReference Update="StructuredLoggerMessage" Version="1.1.0" />
-    <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="6.11.1" />
+    <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="6.12.0" />
     <PackageReference Update="System.Interactive.Async" Version="5.0.0" />
     <PackageReference Update="System.Linq.Async" Version="5.0.0" />
     <PackageReference Update="System.Net.Http.Json" Version="6.0.0-preview.6.21352.12" />
