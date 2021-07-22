@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
+using Modix.Data.Diagnostics;
 using Modix.Data.Permissions;
 using Modix.Data.Users;
 
@@ -20,6 +21,7 @@ namespace Modix.Data
                     .ValidateOnStartup())
                 .AddDbContext<ModixDbContext>()
                 .AddSingleton<ITransactionScopeFactory, TransactionScopeFactory>()
+                .AddDiagnostics()
                 .AddPermissions()
                 .AddUsers();
     }

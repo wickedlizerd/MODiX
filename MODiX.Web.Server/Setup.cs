@@ -31,9 +31,14 @@ namespace Modix.Web.Server
                 {
                     DefaultEnabled = true
                 })
-                .UseEndpoints(endpoints => endpoints
-                    .MapAuthentication()
-                    .MapDiagnostics()
-                    .MapGuilds());
+                .UseEndpoints(endpoints =>
+                {
+                    endpoints
+                        .MapHealthChecks("/health");
+                    endpoints
+                        .MapAuthentication()
+                        .MapDiagnostics()
+                        .MapGuilds();
+                });
     }
 }

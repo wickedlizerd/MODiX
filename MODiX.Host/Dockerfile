@@ -18,7 +18,9 @@ RUN dotnet test -c Release --no-build --no-restore MODiX.sln
 
 FROM dotnet-build AS publish
 RUN dotnet publish -c Release --no-build --no-restore -o /app  MODiX.Host/MODiX.Host.csproj
+RUN dotnet publish -c Release --no-build --no-restore -o /app  MODiX.HealthCheck/MODiX.HealthCheck.csproj
 
 FROM base AS final
 COPY --from=publish /app .
+HEALTHCHECK CMD dotnet MODiX.HealthCheck.dll "http://localhost:80/health" || exit 1
 ENTRYPOINT ["dotnet", "MODiX.Host.dll"]

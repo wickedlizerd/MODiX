@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MODiX.Data", "MODiX.Data\MO
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MODiX.Data.Migrations", "MODiX.Data.Migrations\MODiX.Data.Migrations.csproj", "{BF11288A-1D03-4086-AC2E-370223318042}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MODiX.HealthCheck", "MODiX.HealthCheck\MODiX.HealthCheck.csproj", "{CA0A7E65-5E79-43D4-A171-B417743DB2CC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{BF11288A-1D03-4086-AC2E-370223318042}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BF11288A-1D03-4086-AC2E-370223318042}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BF11288A-1D03-4086-AC2E-370223318042}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA0A7E65-5E79-43D4-A171-B417743DB2CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA0A7E65-5E79-43D4-A171-B417743DB2CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA0A7E65-5E79-43D4-A171-B417743DB2CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA0A7E65-5E79-43D4-A171-B417743DB2CC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
