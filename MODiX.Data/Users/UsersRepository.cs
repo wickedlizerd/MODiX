@@ -73,7 +73,7 @@ namespace Modix.Data.Users
             CancellationToken   cancellationToken)
         {
             UsersLogMessages.UserRetrieving(_logger, model.UserId);
-            var user = await _modixDbContext.FindAsync<UserEntity?>(new object[] { model.UserId }, cancellationToken);
+            var user = await _modixDbContext.FindAsync<UserEntity>(new object[] { model.UserId }, cancellationToken);
             if (user is not null)
                 UsersLogMessages.UserRetrieved(_logger, model.UserId);
             else
@@ -128,7 +128,7 @@ namespace Modix.Data.Users
             }
 
             UsersLogMessages.GuildUserRetrieving(_logger, model.GuildId, model.UserId);
-            var guildUser = await _modixDbContext.FindAsync<GuildUserEntity?>(new object[] { model.GuildId, model.UserId }, cancellationToken);
+            var guildUser = await _modixDbContext.FindAsync<GuildUserEntity>(new object[] { model.GuildId, model.UserId }, cancellationToken);
             if (guildUser is not null)
                 UsersLogMessages.GuildUserRetrieved(_logger, model.GuildId, model.UserId);
             else
