@@ -39,7 +39,7 @@
     <PackageReference Update="Serilog.AspNetCore" Version="4.1.0" />
     <PackageReference Update="Serilog.Expressions" Version="3.2.0" />
     <PackageReference Update="Serilog.Sinks.Seq" Version="5.0.1" />
-    <PackageReference Update="StructuredLoggerMessage" Version="1.0.0" />
+    <PackageReference Update="StructuredLoggerMessage" Version="1.1.0" />
     <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="6.11.1" />
     <PackageReference Update="System.Interactive.Async" Version="5.0.0" />
     <PackageReference Update="System.Linq.Async" Version="5.0.0" />

@@ -25,16 +25,24 @@ namespace Modix.Business.Messaging
                     ILogger                             logger,
                     INotificationHandler<TNotification> handler)
                 where TNotification : notnull
-            => logger.BeginScope(new StructuredLoggerState<string>(
-                new("NotificationHandlerType", handler.GetType().Name)));
+            => _beginHandlerScope.Invoke(
+                logger,
+                handler.GetType().Name);
+        private static readonly Func<ILogger, string, IDisposable> _beginHandlerScope
+            = StructuredLoggerMessage.DefineScopeData<string>("NotificationHandlerType");
 
         public static IDisposable BeginNotificationScope<TNotification>(
                     ILogger logger,
                     Guid    scopeId)
                 where TNotification : notnull
-            => logger.BeginScope(new StructuredLoggerState<string, Guid>(
-                new("NotificationType", typeof(TNotification).Name),
-                new("ScopeId",          scopeId)));
+            => _beginNotificationScope.Invoke(
+                logger,
+                typeof(TNotification).Name,
+                scopeId);
+        private static readonly Func<ILogger, string, Guid, IDisposable> _beginNotificationScope
+            = StructuredLoggerMessage.DefineScopeData<string, Guid>(
+                "NotificationType",
+                "ScopeId");
 
         public static void HandlerInvocationFailed(
                 ILogger     logger,
