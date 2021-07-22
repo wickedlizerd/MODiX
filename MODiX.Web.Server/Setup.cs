@@ -1,11 +1,9 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using ProtoBuf.Grpc.Server;
 
-using Modix.Web.Protocol;
 using Modix.Web.Server.Authentication;
 using Modix.Web.Server.Authorization;
 using Modix.Web.Server.Diagnostics;
@@ -16,17 +14,13 @@ namespace Modix.Web.Server
     public static class Setup
     {
         public static IServiceCollection AddModixWebServer(this IServiceCollection services, IConfiguration configuration)
-        {
-            ProtocolConfiguration.Apply();
-
-            return services
+            => services
                 .AddHttpContextAccessor()
                 .Add(services => services.AddCodeFirstGrpc())
                 .AddAuthentication(configuration)
                 .AddModixAuthorization()
                 .AddDiagnostics()
                 .AddGuilds();
-        }
 
         public static IApplicationBuilder UseModixWebServer(this IApplicationBuilder application)
             => application
@@ -37,9 +31,14 @@ namespace Modix.Web.Server
                 {
                     DefaultEnabled = true
                 })
-                .UseEndpoints(endpoints => endpoints
-                    .MapAuthentication()
-                    .MapDiagnostics()
-                    .MapGuilds());
+                .UseEndpoints(endpoints =>
+                {
+                    endpoints
+                        .MapHealthChecks("/health");
+                    endpoints
+                        .MapAuthentication()
+                        .MapDiagnostics()
+                        .MapGuilds();
+                });
     }
 }

@@ -36,6 +36,15 @@ namespace Modix.Business.Users.Tracking
             UserTracked                     = 0x17
         }
 
+        public static IDisposable BeginBackgroundScope(
+                ILogger logger,
+                Guid    guid)
+            => _beginBackgroundScope.Invoke(
+                logger,
+                guid);
+        private static readonly Func<ILogger, Guid, IDisposable> _beginBackgroundScope
+            = StructuredLoggerMessage.DefineScopeData<Guid>("ScopeId");
+
         public static void CacheCleaned(ILogger logger)
             => _cacheCleaned.Invoke(logger);
         private static readonly Action<ILogger> _cacheCleaned

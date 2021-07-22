@@ -54,10 +54,7 @@ namespace Modix.Business.Users.Tracking
                     await timer.FirstAsync();
 
                     using var serviceScope = _serviceScopeFactory.CreateScope();
-                    using var logScope = _logger.BeginScope(new[]
-                    {
-                        new KeyValuePair<string, object?>("ScopeId", Guid.NewGuid())
-                    });
+                    using var logScope = UserTrackingLogMessages.BeginBackgroundScope(_logger, Guid.NewGuid());
 
                     UserTrackingLogMessages.CacheCleaning(_logger);
 

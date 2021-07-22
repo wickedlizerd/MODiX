@@ -1,7 +1,7 @@
-FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS dotnet-build-base
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS dotnet-build-base
 WORKDIR /src
 COPY MODiX.sln .
 COPY Directory.* .
@@ -18,7 +18,9 @@ RUN dotnet test -c Release --no-build --no-restore MODiX.sln
 
 FROM dotnet-build AS publish
 RUN dotnet publish -c Release --no-build --no-restore -o /app  MODiX.Host/MODiX.Host.csproj
+RUN dotnet publish -c Release --no-build --no-restore -o /app  MODiX.HealthCheck/MODiX.HealthCheck.csproj
 
 FROM base AS final
 COPY --from=publish /app .
+HEALTHCHECK CMD dotnet MODiX.HealthCheck.dll "http://localhost:80/health" || exit 1
 ENTRYPOINT ["dotnet", "MODiX.Host.dll"]

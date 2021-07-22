@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="protobuf-net" /> <!-- Overrides version required by protobuf-net.Grpc, see https://github.com/protobuf-net/protobuf-net.Grpc/issues/190 -->
     <PackageReference Include="protobuf-net.Grpc" />
     <PackageReference Include="System.ServiceModel.Primitives" />
   </ItemGroup>

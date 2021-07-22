@@ -52,7 +52,6 @@ namespace Modix.Host
                     .UseWebAssemblyDebugging();
 
             application
-                .UseHttpsRedirection()
                 .UseBlazorFrameworkFiles()
                 .UseStaticFiles()
                 .UseModixWebServer()

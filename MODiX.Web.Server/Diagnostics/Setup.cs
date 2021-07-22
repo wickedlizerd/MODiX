@@ -10,7 +10,9 @@ namespace Modix.Web.Server.Diagnostics
     {
         public static IServiceCollection AddDiagnostics(this IServiceCollection services)
             => services
-                .AddScopedWithAlias<DiagnosticsContract, IDiagnosticsContract>();
+                .AddScopedWithAlias<DiagnosticsContract, IDiagnosticsContract>()
+                .Add(services => services.AddHealthChecks()
+                    .AddCheck<PipelineHealthCheck>("modix-web-server-pipeline"));
 
         public static IEndpointRouteBuilder MapDiagnostics(this IEndpointRouteBuilder endpoints)
             => endpoints
