@@ -19,15 +19,11 @@ namespace Modix.Data
                     .Bind(configuration.GetSection("MODiX:Data"))
                     .ValidateDataAnnotations()
                     .ValidateOnStartup())
-                .AddDbContext<ModixDbContext>((serviceProvider, builder) =>
-                {
-                    var configuration = serviceProvider.GetRequiredService<IOptions<DataConfiguration>>();
-
-                    builder.UseNpgsql(
-                        configuration.Value.ConnectionString,
+                .AddDbContext<ModixDbContext>((serviceProvider, builder) => builder
+                    .UseNpgsql(
+                        serviceProvider.GetRequiredService<IOptions<DataConfiguration>>().Value.ConnectionString,
                         optionsBuilder => optionsBuilder
-                            .MigrationsAssembly("MODiX.Data.Migrations"));
-                })
+                            .MigrationsAssembly("MODiX.Data.Migrations")))
                 .AddSingleton<ITransactionScopeFactory, TransactionScopeFactory>()
                 .AddDiagnostics()
                 .AddPermissions()
