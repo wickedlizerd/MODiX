@@ -19,8 +19,8 @@ namespace Modix.Business.Authorization
     public interface IAuthorizationService
     {
         ValueTask<Result<IReadOnlyCollection<int>>> GetGrantedPermissionIdsAsync(
-            Snowflake           guildId,
             Snowflake           userId,
+            Snowflake           guildId,
             CancellationToken   cancellationToken);
     }
 
@@ -42,11 +42,11 @@ namespace Modix.Business.Authorization
         }
 
         public async ValueTask<Result<IReadOnlyCollection<int>>> GetGrantedPermissionIdsAsync(
-            Snowflake           guildId,
             Snowflake           userId,
+            Snowflake           guildId,
             CancellationToken   cancellationToken)
         {
-            AuthorizationLogMessages.GrantedPermissionIdsRetrieving(_logger, guildId, userId);
+            AuthorizationLogMessages.GrantedPermissionIdsRetrieving(_logger, userId, guildId);
 
             using var @lock = await _authorizationPermissionsCache.LockAsync(cancellationToken);
 
@@ -67,16 +67,16 @@ namespace Modix.Business.Authorization
             }
 
             // If the permissions for this users are cached, return those.
-            var cacheEntry = _authorizationPermissionsCache.TryGetEntry((guildId, userId));
+            var cacheEntry = _authorizationPermissionsCache.TryGetEntry((userId, guildId));
             if (cacheEntry is not null)
             {
-                AuthorizationLogMessages.GrantedPermissionIdsRetrieved(_logger, guildId, userId, cacheEntry.GrantedPermissionIds.Count);
+                AuthorizationLogMessages.GrantedPermissionIdsRetrieved(_logger, userId, guildId, cacheEntry.GrantedPermissionIds.Count);
                 return Result<IReadOnlyCollection<int>>.FromSuccess(cacheEntry.GrantedPermissionIds);
             }
-            AuthorizationLogMessages.GrantedPermissionIdsNotFound(_logger, guildId, userId);
+            AuthorizationLogMessages.GrantedPermissionIdsNotFound(_logger, userId, guildId);
 
-            AuthorizationLogMessages.GuildMemberRetrieving(_logger, guildId, userId);
-            var guildMemberResult = await _discordRestGuildAPI.GetGuildMemberAsync(guildId, userId, cancellationToken);
+            AuthorizationLogMessages.GuildMemberRetrieving(_logger, userId, guildId);
+            var guildMemberResult = await _discordRestGuildAPI.GetGuildMemberAsync(userId, guildId, cancellationToken);
             if (!guildMemberResult.IsSuccess)
             {
                 AuthorizationLogMessages.GuildMemberRetrievalFailed(_logger, guildMemberResult.Error);
@@ -90,7 +90,7 @@ namespace Modix.Business.Authorization
                 AuthorizationLogMessages.GuildMemberRetrievalFailed(_logger, error);
                 return Result<IReadOnlyCollection<int>>.FromError(error);
             }
-            AuthorizationLogMessages.GuildMemberRetrieved(_logger, guildId, userId, guildMember.Permissions.Value, guildMember.Roles.Count);
+            AuthorizationLogMessages.GuildMemberRetrieved(_logger, userId, guildId, guildMember.Permissions.Value, guildMember.Roles.Count);
 
             var grantedPermissionIds = new HashSet<int>();
 
@@ -145,12 +145,12 @@ namespace Modix.Business.Authorization
             AuthorizationLogMessages.RolePermissionMappingsEnumerated(_logger, guildId);
 
             // Don't forget to cache these results for later.
-            AuthorizationLogMessages.GrantedPermissionIdsCaching(_logger, guildId, userId, grantedPermissionIds.Count);
+            AuthorizationLogMessages.GrantedPermissionIdsCaching(_logger, userId, guildId, grantedPermissionIds.Count);
             _authorizationPermissionsCache.SetEntry(new AuthorizationPermissionsCacheEntry(
-                guildId:                guildId,
                 userId:                 userId,
+                guildId:                guildId,
                 grantedPermissionIds:   grantedPermissionIds));
-            AuthorizationLogMessages.GrantedPermissionIdsCached(_logger, guildId, userId, grantedPermissionIds.Count);
+            AuthorizationLogMessages.GrantedPermissionIdsCached(_logger, userId, guildId, grantedPermissionIds.Count);
 
             return grantedPermissionIds;
         }

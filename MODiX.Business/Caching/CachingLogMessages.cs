@@ -1,323 +1,270 @@
 ﻿using System;
 
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Structured;
 
 namespace Modix.Business.Caching
 {
-    internal static class CachingLogMessages
+    internal static partial class CachingLogMessages
     {
-        private enum EventType
-        {
-            LockAcquiring       = 0x0001,
-            LockAcquired        = 0x0002,
-            EntryAdding         = 0x0003,
-            EntryAdded          = 0x0004,
-            EntryRetrieving     = 0x0005,
-            EntryNotFound       = 0x0006,
-            EntryRetrieved      = 0x0007,
-            EntryReplacing      = 0x0008,
-            EntryReplaced       = 0x0009,
-            EntryRemoving       = 0x000A,
-            EntryRemoved        = 0x000B,
-            OldEntriesRemoving  = 0x000C,
-            OldEntriesRemoved   = 0x000D,
-            OldestEntryChanging = 0x000E,
-            OldestEntryChanged  = 0x000F
-        }
-
         public static void EntryAdded<TKey>(
                     ILogger logger,
-                    TKey key)
+                    TKey    key)
                 where TKey : notnull
-            => _entryAdded1.Invoke(
+            => EntryAdded_Internal(
                 logger,
-                key.ToString()!);
-        private static readonly Action<ILogger, string> _entryAdded1
-            = LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    EventType.EntryAdded.ToEventId(),
-                    "Entry added: (Key {Key})")
-                .WithoutException();
+                key.ToString());
 
         public static void EntryAdded<TKey>(
-                    ILogger             logger,
-                    TKey                key,
-                    DateTimeOffset      added)
+                    ILogger         logger,
+                    TKey            key,
+                    DateTimeOffset  added)
                 where TKey : notnull
-            => _entryAdded2.Invoke(
+            => EntryAdded_Internal(
                 logger,
                 key.ToString(),
                 added);
-        private static readonly Action<ILogger, string?, DateTimeOffset> _entryAdded2
-            = StructuredLoggerMessage.Define<string?, DateTimeOffset>(
-                    LogLevel.Debug,
-                    EventType.EntryAdded.ToEventId(),
-                    "Entry added: (Key {Key})",
-                    "Added")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId     = 0x1E323699,
+            EventName   = nameof(EntryAdded),
+            Level       = LogLevel.Debug,
+            Message     = "Entry added: (Key {Key})")]
+        private static partial void EntryAdded_Internal(
+            ILogger         logger,
+            string?         key,
+            DateTimeOffset? added = default);
 
         public static void EntryAdding<TKey>(
                     ILogger logger,
                     TKey    key)
                 where TKey : notnull
-            => _entryAdding.Invoke(
+            => EntryAdding_Internal(
                 logger,
                 key.ToString());
-        private static readonly Action<ILogger, string?> _entryAdding
-            = LoggerMessage.Define<string?>(
-                    LogLevel.Debug,
-                    EventType.EntryAdding.ToEventId(),
-                    "Adding entry: (Key {Key})")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId     = 0x2D62CBE9,
+            EventName   = nameof(EntryAdding),
+            Level       = LogLevel.Debug,
+            Message     = "Adding entry: (Key {Key})")]
+        private static partial void EntryAdding_Internal(
+            ILogger logger,
+            string? key);
 
         public static void EntryNotFound<TKey>(
                     ILogger logger,
                     TKey    key)
                 where TKey : notnull
-            => _entryNotFound.Invoke(
+            => EntryNotFound_Internal(
                 logger,
                 key.ToString());
-        private static readonly Action<ILogger, string?> _entryNotFound
-            = LoggerMessage.Define<string?>(
-                    LogLevel.Debug,
-                    EventType.EntryNotFound.ToEventId(),
-                    "Entry not found: (Key {Key})")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId     = 0x0B1C8BF2,
+            EventName   = nameof(EntryNotFound),
+            Level       = LogLevel.Debug,
+            Message     = "Entry not found: (Key {Key})")]
+        private static partial void EntryNotFound_Internal(
+            ILogger logger,
+            string? key);
 
         public static void EntryRemoved<TKey>(
                     ILogger logger,
                     TKey    key)
                 where TKey : notnull
-            => _entryRemoved1.Invoke(
+            => EntryRemoved_Internal(
                 logger,
                 key.ToString());
-        private static readonly Action<ILogger, string?> _entryRemoved1
-            = LoggerMessage.Define<string?>(
-                    LogLevel.Debug,
-                    EventType.EntryRemoved.ToEventId(),
-                    "Entry removed: (Key {Key})")
-                .WithoutException();
 
         public static void EntryRemoved<TKey>(
                     ILogger         logger,
                     TKey            key,
                     DateTimeOffset  added)
                 where TKey : notnull
-            => _entryRemoved2.Invoke(
+            => EntryRemoved_Internal(
                 logger,
                 key.ToString(),
                 added);
-        private static readonly Action<ILogger, string?, DateTimeOffset> _entryRemoved2
-            = StructuredLoggerMessage.Define<string?, DateTimeOffset>(
-                    LogLevel.Debug,
-                    EventType.EntryRemoved.ToEventId(),
-                    "Entry removed: (Key {Key})",
-                    "Added")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId     = 0x230F8BBA,
+            EventName   = nameof(EntryRemoved),
+            Level       = LogLevel.Debug,
+            Message     = "Entry removed: (Key {Key})")]
+        private static partial void EntryRemoved_Internal(
+            ILogger         logger,
+            string?         key,
+            DateTimeOffset? added = default);
 
         public static void EntryRemoving<TKey>(
                     ILogger logger,
                     TKey    key)
                 where TKey : notnull
-            => _entryRemoving1.Invoke(
+            => EntryRemoving_Internal(
                 logger,
                 key.ToString());
-        private static readonly Action<ILogger, string?> _entryRemoving1
-            = LoggerMessage.Define<string?>(
-                    LogLevel.Debug,
-                    EventType.EntryRemoving.ToEventId(),
-                    "Removing entry: (Key {Key})")
-                .WithoutException();
 
         public static void EntryRemoving<TKey>(
                     ILogger         logger,
                     TKey            key,
                     DateTimeOffset  added)
                 where TKey : notnull
-            => _entryRemoving2.Invoke(
+            => EntryRemoving_Internal(
                 logger,
                 key.ToString(),
                 added);
-        private static readonly Action<ILogger, string?, DateTimeOffset> _entryRemoving2
-            = StructuredLoggerMessage.Define<string?, DateTimeOffset>(
-                    LogLevel.Debug,
-                    EventType.EntryRemoving.ToEventId(),
-                    "Removing entry: (Key {Key})",
-                    "Added")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId     = 0x4CBD74DD,
+            EventName   = nameof(EntryRemoving),
+            Level       = LogLevel.Debug,
+            Message     = "Removing entry: (Key {Key})")]
+        private static partial void EntryRemoving_Internal(
+            ILogger         logger,
+            string?         key,
+            DateTimeOffset? added = default);
 
         public static void EntryReplaced<TKey>(
-                    ILogger             logger,
-                    TKey                key)
+                    ILogger logger,
+                    TKey    key)
                 where TKey : notnull
-            => _entryReplaced.Invoke(
+            => EntryReplaced_Internal(
                 logger,
                 key.ToString());
-        private static readonly Action<ILogger, string?> _entryReplaced
-            = LoggerMessage.Define<string?>(
-                    LogLevel.Debug,
-                    EventType.EntryReplaced.ToEventId(),
-                    "Entry replaced: (Key {Key})")
-                .WithoutException();
 
         public static void EntryReplaced<TKey>(
-                    ILogger             logger,
-                    TKey                key,
-                    DateTimeOffset      added)
+                    ILogger         logger,
+                    TKey            key,
+                    DateTimeOffset  added)
                 where TKey : notnull
-            => _entryReplaced2.Invoke(
+            => EntryReplaced_Internal(
                 logger,
                 key.ToString(),
                 added);
-        private static readonly Action<ILogger, string?, DateTimeOffset> _entryReplaced2
-            = StructuredLoggerMessage.Define<string?, DateTimeOffset>(
-                    LogLevel.Debug,
-                    EventType.EntryReplaced.ToEventId(),
-                    "Entry replaced: (Key {Key})",
-                    "Added")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId     = 0x465A7E96,
+            EventName   = nameof(EntryReplaced),
+            Level       = LogLevel.Debug,
+            Message     = "Entry replaced: (Key {Key})")]
+        private static partial void EntryReplaced_Internal(
+            ILogger         logger,
+            string?         key,
+            DateTimeOffset? added = default);
 
         public static void EntryReplacing<TKey>(
                     ILogger logger,
                     TKey    key)
                 where TKey : notnull
-            => _entryReplacing1.Invoke(
+            => EntryReplacing_Internal(
                 logger,
                 key.ToString());
-        private static readonly Action<ILogger, string?> _entryReplacing1
-            = LoggerMessage.Define<string?>(
-                    LogLevel.Debug,
-                    EventType.EntryReplacing.ToEventId(),
-                    "Replacing entry: (Key {Key})")
-                .WithoutException();
 
         public static void EntryReplacing<TKey>(
                     ILogger         logger,
                     TKey            key,
                     DateTimeOffset  added)
                 where TKey : notnull
-            => _entryReplacing2.Invoke(
+            => EntryReplacing_Internal(
                 logger,
                 key.ToString(),
                 added);
-        private static readonly Action<ILogger, string?, DateTimeOffset> _entryReplacing2
-            = StructuredLoggerMessage.Define<string?, DateTimeOffset>(
-                    LogLevel.Debug,
-                    EventType.EntryReplacing.ToEventId(),
-                    "Replacing entry: (Key {Key})",
-                    "Added")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId     = 0x7839AC9C,
+            EventName   = nameof(EntryReplacing),
+            Level       = LogLevel.Debug,
+            Message     = "Replacing entry: (Key {Key})")]
+        private static partial void EntryReplacing_Internal(
+            ILogger         logger,
+            string?         key,
+            DateTimeOffset? added = default);
 
         public static void EntryRetrieved<TKey>(
                     ILogger logger,
                     TKey    key)
                 where TKey : notnull
-            => _entryRetrieved1.Invoke(
+            => EntryRetrieved_Internal(
                 logger,
                 key.ToString());
-        private static readonly Action<ILogger, string?> _entryRetrieved1
-            = LoggerMessage.Define<string?>(
-                    LogLevel.Debug,
-                    EventType.EntryRetrieved.ToEventId(),
-                    "Entry retrieved: (UserId {UserId})")
-                .WithoutException();
 
         public static void EntryRetrieved<TKey>(
                     ILogger         logger,
                     TKey            key,
                     DateTimeOffset  added)
                 where TKey : notnull
-            => _entryRetrieved2.Invoke(
+            => EntryRetrieved_Internal(
                 logger,
                 key.ToString(),
                 added);
-        private static readonly Action<ILogger, string?, DateTimeOffset> _entryRetrieved2
-            = StructuredLoggerMessage.Define<string?, DateTimeOffset>(
-                    LogLevel.Debug,
-                    EventType.EntryRetrieved.ToEventId(),
-                    "Entry retrieved: (Key {Key})",
-                    "Added")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId     = 0x497EA4B6,
+            EventName   = nameof(EntryRetrieved),
+            Level       = LogLevel.Debug,
+            Message     = "Entry retrieved: (Key {Key})")]
+        private static partial void EntryRetrieved_Internal(
+            ILogger         logger,
+            string?         key,
+            DateTimeOffset? added = default);
 
         public static void EntryRetrieving<TKey>(
                     ILogger logger,
                     TKey    key)
                 where TKey : notnull
-            => _entryRetrieving.Invoke(
+            => EntryRetrieving_Internal(
                 logger,
                 key.ToString());
-        private static readonly Action<ILogger, string?> _entryRetrieving
-            = LoggerMessage.Define<string?>(
-                    LogLevel.Debug,
-                    EventType.EntryRetrieving.ToEventId(),
-                    "Retrieving entry: (UserId {UserId})")
-                .WithoutException();
 
-        public static void LockAcquired(ILogger logger)
-            => _lockAcquired.Invoke(logger);
-        private static readonly Action<ILogger> _lockAcquired
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    EventType.LockAcquired.ToEventId(),
-                    "Lock acquired")
-                .WithoutException();
+        [LoggerMessage(
+            EventId     = 0x7F8E83BD,
+            EventName   = nameof(EntryRetrieving),
+            Level       = LogLevel.Debug,
+            Message     = "Retrieving entry: (Key {Key})")]
+        public static partial void EntryRetrieving_Internal(
+            ILogger logger,
+            string? key);
 
-        public static void LockAcquiring(ILogger logger)
-            => _lockAcquiring.Invoke(logger);
-        private static readonly Action<ILogger> _lockAcquiring
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    EventType.LockAcquiring.ToEventId(),
-                    "Acquiring lock")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x4206E0AC,
+            Level   = LogLevel.Debug,
+            Message = "Lock acquired")]
+        public static partial void LockAcquired(ILogger logger);
 
-        public static void OldEntriesRemoved(ILogger logger)
-            => _oldEntriesRemoved.Invoke(logger);
-        private static readonly Action<ILogger> _oldEntriesRemoved
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    EventType.OldEntriesRemoved.ToEventId(),
-                    "Old entries removed")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x6342B162,
+            Level   = LogLevel.Debug,
+            Message = "Acquiring lock")]
+        public static partial void LockAcquiring(ILogger logger);
 
-        public static void OldEntriesRemoving(
-                ILogger     logger,
-                TimeSpan    minimumAge)
-            => _oldEntriesRemoving.Invoke(
-                logger,
-                minimumAge);
-        private static readonly Action<ILogger, TimeSpan> _oldEntriesRemoving
-            = LoggerMessage.Define<TimeSpan>(
-                    LogLevel.Debug,
-                    EventType.OldEntriesRemoving.ToEventId(),
-                    "Removing old entries (older than {MinimumAge})")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x383ED0CB,
+            Level   = LogLevel.Debug,
+            Message = "Old entries removed")]
+        public static partial void OldEntriesRemoved(ILogger logger);
 
-        public static void OldestEntryChanged(
-                ILogger         logger,
-                DateTimeOffset? oldestEntryAdded)
-            => _oldestEntryChanged.Invoke(
-                logger,
-                oldestEntryAdded);
-        private static readonly Action<ILogger, DateTimeOffset?> _oldestEntryChanged
-            = LoggerMessage.Define<DateTimeOffset?>(
-                    LogLevel.Debug,
-                    EventType.OldestEntryChanged.ToEventId(),
-                    "Oldest entry changed: (Added {OldestEntryAdded})")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x0B8CCC78,
+            Level   = LogLevel.Debug,
+            Message = "Removing old entries (older than {MinimumAge})")]
+        public static partial void OldEntriesRemoving(
+            ILogger     logger,
+            TimeSpan    minimumAge);
 
-        public static void OldestEntryChanging(
-                ILogger         logger,
-                DateTimeOffset? oldestEntryAdded)
-            => _oldestEntryChanging.Invoke(
-                logger,
-                oldestEntryAdded);
-        private static readonly Action<ILogger, DateTimeOffset?> _oldestEntryChanging
-            = LoggerMessage.Define<DateTimeOffset?>(
-                    LogLevel.Debug,
-                    EventType.OldestEntryChanged.ToEventId(),
-                    "Changing oldest entry: (Added {OldestEntryAdded})")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x2E6EAB09,
+            Level   = LogLevel.Debug,
+            Message = "Oldest entry changed: (Added {OldestEntryAdded})")]
+        public static partial void OldestEntryChanged(
+            ILogger         logger,
+            DateTimeOffset? oldestEntryAdded);
+
+        [LoggerMessage(
+            EventId = 0x6A801BF6,
+            Level   = LogLevel.Debug,
+            Message = "Changing oldest entry: (Added {OldestEntryAdded})")]
+        public static partial void OldestEntryChanging(
+            ILogger         logger,
+            DateTimeOffset? oldestEntryAdded);
     }
 }

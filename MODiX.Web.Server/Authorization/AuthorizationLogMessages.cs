@@ -1,216 +1,169 @@
 ﻿using System;
 
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Structured;
 
 using Remora.Discord.Core;
 using Remora.Results;
 
 namespace Modix.Web.Server.Authorization
 {
-    internal static class AuthorizationLogMessages
+    internal static partial class AuthorizationLogMessages
     {
-        private enum EventType
-        {
-            PermissionRequirementHandling       = ServerLogEventType.Authorization + 0x0100,
-            PermissionRequirementSatisfied      = ServerLogEventType.Authorization + 0x0200,
-            PermissionRequirementNotSatisfied   = ServerLogEventType.Authorization + 0x0300,
-            UserIdRetrieving                    = ServerLogEventType.Authorization + 0x0400,
-            UserIdNotFound                      = ServerLogEventType.Authorization + 0x0500,
-            UserIdInvalid                       = ServerLogEventType.Authorization + 0x0600,
-            UserIdRetrieved                     = ServerLogEventType.Authorization + 0x0700,
-            GuildIdRetrieving                   = ServerLogEventType.Authorization + 0x0800,
-            GuildIdNotFound                     = ServerLogEventType.Authorization + 0x0900,
-            GuildIdInvalid                      = ServerLogEventType.Authorization + 0x0A00,
-            GuildIdRetrieved                    = ServerLogEventType.Authorization + 0x0B00,
-            GrantedPermissionIdsRetrieving      = ServerLogEventType.Authorization + 0x0C00,
-            GrantedPermissionIdsRetrievalFailed = ServerLogEventType.Authorization + 0x0D00,
-            GrantedPermissionIdsRetrieved       = ServerLogEventType.Authorization + 0x0E00
-        }
-
         public static void GrantedPermissionIdsRetrievalFailed(
                 ILogger         logger,
                 Snowflake       userId,
                 Snowflake       guildId,
                 IResultError    error)
-            => _grantedPermissionIdsRetrievalFailed.Invoke(
-                logger,
-                error.GetType().Name,
-                error.Message,
-                userId,
-                guildId);
-        private static readonly Action<ILogger, string, string, Snowflake, Snowflake> _grantedPermissionIdsRetrievalFailed
-            = StructuredLoggerMessage.Define<string, string, Snowflake, Snowflake>(
-                    LogLevel.Error,
-                    EventType.GrantedPermissionIdsRetrievalFailed.ToEventId(),
-                    "Granted permission IDs retrieval failed: {ErrorType}: {ErrorMessage}",
-                    "UserId",
-                    "GuildId")
-                .WithoutException();
-
-        public static void GrantedPermissionIdsRetrieved(
-                ILogger     logger,
-                Snowflake   userId,
-                Snowflake   guildId,
-                int         permissionCount)
-            => _grantedPermissionIdsRetrieved.Invoke(
+            => GrantedPermissionIdsRetrievalFailed(
                 logger,
                 userId,
                 guildId,
-                permissionCount);
-        private static readonly Action<ILogger, Snowflake, Snowflake, int> _grantedPermissionIdsRetrieved
-            = LoggerMessage.Define<Snowflake, Snowflake, int>(
-                    LogLevel.Debug,
-                    EventType.GrantedPermissionIdsRetrieved.ToEventId(),
-                    "Granted permission IDs Retrieved: (UserId {UserId}, GuildId {GuildId}, {PermissionCount} permissions)")
-                .WithoutException();
+                error.GetType().Name,
+                error.Message,
+                (error as ExceptionError)?.Exception);
 
-        public static void GrantedPermissionIdsRetrieving(
-                ILogger     logger,
-                Snowflake   userId,
-                Snowflake   guildId)
-            => _grantedPermissionIdsRetrieving.Invoke(
-                logger,
-                userId,
-                guildId);
-        private static readonly Action<ILogger, Snowflake, Snowflake> _grantedPermissionIdsRetrieving
-            = LoggerMessage.Define<Snowflake, Snowflake>(
-                    LogLevel.Debug,
-                    EventType.GrantedPermissionIdsRetrieving.ToEventId(),
-                    "Retrieving granted permission IDs: (UserId {UserId}, GuildId {GuildId})")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x06A767DC,
+            Level   = LogLevel.Error,
+            Message = "Granted permission IDs retrieval failed: {ErrorType}: {ErrorMessage}")]
+        private static partial void GrantedPermissionIdsRetrievalFailed(
+            ILogger     logger,
+            Snowflake   userId,
+            Snowflake   guildId,
+            string      errorType,
+            string      errorMessage,
+            Exception?  exception);
 
-        public static void GuildIdInvalid(
-                ILogger logger,
-                string  rawValue)
-            => _guildIdInvalid(
-                logger,
-                rawValue);
-        private static readonly Action<ILogger, string> _guildIdInvalid
-            = LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    EventType.GuildIdInvalid.ToEventId(),
-                    "Guild ID was invalid: {RawValue}")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x6D6B5D49,
+            Level   = LogLevel.Debug,
+            Message = "Granted permission IDs Retrieved: (UserId {UserId}, GuildId {GuildId}, {PermissionCount} permissions)")]
+        public static partial void GrantedPermissionIdsRetrieved(
+            ILogger     logger,
+            Snowflake   userId,
+            Snowflake   guildId,
+            int         permissionCount);
 
-        public static void GuildIdNotFound(ILogger logger)
-            => _guildIdNotFound(logger);
-        private static readonly Action<ILogger> _guildIdNotFound
-            = LoggerMessage.Define(
-                    LogLevel.Warning,
-                    EventType.GuildIdNotFound.ToEventId(),
-                    "Guild ID not found")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x0E275801,
+            Level   = LogLevel.Debug,
+            Message = "Retrieving granted permission IDs: (UserId {UserId}, GuildId {GuildId})")]
+        public static partial void GrantedPermissionIdsRetrieving(
+            ILogger     logger,
+            Snowflake   userId,
+            Snowflake   guildId);
 
-        public static void GuildIdRetrieved(
-                ILogger     logger,
-                Snowflake   guildId)
-            => _guildIdRetrieved(
-                logger,
-                guildId);
-        private static readonly Action<ILogger, Snowflake> _guildIdRetrieved
-            = LoggerMessage.Define<Snowflake>(
-                    LogLevel.Debug,
-                    EventType.GuildIdRetrieved.ToEventId(),
-                    "Retrieving guild ID ({GuildId})")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x27E292A6,
+            Level   = LogLevel.Warning,
+            Message = "Guild ID was invalid: {RawValue}")]
+        public static partial void GuildIdInvalid(
+            ILogger logger,
+            string  rawValue);
 
-        public static void GuildIdRetrieving(ILogger logger)
-            => _guildIdRetrieving(logger);
-        private static readonly Action<ILogger> _guildIdRetrieving
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    EventType.GuildIdRetrieving.ToEventId(),
-                    "Retrieving guild ID")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x13E4EBA7,
+            Level   = LogLevel.Warning,
+            Message = "Guild ID not found")]
+        public static partial void GuildIdNotFound(ILogger logger);
+
+        [LoggerMessage(
+            EventId = 0x3B513694,
+            Level   = LogLevel.Debug,
+            Message = "Guild ID retrieved ({GuildId})")]
+        public static partial void GuildIdRetrieved(
+            ILogger     logger,
+            Snowflake   guildId);
+
+        [LoggerMessage(
+            EventId = 0x343621BA,
+            Level   = LogLevel.Debug,
+            Message = "Retrieving guild ID")]
+        public static partial void GuildIdRetrieving(ILogger logger);
 
         public static void PermissionRequirementHandling(
                 ILogger                 logger,
                 PermissionRequirement   requirement)
-            => _permissionRequirementHandling.Invoke(
+            => PermissionRequirementHandling(
                 logger,
                 requirement.PermissionId,
                 requirement.PermissionCategory,
                 requirement.PermissionName);
-        private static readonly Action<ILogger, int, string, string> _permissionRequirementHandling
-            = LoggerMessage.Define<int, string, string>(
-                    LogLevel.Debug,
-                    EventType.PermissionRequirementHandling.ToEventId(),
-                    "Handling permission requirement: {PermissionCategory}.{PermissionName} ({PermissionId})")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId = 0x226AD6C2,
+            Level   = LogLevel.Debug,
+            Message = "Handling permission requirement: {PermissionCategory}.{PermissionName} ({PermissionId})")]
+        private static partial void PermissionRequirementHandling(
+            ILogger logger,
+            int     permissionId,
+            string  permissionCategory,
+            string  permissionName);
 
         public static void PermissionRequirementNotSatisfied(
                 ILogger                 logger,
                 PermissionRequirement   requirement)
-            => _permissionRequirementNotSatisfied.Invoke(
+            => PermissionRequirementNotSatisfied(
                 logger,
                 requirement.PermissionId,
                 requirement.PermissionCategory,
                 requirement.PermissionName);
-        private static readonly Action<ILogger, int, string, string> _permissionRequirementNotSatisfied
-            = LoggerMessage.Define<int, string, string>(
-                    LogLevel.Warning,
-                    EventType.PermissionRequirementNotSatisfied.ToEventId(),
-                    "Permission requirement not satisfied: {PermissionCategory}.{PermissionName} ({PermissionId})")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId = 0x1CB6778D,
+            Level   = LogLevel.Warning,
+            Message = "Permission requirement not satisfied: {PermissionCategory}.{PermissionName} ({PermissionId})")]
+        private static partial void PermissionRequirementNotSatisfied(
+            ILogger logger,
+            int     permissionId,
+            string  permissionCategory,
+            string  permissionName);
 
         public static void PermissionRequirementSatisfied(
                 ILogger                 logger,
                 PermissionRequirement   requirement)
-            => _permissionRequirementSatisfied.Invoke(
+            => PermissionRequirementSatisfied(
                 logger,
                 requirement.PermissionId,
                 requirement.PermissionCategory,
                 requirement.PermissionName);
-        private static readonly Action<ILogger, int, string, string> _permissionRequirementSatisfied
-            = LoggerMessage.Define<int, string, string>(
-                    LogLevel.Debug,
-                    EventType.PermissionRequirementSatisfied.ToEventId(),
-                    "Permission requirement satisfied: {PermissionCategory}.{PermissionName} ({PermissionId})")
-                .WithoutException();
 
-        public static void UserIdInvalid(
-                ILogger logger,
-                string  rawValue)
-            => _userIdInvalid(
-                logger,
-                rawValue);
-        private static readonly Action<ILogger, string> _userIdInvalid
-            = LoggerMessage.Define<string>(
-                    LogLevel.Warning,
-                    EventType.UserIdInvalid.ToEventId(),
-                    "User ID was invalid: {RawValue}")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x32053CDD,
+            Level   = LogLevel.Debug,
+            Message = "Permission requirement satisfied: {PermissionCategory}.{PermissionName} ({PermissionId})")]
+        private static partial void PermissionRequirementSatisfied(
+            ILogger logger,
+            int     permissionId,
+            string  permissionCategory,
+            string  permissionName);
 
-        public static void UserIdNotFound(ILogger logger)
-            => _userIdNotFound(logger);
-        private static readonly Action<ILogger> _userIdNotFound
-            = LoggerMessage.Define(
-                    LogLevel.Warning,
-                    EventType.UserIdNotFound.ToEventId(),
-                    "User ID not found")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x5D9285FF,
+            Level   = LogLevel.Warning,
+            Message = "User ID was invalid: {RawValue}")]
+        public static partial void UserIdInvalid(
+            ILogger logger,
+            string  rawValue);
 
-        public static void UserIdRetrieved(
-                ILogger     logger,
-                Snowflake   userId)
-            => _userIdRetrieved(
-                logger,
-                userId);
-        private static readonly Action<ILogger, Snowflake> _userIdRetrieved
-            = LoggerMessage.Define<Snowflake>(
-                    LogLevel.Debug,
-                    EventType.UserIdRetrieved.ToEventId(),
-                    "User ID retrieved ({UserId})")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x7DE7EE6D,
+            Level   = LogLevel.Warning,
+            Message = "User ID not found")]
+        public static partial void UserIdNotFound(ILogger logger);
 
-        public static void UserIdRetrieving(ILogger logger)
-            => _userIdRetrieving(logger);
-        private static readonly Action<ILogger> _userIdRetrieving
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    EventType.UserIdRetrieving.ToEventId(),
-                    "Retrieving user ID")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x0BF343D7,
+            Level   = LogLevel.Debug,
+            Message = "User ID retrieved ({UserId})")]
+        public static partial void UserIdRetrieved(
+            ILogger     logger,
+            Snowflake   userId);
+
+        [LoggerMessage(
+            EventId = 0x7A6C6D59,
+            Level   = LogLevel.Debug,
+            Message = "Retrieving user ID")]
+        public static partial void UserIdRetrieving(ILogger logger);
     }
 }

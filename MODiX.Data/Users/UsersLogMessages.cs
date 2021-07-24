@@ -7,166 +7,110 @@ using Remora.Discord.Core;
 
 namespace Modix.Data.Users
 {
-    internal static class UsersLogMessages
+    internal static partial class UsersLogMessages
     {
-        private enum EventType
-        {
-            UserMerging                         = DataLogEventType.Users + 0x0001,
-            UserMerged                          = DataLogEventType.Users + 0x0002,
-            UsersMerging                        = DataLogEventType.Users + 0x0003,
-            UsersMerged                         = DataLogEventType.Users + 0x0004,
-            UserRetrieving                      = DataLogEventType.Users + 0x0005,
-            UserRetrieved                       = DataLogEventType.Users + 0x0006,
-            UserNotFound                        = DataLogEventType.Users + 0x0007,
-            UserCreating                        = DataLogEventType.Users + 0x0008,
-            UserCreated                         = DataLogEventType.Users + 0x0009,
-            UserCurrentVersionRetrieving        = DataLogEventType.Users + 0x000A,
-            UserCurrentVersionUpToDate          = DataLogEventType.Users + 0x000B,
-            UserCurrentVersionOutOfDate         = DataLogEventType.Users + 0x000C,
-            UserVersionCreating                 = DataLogEventType.Users + 0x000D,
-            UserVersionCreated                  = DataLogEventType.Users + 0x000E,
-            GuildUserRetrieving                 = DataLogEventType.Users + 0x000F,
-            GuildUserRetrieved                  = DataLogEventType.Users + 0x0010,
-            GuildUserNotFound                   = DataLogEventType.Users + 0x0011,
-            GuildUserCreating                   = DataLogEventType.Users + 0x0012,
-            GuildUserCreated                    = DataLogEventType.Users + 0x0013,
-            GuildUserCurrentVersionRetrieving   = DataLogEventType.Users + 0x0014,
-            GuildUserCurrentVersionUpToDate     = DataLogEventType.Users + 0x0015,
-            GuildUserCurrentVersionOutOfDate    = DataLogEventType.Users + 0x0016,
-            GuildUserVersionCreating            = DataLogEventType.Users + 0x0017,
-            GuildUserVersionCreated             = DataLogEventType.Users + 0x0018
-        }
-
         public static void GuildUserCreated(
                 ILogger         logger,
                 GuildUserEntity guildUser)
-            => _guildUserCreated.Invoke(
+            => GuildUserCreated(
                 logger,
                 guildUser.GuildId,
                 guildUser.UserId,
-                guildUser.FirstSeen);
-        private static readonly Action<ILogger, Snowflake, Snowflake, DateTimeOffset> _guildUserCreated
-            = StructuredLoggerMessage.Define<Snowflake, Snowflake, DateTimeOffset>(
-                    LogLevel.Debug,
-                    EventType.GuildUserCreated.ToEventId(),
-                    $"{nameof(GuildUserEntity)} created: GuildId {{GuildId}}, UserId {{UserId}}",
-                    "FirstSeen")
-                .WithoutException();
+                guildUser.FirstSeen,
+                guildUser.LastSeen);
+
+        [LoggerMessage(
+            EventId = 0x126451F3,
+            Level   = LogLevel.Debug,
+            Message = "Guild user created: GuildId {GuildId}, UserId {UserId}")]
+        private static partial void GuildUserCreated(
+            ILogger         logger,
+            Snowflake       guildId,
+            Snowflake       userId,
+            DateTimeOffset  firstSeen,
+            DateTimeOffset  lastSeen);
 
         public static void GuildUserCreating(
                 ILogger         logger,
                 GuildUserEntity guildUser)
-            => _guildUserCreating.Invoke(
+            => GuildUserCreating(
                 logger,
                 guildUser.GuildId,
                 guildUser.UserId,
-                guildUser.FirstSeen);
-        private static readonly Action<ILogger, Snowflake, Snowflake, DateTimeOffset> _guildUserCreating
-            = StructuredLoggerMessage.Define<Snowflake, Snowflake, DateTimeOffset>(
-                    LogLevel.Debug,
-                    EventType.GuildUserCreating.ToEventId(),
-                    $"Creating {nameof(GuildUserEntity)}: GuildId {{GuildId}}, UserId {{UserId}}",
-                    "FirstSeen")
-                .WithoutException();
+                guildUser.FirstSeen,
+                guildUser.LastSeen);
 
-        public static void GuildUserCurrentVersionOutOfDate(
-                ILogger     logger,
-                Snowflake   guildId,
-                Snowflake   userId,
-                long?       guildUserVersionId)
-            => _guildUserCurrentVersionOutOfDate.Invoke(
-                logger,
-                guildId,
-                userId,
-                guildUserVersionId);
-        private static readonly Action<ILogger, Snowflake, Snowflake, long?> _guildUserCurrentVersionOutOfDate
-            = LoggerMessage.Define<Snowflake, Snowflake, long?>(
-                    LogLevel.Debug,
-                    EventType.GuildUserCurrentVersionOutOfDate.ToEventId(),
-                    $"Current {nameof(GuildUserVersionEntity)} is out-of-date: GuildId {{GuildId}}, UserId {{UserId}}, GuildUserVersionId {{GuildUserVersionId}}")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x1C4B4FD5,
+            Level   = LogLevel.Debug,
+            Message = "Creating guild user: GuildId {GuildId}, UserId {UserId}")]
+        private static partial void GuildUserCreating(
+            ILogger         logger,
+            Snowflake       guildId,
+            Snowflake       userId,
+            DateTimeOffset  firstSeen,
+            DateTimeOffset  lastSeen);
 
-        public static void GuildUserCurrentVersionRetrieving(
-                ILogger     logger,
-                Snowflake   guildId,
-                Snowflake   userId)
-            => _guildUserCurrentVersionRetrieving.Invoke(
-                logger,
-                guildId,
-                userId);
-        private static readonly Action<ILogger, Snowflake, Snowflake> _guildUserCurrentVersionRetrieving
-            = LoggerMessage.Define<Snowflake, Snowflake>(
-                    LogLevel.Debug,
-                    EventType.GuildUserCurrentVersionRetrieving.ToEventId(),
-                    $"Retrieving current {nameof(GuildUserVersionEntity)}: GuildId {{GuildId}}, UserId {{UserID}}")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x7B57BFCA,
+            Level   = LogLevel.Debug,
+            Message = "Current guild user version is out-of-date: GuildId {GuildId}, UserId {UserId}, GuildUserVersionId {GuildUserVersionId}")]
+        public static partial void GuildUserCurrentVersionOutOfDate(
+            ILogger     logger,
+            Snowflake   guildId,
+            Snowflake   userId,
+            long?       guildUserVersionId);
 
-        public static void GuildUserCurrentVersionUpToDate(
-                ILogger     logger,
-                Snowflake   guildId,
-                Snowflake   userId,
-                long        guildUserVersionId)
-            => _guildUserCurrentVersionUpToDate.Invoke(
-                logger,
-                guildId,
-                userId,
-                guildUserVersionId);
-        private static readonly Action<ILogger, Snowflake, Snowflake, long> _guildUserCurrentVersionUpToDate
-            = LoggerMessage.Define<Snowflake, Snowflake, long>(
-                    LogLevel.Debug,
-                    EventType.GuildUserCurrentVersionUpToDate.ToEventId(),
-                    $"Current {nameof(GuildUserVersionEntity)} is up-to-date: GuildId {{GuildId}}, UserId {{UserId}}, GuildUserVersionId {{GuildUserVersionId}}")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x29456D1F,
+            Level   = LogLevel.Debug,
+            Message = "Retrieving current guild user version: GuildId {GuildId}, UserId {UserID}")]
+        public static partial void GuildUserCurrentVersionRetrieving(
+            ILogger     logger,
+            Snowflake   guildId,
+            Snowflake   userId);
 
-        public static void GuildUserNotFound(
-                ILogger     logger,
-                Snowflake   guildId,
-                Snowflake   userId)
-            => _guildUserNotFound.Invoke(
-                logger,
-                guildId,
-                userId);
-        private static readonly Action<ILogger, Snowflake, Snowflake> _guildUserNotFound
-            = LoggerMessage.Define<Snowflake, Snowflake>(
-                    LogLevel.Debug,
-                    EventType.GuildUserNotFound.ToEventId(),
-                    $"{nameof(GuildUserEntity)} not found: GuildId {{GuildId}}, UserId {{UserId}}")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x0EDEB285,
+            Level   = LogLevel.Debug,
+            Message = "Current guild user version is up-to-date: GuildId {GuildId}, UserId {UserId}, GuildUserVersionId {GuildUserVersionId}")]
+        public static partial void GuildUserCurrentVersionUpToDate(
+            ILogger     logger,
+            Snowflake   guildId,
+            Snowflake   userId,
+            long        guildUserVersionId);
 
-        public static void GuildUserRetrieved(
-                ILogger     logger,
-                Snowflake   guildId,
-                Snowflake   userId)
-            => _guildUserRetrieved.Invoke(
-                logger,
-                guildId,
-                userId);
-        private static readonly Action<ILogger, Snowflake, Snowflake> _guildUserRetrieved
-            = LoggerMessage.Define<Snowflake, Snowflake>(
-                    LogLevel.Debug,
-                    EventType.GuildUserRetrieved.ToEventId(),
-                    $"{nameof(GuildUserEntity)} retrieved: GuildId {{GuildId}}, UserId {{UserId}}")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x5E503951,
+            Level   = LogLevel.Debug,
+            Message = "Guild user not found: GuildId {GuildId}, UserId {UserId}")]
+        public static partial void GuildUserNotFound(
+            ILogger     logger,
+            Snowflake   guildId,
+            Snowflake   userId);
 
-        public static void GuildUserRetrieving(
-                ILogger     logger,
-                Snowflake   guildId,
-                Snowflake   userId)
-            => _guildUserRetrieving.Invoke(
-                logger,
-                guildId,
-                userId);
-        private static readonly Action<ILogger, Snowflake, Snowflake> _guildUserRetrieving
-            = LoggerMessage.Define<Snowflake, Snowflake>(
-                    LogLevel.Debug,
-                    EventType.GuildUserRetrieving.ToEventId(),
-                    $"Retrieving {nameof(GuildUserEntity)}: GuildId {{GuildId}}, UserId {{UserId}}")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x5B1579E6,
+            Level   = LogLevel.Debug,
+            Message = "Guild user retrieved: GuildId {GuildId}, UserId {UserId}")]
+        public static partial void GuildUserRetrieved(
+            ILogger     logger,
+            Snowflake   guildId,
+            Snowflake   userId);
+
+        [LoggerMessage(
+            EventId = 0x064AD16D,
+            Level   = LogLevel.Debug,
+            Message = "Retrieving guild user: GuildId {GuildId}, UserId {UserId}")]
+        public static partial void GuildUserRetrieving(
+            ILogger     logger,
+            Snowflake   guildId,
+            Snowflake   userId);
 
         public static void GuildUserVersionCreated(
                 ILogger                 logger,
                 GuildUserVersionEntity  guildUserVersion)
-            => _guildUserVersionCreated.Invoke(
+            => GuildUserVersionCreated(
                 logger,
                 guildUserVersion.GuildId,
                 guildUserVersion.UserId,
@@ -174,195 +118,185 @@ namespace Modix.Data.Users
                 guildUserVersion.PreviousVersionId,
                 guildUserVersion.Created,
                 guildUserVersion.Nickname);
-        private static readonly Action<ILogger, Snowflake, Snowflake, long, long?, DateTimeOffset, string?> _guildUserVersionCreated
-            = StructuredLoggerMessage.Define<Snowflake, Snowflake, long, long?, DateTimeOffset, string?>(
-                    LogLevel.Debug,
-                    EventType.GuildUserVersionCreated.ToEventId(),
-                    $"{nameof(GuildUserVersionEntity)} created: GuildId {{GuildId}}, UserId {{UserId}}, GuildUserVersionId {{GuildUserVersionId}}",
-                    "PreviousVersionId",
-                    "Created",
-                    "Nickname")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId = 0x0B313259,
+            Level   = LogLevel.Debug,
+            Message = "Guild user version created: GuildId {GuildId}, UserId {UserId}, GuildUserVersionId {GuildUserVersionId}")]
+        private static partial void GuildUserVersionCreated(
+            ILogger         logger,
+            Snowflake       guildId,
+            Snowflake       userId,
+            long            guildUserVersionId,
+            long?           previousVersionId,
+            DateTimeOffset  created,
+            string?         nickname);
 
         public static void GuildUserVersionCreating(
                 ILogger                 logger,
                 GuildUserVersionEntity  guildUserVersion)
-            => _guildUserVersionCreating.Invoke(
+            => GuildUserVersionCreating(
                 logger,
                 guildUserVersion.GuildId,
                 guildUserVersion.UserId,
                 guildUserVersion.PreviousVersionId,
                 guildUserVersion.Created,
                 guildUserVersion.Nickname);
-        private static readonly Action<ILogger, Snowflake, Snowflake, long?, DateTimeOffset, string?> _guildUserVersionCreating
-            = StructuredLoggerMessage.Define<Snowflake, Snowflake, long?, DateTimeOffset, string?>(
-                    LogLevel.Debug,
-                    EventType.GuildUserVersionCreating.ToEventId(),
-                    $"Creating {nameof(GuildUserVersionEntity)}: GuildId {{GuildId}}, UserId {{UserId}}, PreviousVersionId {{PreviousVersionId}}",
-                    "Created",
-                    "Nickname")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId = 0x391C9353,
+            Level   = LogLevel.Debug,
+            Message = "Creating guild user version: GuildId {GuildId}, UserId {UserId}, PreviousVersionId {PreviousVersionId}")]
+        private static partial void GuildUserVersionCreating(
+            ILogger         logger,
+            Snowflake       guildId,
+            Snowflake       userId,
+            long?           previousVersionId,
+            DateTimeOffset  created,
+            string?         nickname);
 
         public static void UserCreated(
                 ILogger     logger,
                 UserEntity  user)
-            => _userCreated.Invoke(
+            => UserCreated(
                 logger,
                 user.Id,
-                user.FirstSeen);
-        private static readonly Action<ILogger, Snowflake, DateTimeOffset> _userCreated
-            = StructuredLoggerMessage.Define<Snowflake, DateTimeOffset>(
-                    LogLevel.Debug,
-                    EventType.UserCreated.ToEventId(),
-                    $"{nameof(UserEntity)} created: UserId {{UserId}}",
-                    "FirstSeen")
-                .WithoutException();
+                user.FirstSeen,
+                user.LastSeen);
+
+        [LoggerMessage(
+            EventId = 0x1B12A410,
+            Level   = LogLevel.Debug,
+            Message = "User created: UserId {UserId}")]
+        private static partial void UserCreated(
+            ILogger         logger,
+            Snowflake       userId,
+            DateTimeOffset  firstSeen,
+            DateTimeOffset  lastSeen);
 
         public static void UserCreating(
                 ILogger     logger,
                 UserEntity  user)
-            => _userCreating.Invoke(
+            => UserCreating(
                 logger,
                 user.Id,
-                user.FirstSeen);
-        private static readonly Action<ILogger, Snowflake, DateTimeOffset> _userCreating
-            = StructuredLoggerMessage.Define<Snowflake, DateTimeOffset>(
-                    LogLevel.Debug,
-                    EventType.UserCreating.ToEventId(),
-                    $"Creating {nameof(UserEntity)}: UserId {{UserId}}",
-                    "FirstSeen")
-                .WithoutException();
+                user.FirstSeen,
+                user.LastSeen);
 
-        public static void UserCurrentVersionOutOfDate(
-                ILogger     logger,
-                Snowflake   userId,
-                long?       userVersionId)
-            => _userCurrentVersionOutOfDate.Invoke(
-                logger,
-                userId,
-                userVersionId);
-        private static readonly Action<ILogger, Snowflake, long?> _userCurrentVersionOutOfDate
-            = LoggerMessage.Define<Snowflake, long?>(
-                    LogLevel.Debug,
-                    EventType.UserCurrentVersionOutOfDate.ToEventId(),
-                    $"Current {nameof(UserVersionEntity)} is out-of-date: UserId {{UserId}}, UserVersionId {{UserVersionId}}")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x16DE8503,
+            Level   = LogLevel.Debug,
+            Message = "Creating user: UserId {UserId}")]
+        private static partial void UserCreating(
+            ILogger         logger,
+            Snowflake       userId,
+            DateTimeOffset  firstSeen,
+            DateTimeOffset  lastSeen);
 
-        public static void UserCurrentVersionRetrieving(
-                ILogger     logger,
-                Snowflake   userId)
-            => _userCurrentVersionRetrieving.Invoke(
-                logger,
-                userId);
-        private static readonly Action<ILogger, Snowflake> _userCurrentVersionRetrieving
-            = LoggerMessage.Define<Snowflake>(
-                    LogLevel.Debug,
-                    EventType.UserCurrentVersionRetrieving.ToEventId(),
-                    $"Retrieving current {nameof(UserVersionEntity)}: UserId {{UserId}}")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x7D11560B,
+            Level   = LogLevel.Debug,
+            Message = "Current user version is out-of-date: UserId {UserId}, UserVersionId {UserVersionId}")]
+        public static partial void UserCurrentVersionOutOfDate(
+            ILogger     logger,
+            Snowflake   userId,
+            long?       userVersionId);
 
-        public static void UserCurrentVersionUpToDate(
-                ILogger     logger,
-                Snowflake   userId,
-                long        userVersionId)
-            => _userCurrentVersionUpToDate.Invoke(
-                logger,
-                userId,
-                userVersionId);
-        private static readonly Action<ILogger, Snowflake, long> _userCurrentVersionUpToDate
-            = LoggerMessage.Define<Snowflake, long>(
-                    LogLevel.Debug,
-                    EventType.UserCurrentVersionUpToDate.ToEventId(),
-                    $"Current {nameof(UserVersionEntity)} is up-to-date: UserId {{UserId}}, UserVersionId {{UserVersionId}}")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x4056691F,
+            Level   = LogLevel.Debug,
+            Message = "Retrieving current user version: UserId {UserId}")]
+        public static partial void UserCurrentVersionRetrieving(
+            ILogger     logger,
+            Snowflake   userId);
+
+        [LoggerMessage(
+            EventId = 0x395017FB,
+            Level   = LogLevel.Debug,
+            Message = "Current user version is up-to-date: UserId {UserId}, UserVersionId {UserVersionId}")]
+        public static partial void UserCurrentVersionUpToDate(
+            ILogger     logger,
+            Snowflake   userId,
+            long        userVersionId);
 
         public static void UserMerged(
-                ILogger logger,
-                UserMergeModel model)
-            => _userMerged.Invoke(
+                ILogger         logger,
+                UserMergeModel  model)
+            => UserMerged(
                 logger,
                 model.GuildId,
                 model.UserId,
-                model.AvatarHash,
-                model.Discriminator,
-                model.Nickname,
-                model.Username);
-        private static readonly Action<ILogger, Snowflake, Snowflake, Optional<string?>, Optional<ushort>, Optional<string?>, Optional<string>> _userMerged
-            = StructuredLoggerMessage.Define<Snowflake, Snowflake, Optional<string?>, Optional<ushort>, Optional<string?>, Optional<string>>(
-                    LogLevel.Debug,
-                    EventType.UserMerged.ToEventId(),
-                    $"{nameof(UserMergeModel)} merged: GuildId {{GuildId}}, UserId {{UserId}}",
-                    "AvatarHash",
-                    "Discriminator",
-                    "Nickname",
-                    "Username")
-                .WithoutException();
+                model.AvatarHash.ToString(),
+                model.Discriminator.ToString(),
+                model.Nickname.ToString(),
+                model.Username.ToString());
+
+        [LoggerMessage(
+            EventId = 0x3AB5B788,
+            Level   = LogLevel.Debug,
+            Message = "User data merged: GuildId {GuildId}, UserId {UserId}")]
+        private static partial void UserMerged(
+            ILogger     logger,
+            Snowflake   guildId,
+            Snowflake   userId,
+            string      avatarHash,
+            string      discriminator,
+            string      nickname,
+            string      username);
 
         public static void UserMerging(
-                ILogger logger,
-                UserMergeModel model)
-            => _userMerging.Invoke(
+                ILogger         logger,
+                UserMergeModel  model)
+            => UserMerging(
                 logger,
                 model.GuildId,
                 model.UserId,
-                model.AvatarHash,
-                model.Discriminator,
-                model.Nickname,
-                model.Username);
-        private static readonly Action<ILogger, Snowflake, Snowflake, Optional<string?>, Optional<ushort>, Optional<string?>, Optional<string>> _userMerging
-            = StructuredLoggerMessage.Define<Snowflake, Snowflake, Optional<string?>, Optional<ushort>, Optional<string?>, Optional<string>>(
-                    LogLevel.Debug,
-                    EventType.UserMerging.ToEventId(),
-                    $"Merging {nameof(UserMergeModel)}: GuildId {{GuildId}}, UserId {{UserId}}",
-                    "AvatarHash",
-                    "Discriminator",
-                    "Nickname",
-                    "Username")
-                .WithoutException();
+                model.AvatarHash.ToString(),
+                model.Discriminator.ToString(),
+                model.Nickname.ToString(),
+                model.Username.ToString());
 
-        public static void UserNotFound(
-                ILogger     logger,
-                Snowflake   userId)
-            => _userNotFound.Invoke(
-                logger,
-                userId);
-        private static readonly Action<ILogger, Snowflake> _userNotFound
-            = LoggerMessage.Define<Snowflake>(
-                    LogLevel.Debug,
-                    EventType.UserNotFound.ToEventId(),
-                    $"{nameof(UserEntity)} not found: UserId {{UserId}}")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x3FADEE39,
+            Level   = LogLevel.Debug,
+            Message = "Merging user data: GuildId {GuildId}, UserId {UserId}")]
+        private static partial void UserMerging(
+            ILogger     logger,
+            Snowflake   guildId,
+            Snowflake   userId,
+            string      avatarHash,
+            string      discriminator,
+            string      nickname,
+            string      username);
 
-        public static void UserRetrieved(
-                ILogger     logger,
-                Snowflake   userId)
-            => _userRetrieved.Invoke(
-                logger,
-                userId);
-        private static readonly Action<ILogger, Snowflake> _userRetrieved
-            = LoggerMessage.Define<Snowflake>(
-                    LogLevel.Debug,
-                    EventType.UserRetrieved.ToEventId(),
-                    $"{nameof(UserEntity)} retrieved: UserId {{UserId}}")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x0374094F,
+            Level   = LogLevel.Debug,
+            Message = "User not found: UserId {UserId}")]
+        public static partial void UserNotFound(
+            ILogger     logger,
+            Snowflake   userId);
 
-        public static void UserRetrieving(
-                ILogger     logger,
-                Snowflake   userId)
-            => _userRetrieving.Invoke(
-                logger,
-                userId);
-        private static readonly Action<ILogger, Snowflake> _userRetrieving
-            = LoggerMessage.Define<Snowflake>(
-                    LogLevel.Debug,
-                    EventType.UserRetrieving.ToEventId(),
-                    $"Retrieving {nameof(UserEntity)}: UserId {{UserId}}")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x4756279B,
+            Level   = LogLevel.Debug,
+            Message = "User retrieved: UserId {UserId}")]
+        public static partial void UserRetrieved(
+            ILogger     logger,
+            Snowflake   userId);
+
+        [LoggerMessage(
+            EventId = 0x068B3659,
+            Level   = LogLevel.Debug,
+            Message = "Retrieving user: UserId {UserId}")]
+        public static partial void UserRetrieving(
+            ILogger     logger,
+            Snowflake   userId);
 
         public static void UserVersionCreated(
                 ILogger             logger,
                 UserVersionEntity   userVersion)
-            => _userVersionCreated.Invoke(
+            => UserVersionCreated(
                 logger,
                 userVersion.UserId,
                 userVersion.Id,
@@ -370,53 +304,53 @@ namespace Modix.Data.Users
                 userVersion.AvatarHash,
                 userVersion.Discriminator,
                 userVersion.Username);
-        private static readonly Action<ILogger, Snowflake, long, long?, string?, ushort, string> _userVersionCreated
-            = StructuredLoggerMessage.Define<Snowflake, long, long?, string?, ushort, string>(
-                    LogLevel.Debug,
-                    EventType.UserVersionCreated.ToEventId(),
-                    $"{nameof(UserVersionEntity)} created: UserId {{UserId}}, UserVersionId {{UserVersionId}}",
-                    "PreviousVersionId",
-                    "AvatarHash",
-                    "Discriminator",
-                    "Username")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId = 0x7A576AFB,
+            Level   = LogLevel.Debug,
+            Message = "User version created: UserId {UserId}, UserVersionId {UserVersionId}")]
+        private static partial void UserVersionCreated(
+            ILogger     logger,
+            Snowflake   userId,
+            long        userVersionId,
+            long?       previousVersionId,
+            string?     avatarHash,
+            ushort      discriminator,
+            string      username);
 
         public static void UserVersionCreating(
                 ILogger             logger,
                 UserVersionEntity   userVersion)
-            => _userVersionCreating.Invoke(
+            => UserVersionCreating(
                 logger,
                 userVersion.UserId,
                 userVersion.PreviousVersionId,
                 userVersion.AvatarHash,
                 userVersion.Discriminator,
                 userVersion.Username);
-        private static readonly Action<ILogger, Snowflake, long?, string?, ushort, string> _userVersionCreating
-            = StructuredLoggerMessage.Define<Snowflake, long?, string?, ushort, string>(
-                    LogLevel.Debug,
-                    EventType.UserVersionCreating.ToEventId(),
-                    $"Creating {nameof(UserVersionEntity)}: UserId {{UserId}}, PreviousVersionId {{PreviousVersionId}}",
-                    "AvatarHash",
-                    "Discriminator",
-                    "Username")
-                .WithoutException();
 
-        public static void UsersMerged(ILogger logger)
-            => _usersMerged.Invoke(logger);
-        private static readonly Action<ILogger> _usersMerged
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    EventType.UsersMerged.ToEventId(),
-                    $"{nameof(UserMergeModel)} bulk-merged.")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x75C20591,
+            Level   = LogLevel.Debug,
+            Message = "Creating user version: UserId {UserId}, PreviousVersionId {PreviousVersionId}")]
+        private static partial void UserVersionCreating(
+            ILogger     logger,
+            Snowflake   userId,
+            long?       previousVersionId,
+            string?     avatarHash,
+            ushort      discriminator,
+            string      username);
 
-        public static void UsersMerging(ILogger logger)
-            => _usersMerging.Invoke(logger);
-        private static readonly Action<ILogger> _usersMerging
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    EventType.UsersMerging.ToEventId(),
-                    $"Bulk-merging {nameof(UserMergeModel)}")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x772B39A5,
+            Level   = LogLevel.Debug,
+            Message = "User data bulk-merged.")]
+        public static partial void UsersMerged(ILogger logger);
+
+        [LoggerMessage(
+            EventId = 0x13891BB1,
+            Level   = LogLevel.Debug,
+            Message = "Bulk-merging user data")]
+        public static partial void UsersMerging(ILogger logger);
     }
 }

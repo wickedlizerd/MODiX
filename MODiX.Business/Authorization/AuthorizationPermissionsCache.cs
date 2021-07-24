@@ -9,10 +9,10 @@ using Modix.Business.Caching;
 namespace Modix.Business.Authorization
 {
     public interface IAuthorizationPermissionsCache
-        : IFifoCache<(Snowflake guildId, Snowflake userId), AuthorizationPermissionsCacheEntry> { }
+        : IFifoCache<(Snowflake userId, Snowflake guildId), AuthorizationPermissionsCacheEntry> { }
 
     internal class AuthorizationPermissionsCache
-        : FifoCacheBase<(Snowflake guildId, Snowflake userId), AuthorizationPermissionsCacheEntry>,
+        : FifoCacheBase<(Snowflake userId, Snowflake guildId), AuthorizationPermissionsCacheEntry>,
             IAuthorizationPermissionsCache
     {
         public AuthorizationPermissionsCache(
@@ -22,7 +22,7 @@ namespace Modix.Business.Authorization
                 logger,
                 systemClock) { }
 
-        protected override (Snowflake guildId, Snowflake userId) SelectKey(AuthorizationPermissionsCacheEntry entry)
-            => (entry.GuildId, entry.UserId);
+        protected override (Snowflake userId, Snowflake guildId) SelectKey(AuthorizationPermissionsCacheEntry entry)
+            => (entry.UserId, entry.GuildId);
     }
 }

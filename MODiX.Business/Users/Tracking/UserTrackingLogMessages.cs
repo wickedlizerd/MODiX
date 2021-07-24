@@ -7,35 +7,8 @@ using Remora.Discord.Core;
 
 namespace Modix.Business.Users.Tracking
 {
-    internal static class UserTrackingLogMessages
+    internal static partial class UserTrackingLogMessages
     {
-        private enum EventType
-        {
-            CacheEntryRetrieving            = 0x01,
-            CacheEntryNotFound              = 0x02,
-            CacheEntryRetrieved             = 0x03,
-            CacheEntryReplacing             = 0x04,
-            CacheEntryReplaced              = 0x05,
-            CacheEntriesRemoving            = 0x06,
-            CacheEntriesRemoved             = 0x07,
-            CacheCleaning                   = 0x08,
-            CacheCleaned                    = 0x09,
-            CacheEntriesResetNotNeeded      = 0x0A,
-            CacheEntriesResetting           = 0x0B,
-            CacheEntriesReset               = 0x0C,
-            CacheEntriesSaveNotNeeded       = 0x0D,
-            CacheEntriesSaving              = 0x0E,
-            CacheEntriesSaved               = 0x0F,
-            CacheEntryAdding                = 0x10,
-            CacheEntryAdded                 = 0x11,
-            CacheEntryResetting             = 0x12,
-            CacheEntryReset                 = 0x13,
-            CacheEntrySaving                = 0x14,
-            CacheEntrySaved                 = 0x15,
-            UserTracking                    = 0x16,
-            UserTracked                     = 0x17
-        }
-
         public static IDisposable BeginBackgroundScope(
                 ILogger logger,
                 Guid    guid)
@@ -45,305 +18,251 @@ namespace Modix.Business.Users.Tracking
         private static readonly Func<ILogger, Guid, IDisposable> _beginBackgroundScope
             = StructuredLoggerMessage.DefineScopeData<Guid>("ScopeId");
 
-        public static void CacheCleaned(ILogger logger)
-            => _cacheCleaned.Invoke(logger);
-        private static readonly Action<ILogger> _cacheCleaned
-            = LoggerMessage.Define(
-                    LogLevel.Information,
-                    EventType.CacheCleaned.ToEventId(),
-                    "Cache cleaned")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x2E5EE16B,
+            Level   = LogLevel.Information,
+            Message = "Cache cleaned")]
+        public static partial void CacheCleaned(ILogger logger);
 
-        public static void CacheCleaning(ILogger logger)
-            => _cacheCleaning.Invoke(logger);
-        private static readonly Action<ILogger> _cacheCleaning
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    EventType.CacheCleaning.ToEventId(),
-                    "Cleaning cache")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x2EB87B70,
+            Level   = LogLevel.Debug,
+            Message = "Cleaning cache")]
+        public static partial void CacheCleaning(ILogger logger);
 
-        public static void CacheEntriesRemoved(ILogger logger)
-            => _cacheEntriesRemoved.Invoke(logger);
-        private static readonly Action<ILogger> _cacheEntriesRemoved
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    EventType.CacheEntriesRemoved.ToEventId(),
-                    "Cache entries removed")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x5AC9DD13,
+            Level   = LogLevel.Debug,
+            Message = "Cache entries removed")]
+        public static partial void CacheEntriesRemoved(ILogger logger);
 
-        public static void CacheEntriesRemoving(
-                ILogger     logger,
-                TimeSpan    minimumAge)
-            => _cacheEntriesRemoving.Invoke(
-                logger,
-                minimumAge);
-        private static readonly Action<ILogger, TimeSpan> _cacheEntriesRemoving
-            = LoggerMessage.Define<TimeSpan>(
-                    LogLevel.Debug,
-                    EventType.CacheEntriesRemoving.ToEventId(),
-                    "Removing cache entries (older than {MinimumAge})")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x3A11BD7F,
+            Level   = LogLevel.Debug,
+            Message = "Removing cache entries (older than {MinimumAge})")]
+        public static partial void CacheEntriesRemoving(
+            ILogger     logger,
+            TimeSpan    minimumAge);
 
-        public static void CacheEntriesReset(
-                ILogger logger,
-                int     entryCount)
-            => _cacheEntriesReset.Invoke(
-                logger,
-                entryCount);
-        private static readonly Action<ILogger, int> _cacheEntriesReset
-            = LoggerMessage.Define<int>(
-                    LogLevel.Debug,
-                    EventType.CacheEntriesReset.ToEventId(),
-                    "Cache entries reset ({EntryCount} entries)")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x3B8811EE,
+            Level   = LogLevel.Debug,
+            Message = "Cache entries reset ({EntryCount} entries)")]
+        public static partial void CacheEntriesReset(
+            ILogger logger,
+            int     entryCount);
 
-        public static void CacheEntriesResetNotNeeded(ILogger logger)
-            => _cacheEntriesResetNotNeeded.Invoke(logger);
-        private static readonly Action<ILogger> _cacheEntriesResetNotNeeded
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    EventType.CacheEntriesResetNotNeeded.ToEventId(),
-                    "No cache entries need reset")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x6A80D516,
+            Level   = LogLevel.Debug,
+            Message = "No cache entries need reset")]
+        public static partial void CacheEntriesResetNotNeeded(ILogger logger);
 
-        public static void CacheEntriesResetting(
-                ILogger logger,
-                int     entryCount)
-            => _cacheEntriesResetting.Invoke(
-                logger,
-                entryCount);
-        private static readonly Action<ILogger, int> _cacheEntriesResetting
-            = LoggerMessage.Define<int>(
-                    LogLevel.Debug,
-                    EventType.CacheEntriesResetting.ToEventId(),
-                    "Resetting cache entries ({EntryCount} entries)")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x3BEA7AE1,
+            Level   = LogLevel.Debug,
+            Message = "Resetting cache entries ({EntryCount} entries)")]
+        public static partial void CacheEntriesResetting(
+            ILogger logger,
+            int     entryCount);
 
-        public static void CacheEntriesSaved(
-                ILogger logger,
-                int     entryCount)
-            => _cacheEntriesSaved.Invoke(
-                logger,
-                entryCount);
-        private static readonly Action<ILogger, int> _cacheEntriesSaved
-            = LoggerMessage.Define<int>(
-                    LogLevel.Debug,
-                    EventType.CacheEntriesSaved.ToEventId(),
-                    "Cache entries saved ({EntryCount} entries)")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x640B87DC,
+            Level   = LogLevel.Debug,
+            Message = "Cache entries saved ({EntryCount} entries)")]
+        public static partial void CacheEntriesSaved(
+            ILogger logger,
+            int     entryCount);
 
-        public static void CacheEntriesSaving(
-                ILogger logger,
-                int     entryCount)
-            => _cacheEntriesSaving.Invoke(
-                logger,
-                entryCount);
-        private static readonly Action<ILogger, int> _cacheEntriesSaving
-            = LoggerMessage.Define<int>(
-                    LogLevel.Debug,
-                    EventType.CacheEntriesSaving.ToEventId(),
-                    "Saving cache entries ({EntryCount} entries)")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x4456B5E1,
+            Level   = LogLevel.Debug,
+            Message = "Saving cache entries ({EntryCount} entries)")]
+        public static partial void CacheEntriesSaving(
+            ILogger logger,
+            int     entryCount);
 
-        public static void CacheEntriesSaveNotNeeded(ILogger logger)
-            => _cacheEntriesSaveNotNeeded.Invoke(logger);
-        private static readonly Action<ILogger> _cacheEntriesSaveNotNeeded
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    EventType.CacheEntriesSaveNotNeeded.ToEventId(),
-                    "No cache entries need saved")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x4110E122,
+            Level   = LogLevel.Debug,
+            Message = "No cache entries need saved")]
+        public static partial void CacheEntriesSaveNotNeeded(ILogger logger);
 
-        public static void CacheEntryNotFound(
-                ILogger     logger,
-                Snowflake   userId)
-            => _cacheEntryNotFound.Invoke(
-                logger,
-                userId);
-        private static readonly Action<ILogger, Snowflake> _cacheEntryNotFound
-            = LoggerMessage.Define<Snowflake>(
-                    LogLevel.Debug,
-                    EventType.CacheEntryNotFound.ToEventId(),
-                    "Cache entry not found: (UserId {UserId})")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x1365C7F4,
+            Level   = LogLevel.Debug,
+            Message = "Cache entry not found: (UserId {UserId})")]
+        public static partial void CacheEntryNotFound(
+            ILogger     logger,
+            Snowflake   userId);
 
         public static void CacheEntryAdded(
                 ILogger                 logger,
                 UserTrackingCacheEntry  entry)
-            => _cacheEntryAdded.Invoke(
+            => CacheEntryAdded(
                 logger,
                 entry.UserId,
                 entry.LastUpdated,
                 entry.LastSaved);
-        private static readonly Action<ILogger, Snowflake, DateTimeOffset, DateTimeOffset> _cacheEntryAdded
-            = StructuredLoggerMessage.Define<Snowflake, DateTimeOffset, DateTimeOffset>(
-                    LogLevel.Debug,
-                    EventType.CacheEntryAdded.ToEventId(),
-                    "Cache entry added: (UserId {UserId})",
-                    "LastUpdated",
-                    "LastSaved")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId = 0x1AC933C0,
+            Level   = LogLevel.Debug,
+            Message = "Cache entry added: (UserId {UserId})")]
+        private static partial void CacheEntryAdded(
+            ILogger         logger,
+            Snowflake       userId,
+            DateTimeOffset  lastUpdated,
+            DateTimeOffset  lastSaved);
 
         public static void CacheEntryAdding(
                 ILogger                 logger,
                 UserTrackingCacheEntry  entry)
-            => _cacheEntryAdding.Invoke(
+            => CacheEntryAdding(
                 logger,
                 entry.UserId,
                 entry.LastUpdated,
                 entry.LastSaved);
-        private static readonly Action<ILogger, Snowflake, DateTimeOffset, DateTimeOffset> _cacheEntryAdding
-            = StructuredLoggerMessage.Define<Snowflake, DateTimeOffset, DateTimeOffset>(
-                    LogLevel.Debug,
-                    EventType.CacheEntryAdding.ToEventId(),
-                    "Adding cache entry: (UserId {UserId})",
-                    "LastUpdated",
-                    "LastSaved")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId = 0x0DDCB054,
+            Level   = LogLevel.Debug,
+            Message = "Adding cache entry: (UserId {UserId})")]
+        private static partial void CacheEntryAdding(
+            ILogger         logger,
+            Snowflake       userId,
+            DateTimeOffset  lastUpdated,
+            DateTimeOffset  lastSaved);
 
         public static void CacheEntryReplaced(
                 ILogger                 logger,
                 UserTrackingCacheEntry  entry)
-            => _cacheEntryReplaced.Invoke(
+            => CacheEntryReplaced(
                 logger,
                 entry.UserId,
                 entry.LastUpdated,
                 entry.LastSaved);
-        private static readonly Action<ILogger, Snowflake, DateTimeOffset, DateTimeOffset> _cacheEntryReplaced
-            = StructuredLoggerMessage.Define<Snowflake, DateTimeOffset, DateTimeOffset>(
-                    LogLevel.Debug,
-                    EventType.CacheEntryReplaced.ToEventId(),
-                    "Cache entry replaced: (UserId {UserId})",
-                    "LastUpdated",
-                    "LastSaved")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId = 0x4022571C,
+            Level   = LogLevel.Debug,
+            Message = "Cache entry replaced: (UserId {UserId})")]
+        private static partial void CacheEntryReplaced(
+            ILogger         logger,
+            Snowflake       userId,
+            DateTimeOffset  lastUpdated,
+            DateTimeOffset  lastSaved);
 
         public static void CacheEntryReplacing(
                 ILogger                 logger,
                 UserTrackingCacheEntry  entry)
-            => _cacheEntryReplacing.Invoke(
+            => CacheEntryReplacing(
                 logger,
                 entry.UserId,
                 entry.LastUpdated,
                 entry.LastSaved);
-        private static readonly Action<ILogger, Snowflake, DateTimeOffset, DateTimeOffset> _cacheEntryReplacing
-            = StructuredLoggerMessage.Define<Snowflake, DateTimeOffset, DateTimeOffset>(
-                    LogLevel.Debug,
-                    EventType.CacheEntryReplacing.ToEventId(),
-                    "Replacing cache entry: (UserId {UserId})",
-                    "LastUpdated",
-                    "LastSaved")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId = 0x2004A6D2,
+            Level   = LogLevel.Debug,
+            Message = "Replacing cache entry: (UserId {UserId})")]
+        private static partial void CacheEntryReplacing(
+            ILogger         logger,
+            Snowflake       userId,
+            DateTimeOffset  lastUpdated,
+            DateTimeOffset  lastSaved);
 
         public static void CacheEntryReset(
                 ILogger                 logger,
                 UserTrackingCacheEntry  entry)
-            => _cacheEntryReset.Invoke(
+            => CacheEntryReset(
                 logger,
                 entry.UserId,
                 entry.LastUpdated,
                 entry.LastSaved);
-        private static readonly Action<ILogger, Snowflake, DateTimeOffset, DateTimeOffset> _cacheEntryReset
-            = StructuredLoggerMessage.Define<Snowflake, DateTimeOffset, DateTimeOffset>(
-                    LogLevel.Debug,
-                    EventType.CacheEntryReset.ToEventId(),
-                    "Cache entry reset: (UserId {UserId})",
-                    "LastUpdated",
-                    "LastSaved")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId = 0x70148F08,
+            Level   = LogLevel.Debug,
+            Message = "Cache entry reset: (UserId {UserId})")]
+        private static partial void CacheEntryReset(
+            ILogger         logger,
+            Snowflake       userId,
+            DateTimeOffset  lastUpdated,
+            DateTimeOffset  lastSaved);
 
         public static void CacheEntryResetting(
                 ILogger                 logger,
                 UserTrackingCacheEntry  entry)
-            => _cacheEntryResetting.Invoke(
+            => CacheEntryResetting(
                 logger,
                 entry.UserId,
                 entry.LastUpdated,
                 entry.LastSaved);
-        private static readonly Action<ILogger, Snowflake, DateTimeOffset, DateTimeOffset> _cacheEntryResetting
-            = StructuredLoggerMessage.Define<Snowflake, DateTimeOffset, DateTimeOffset>(
-                    LogLevel.Debug,
-                    EventType.CacheEntryResetting.ToEventId(),
-                    "Resetting cache entry: (UserId {UserId})",
-                    "LastUpdated",
-                    "LastSaved")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId = 0x410D64E7,
+            Level   = LogLevel.Debug,
+            Message = "Resetting cache entry: (UserId {UserId})")]
+        private static partial void CacheEntryResetting(
+            ILogger         logger,
+            Snowflake       userId,
+            DateTimeOffset  lastUpdated,
+            DateTimeOffset  lastSaved);
 
         public static void CacheEntryRetrieved(
                 ILogger                 logger,
                 UserTrackingCacheEntry  entry)
-            => _cacheEntryRetrieved.Invoke(
+            => CacheEntryRetrieved(
                 logger,
                 entry.UserId,
                 entry.LastUpdated,
                 entry.LastSaved);
-        private static readonly Action<ILogger, Snowflake, DateTimeOffset, DateTimeOffset> _cacheEntryRetrieved
-            = StructuredLoggerMessage.Define<Snowflake, DateTimeOffset, DateTimeOffset>(
-                    LogLevel.Debug,
-                    EventType.CacheEntryRetrieved.ToEventId(),
-                    "Cache entry retrieved: (UserId {UserId})",
-                    "LastUpdated",
-                    "LastSaved")
-                .WithoutException();
 
-        public static void CacheEntryRetrieving(
-                ILogger     logger,
-                Snowflake   userId)
-            => _cacheEntryRetrieving.Invoke(
-                logger,
-                userId);
-        private static readonly Action<ILogger, Snowflake> _cacheEntryRetrieving
-            = LoggerMessage.Define<Snowflake>(
-                    LogLevel.Debug,
-                    EventType.CacheEntryRetrieving.ToEventId(),
-                    "Retrieving cache entry: (UserId {UserId})")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x54D07E2C,
+            Level   = LogLevel.Debug,
+            Message = "Cache entry retrieved: (UserId {UserId})")]
+        private static partial void CacheEntryRetrieved(
+            ILogger         logger,
+            Snowflake       userId,
+            DateTimeOffset  lastUpdated,
+            DateTimeOffset  lastSaved);
 
-        public static void CacheEntrySaved(
-                ILogger     logger,
-                Snowflake   userId,
-                Snowflake   guildId)
-            => _cacheEntrySaved.Invoke(
-                logger,
-                userId,
-                guildId);
-        private static readonly Action<ILogger, Snowflake, Snowflake> _cacheEntrySaved
-            = LoggerMessage.Define<Snowflake, Snowflake>(
-                    LogLevel.Debug,
-                    EventType.CacheEntrySaved.ToEventId(),
-                    "Cache entry saved: (UserId {UserId}, GuildId {GuildId})")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x299DF3FF,
+            Level   = LogLevel.Debug,
+            Message = "Retrieving cache entry: (UserId {UserId})")]
+        public static partial void CacheEntryRetrieving(
+            ILogger     logger,
+            Snowflake   userId);
 
-        public static void CacheEntrySaving(
-                ILogger     logger,
-                Snowflake   userId,
-                Snowflake   guildId)
-            => _cacheEntrySaving.Invoke(
-                logger,
-                userId,
-                guildId);
-        private static readonly Action<ILogger, Snowflake, Snowflake> _cacheEntrySaving
-            = LoggerMessage.Define<Snowflake, Snowflake>(
-                    LogLevel.Debug,
-                    EventType.CacheEntrySaving.ToEventId(),
-                    "Saving cache entry: (UserId {UserId}, GuildId {GuildId})")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x7AD8B91C,
+            Level   = LogLevel.Debug,
+            Message = "Cache entry saved: (UserId {UserId}, GuildId {GuildId})")]
+        public static partial void CacheEntrySaved(
+            ILogger     logger,
+            Snowflake   userId,
+            Snowflake   guildId);
 
-        public static void UserTracked(
-                ILogger     logger,
-                Snowflake   userId,
-                Snowflake   guildId)
-            => _userTracked.Invoke(
-                logger,
-                userId,
-                guildId);
-        private static readonly Action<ILogger, Snowflake, Snowflake> _userTracked
-            = LoggerMessage.Define<Snowflake, Snowflake>(
-                    LogLevel.Debug,
-                    EventType.UserTracked.ToEventId(),
-                    "User tracked: UserId {UserId}, GuildId {GuildId}")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x7EE0190F,
+            Level   = LogLevel.Debug,
+            Message = "Saving cache entry: (UserId {UserId}, GuildId {GuildId})")]
+        public static partial void CacheEntrySaving(
+            ILogger     logger,
+            Snowflake   userId,
+            Snowflake   guildId);
+
+        [LoggerMessage(
+            EventId = 0x32FFFF5D,
+            Level   = LogLevel.Debug,
+            Message = "User tracked: UserId {UserId}, GuildId {GuildId}")]
+        public static partial void UserTracked(
+            ILogger     logger,
+            Snowflake   userId,
+            Snowflake   guildId);
 
         public static void UserTracking(
                 ILogger             logger,
@@ -353,7 +272,7 @@ namespace Modix.Business.Users.Tracking
                 Optional<ushort>    discriminator,
                 Optional<string?>   avatarHash,
                 Optional<string?>   nickname)
-            => _userTracking.Invoke(
+            => UserTracking(
                 logger,
                 userId,
                 guildId,
@@ -361,15 +280,18 @@ namespace Modix.Business.Users.Tracking
                 discriminator.ToString(),
                 avatarHash.ToString(),
                 nickname.ToString());
-        private static readonly Action<ILogger, Snowflake, Snowflake, string, string, string, string> _userTracking
-            = StructuredLoggerMessage.Define<Snowflake, Snowflake, string, string, string, string>(
-                    LogLevel.Debug,
-                    EventType.UserTracking.ToEventId(),
-                    "Tracking user: UserId {UserId}, GuildId {GuildId}",
-                    "Username",
-                    "Discriminator",
-                    "AvatarHash",
-                    "Nickname")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId = 0x5E4CE7E9,
+            Level   = LogLevel.Debug,
+            Message = "Tracking user: UserId {UserId}, GuildId {GuildId}")]
+        private static partial void UserTracking(
+            ILogger     logger,
+            Snowflake   userId,
+            Snowflake   guildId,
+            string      username,
+            string      discriminator,
+            string      avatarHash,
+            string      nickname);
     }
 }

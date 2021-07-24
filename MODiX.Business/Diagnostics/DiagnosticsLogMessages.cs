@@ -2,124 +2,72 @@
 using System.Net.NetworkInformation;
 
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Structured;
 
 namespace Modix.Business.Diagnostics
 {
-    internal static class DiagnosticsLogMessages
+    internal static partial class DiagnosticsLogMessages
     {
-        private enum LogEvent
-        {
-            SystemClockStarting             = BusinessLogEventType.Diagnostics + 0x0101,
-            SystemClockStopping             = BusinessLogEventType.Diagnostics + 0x0102,
-            PingTestEndpointsNotConfigured  = BusinessLogEventType.Diagnostics + 0x0201,
-            PingTestPerforming              = BusinessLogEventType.Diagnostics + 0x0202,
-            PingTestPerformed               = BusinessLogEventType.Diagnostics + 0x0203,
-            PingTestEndpointPinging         = BusinessLogEventType.Diagnostics + 0x0204,
-            PingTestEndpointPinged          = BusinessLogEventType.Diagnostics + 0x0205,
-            PingTestEndpointPingFailed      = BusinessLogEventType.Diagnostics + 0x0206
-        }
+        [LoggerMessage(
+            EventId = 0x5AAF9778,
+            Level   = LogLevel.Debug,
+            Message = "Endpoint [{EndpointName}] ({Endpoint}) pinged: {Status}, {RoundtripTime}ms")]
+        public static partial void PingTestEndpointPinged(
+            ILogger     logger,
+            string      endpointName,
+            string      endpoint,
+            IPStatus?   status,
+            long?       roundtripTime);
 
-        public static void PingTestEndpointPinged(
-                ILogger     logger,
-                string      endpointName,
-                string      endpoint,
-                IPStatus?    status,
-                long?        roundtripTime)
-            => _pingTestEndpointPinged.Invoke(
-                logger,
-                endpointName,
-                endpoint,
-                status,
-                roundtripTime);
-        private static readonly Action<ILogger, string, string, IPStatus?, long?> _pingTestEndpointPinged
-            = LoggerMessage.Define<string, string, IPStatus?, long?>(
-                    LogLevel.Debug,
-                    LogEvent.PingTestEndpointPinged.ToEventId(),
-                    "Endpoint \"{EndpointName}\" ({Endpoint}) pinged: {Status}, {RoundtripTime}")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x4CA713AB,
+            Level   = LogLevel.Debug,
+            Message = "Endpoint [{EndpointName}] ({Endpoint}) ping failed")]
+        public static partial void PingTestEndpointPingFailed(
+            ILogger     logger,
+            string      endpointName,
+            string      endpoint,
+            Exception   exception);
 
-        public static void PingTestEndpointPingFailed(
-                ILogger     logger,
-                string      endpointName,
-                string      endpoint,
-                Exception   exception)
-            => _pingTestEndpointPingFailed.Invoke(
-                logger,
-                endpointName,
-                endpoint,
-                exception);
-        private static readonly Action<ILogger, string, string, Exception?> _pingTestEndpointPingFailed
-            = LoggerMessage.Define<string, string>(
-                    LogLevel.Error,
-                    LogEvent.PingTestEndpointPingFailed.ToEventId(),
-                    "Endpoint \"{EndpointName}\" ({Endpoint}) ping failed");
+        [LoggerMessage(
+            EventId = 0x68F015C4,
+            Level   = LogLevel.Debug,
+            Message = "Pinging endpoint [{EndpointName}] ({Endpoint})")]
+        public static partial void PingTestEndpointPinging(
+            ILogger     logger,
+            string      endpointName,
+            string      endpoint,
+            TimeSpan    timeout);
 
-        public static void PingTestEndpointPinging(
-                ILogger     logger,
-                string      endpointName,
-                string      endpoint,
-                TimeSpan    timeout)
-            => _pingTestEndpointPinging.Invoke(
-                logger,
-                endpointName,
-                endpoint,
-                timeout);
-        private static readonly Action<ILogger, string, string, TimeSpan> _pingTestEndpointPinging
-            = StructuredLoggerMessage.Define<string, string, TimeSpan>(
-                    LogLevel.Debug,
-                    LogEvent.PingTestEndpointPinging.ToEventId(),
-                    "Pinging endpoint \"{EndpointName}\" ({Endpoint})",
-                    "Timeout")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x1805E0CB,
+            Level   = LogLevel.Warning,
+            Message = "No ping test endpoints have been configured")]
+        public static partial void PingTestEndpointsNotConfigured(ILogger logger);
 
-        public static void PingTestEndpointsNotConfigured(ILogger logger)
-            => _pingTestEndpointsNotConfigured.Invoke(logger);
-        private static readonly Action<ILogger> _pingTestEndpointsNotConfigured
-            = LoggerMessage.Define(
-                    LogLevel.Warning,
-                    LogEvent.PingTestEndpointsNotConfigured.ToEventId(),
-                    "No ping test endpoints have been configured")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x4E0161AD,
+            Level   = LogLevel.Debug,
+            Message = "Ping test performed")]
+        public static partial void PingTestPerformed(ILogger logger);
 
-        public static void PingTestPerformed(ILogger logger)
-            => _pingTestPerformed.Invoke(logger);
-        private static readonly Action<ILogger> _pingTestPerformed
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    LogEvent.PingTestPerformed.ToEventId(),
-                    "Ping test performed")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x661F18A4,
+            Level   = LogLevel.Debug,
+            Message = "Performing Ping Test ({EndpointCount} endpoints)")]
+        public static partial void PingTestPerforming(
+            ILogger logger,
+            int     endpointCount);
 
-        public static void PingTestPerforming(
-                ILogger logger,
-                int     endpointCount)
-            => _pingTestPerforming.Invoke(
-                logger,
-                endpointCount);
-        private static readonly Action<ILogger, int> _pingTestPerforming
-            = LoggerMessage.Define<int>(
-                    LogLevel.Debug,
-                    LogEvent.PingTestPerforming.ToEventId(),
-                    "Performing Ping Test ({EndpointCount} endpoints)")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x2B5DE3E7,
+            Level   = LogLevel.Debug,
+            Message = "Starting system clock diagnostics")]
+        public static partial void SystemClockStarting(ILogger logger);
 
-        public static void SystemClockStarting(ILogger logger)
-            => _systemClockStarting.Invoke(logger);
-        private static readonly Action<ILogger> _systemClockStarting
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    LogEvent.SystemClockStarting.ToEventId(),
-                    "Starting system clock diagnostics")
-                .WithoutException();
-
-        public static void SystemClockStopping(ILogger logger)
-            => _systemClockStopping.Invoke(logger);
-        private static readonly Action<ILogger> _systemClockStopping
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    LogEvent.SystemClockStopping.ToEventId(),
-                    "Stopping system clock diagnostics")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x529EB71D,
+            Level   = LogLevel.Debug,
+            Message = "Stopping system clock diagnostics")]
+        public static partial void SystemClockStopping(ILogger logger);
     }
 }

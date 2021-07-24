@@ -1,7 +1,6 @@
 ﻿using System;
 
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Structured;
 
 using Remora.Discord.Core;
 using Remora.Discord.API.Abstractions.Objects;
@@ -11,343 +10,260 @@ using Modix.Data.Permissions;
 
 namespace Modix.Business.Authorization
 {
-    internal static class AuthorizationLogMessages
+    internal static partial class AuthorizationLogMessages
     {
-        private enum EventType
-        {
-            GrantedPermissionIdsRetrieving      = BusinessLogEventType.Authorization + 0x0100,
-            GrantedPermissionIdsNotFound        = BusinessLogEventType.Authorization + 0x0200,
-            GrantedPermissionIdsRetrieved       = BusinessLogEventType.Authorization + 0x0300,
-            AdministratorIdentified             = BusinessLogEventType.Authorization + 0x0400,
-            AllPermissionsRetrieving            = BusinessLogEventType.Authorization + 0x0500,
-            AllPermissionsRetrieved             = BusinessLogEventType.Authorization + 0x0600,
-            GuildMemberRetrieving               = BusinessLogEventType.Authorization + 0x0700,
-            GuildMemberRetrievalFailed          = BusinessLogEventType.Authorization + 0x0800,
-            GuildMemberRetrieved                = BusinessLogEventType.Authorization + 0x0900,
-            GuildPermissionMappingsEnumerating  = BusinessLogEventType.Authorization + 0x0A00,
-            GuildPermissionMappingsEnumerated   = BusinessLogEventType.Authorization + 0x0B00,
-            GuildPermissionGranted              = BusinessLogEventType.Authorization + 0x0C00,
-            GuildPermissionRevoked              = BusinessLogEventType.Authorization + 0x0D00,
-            GuildPermissionMappingIgnored       = BusinessLogEventType.Authorization + 0x0E00,
-            RolePermissionMappingsEnumerating   = BusinessLogEventType.Authorization + 0x0F00,
-            RolePermissionMappingsEnumerated    = BusinessLogEventType.Authorization + 0x1000,
-            RolePermissionGranted               = BusinessLogEventType.Authorization + 0x1100,
-            RolePermissionRevoked               = BusinessLogEventType.Authorization + 0x1200,
-            RolePermissionMappingIgnored        = BusinessLogEventType.Authorization + 0x1300,
-            GrantedPermissionIdsCaching         = BusinessLogEventType.Authorization + 0x1400,
-            GrantedPermissionIdsCached          = BusinessLogEventType.Authorization + 0x1500
-        }
+        [LoggerMessage(
+            EventId = 0x7AF87C65,
+            Level   = LogLevel.Debug,
+            Message = "Administrator identified (UserId {UserId})")]
+        public static partial void AdministratorIdentified(
+            ILogger     logger,
+            Snowflake   userId);
 
-        public static void AdministratorIdentified(
-                ILogger     logger,
-                Snowflake   userId)
-            => _administratorIdentified.Invoke(
-                logger,
-                userId);
-        private static readonly Action<ILogger, Snowflake> _administratorIdentified
-            = LoggerMessage.Define<Snowflake>(
-                    LogLevel.Debug,
-                    EventType.AdministratorIdentified.ToEventId(),
-                    "Administrator identified (UserId {UserId})")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x1360FE21,
+            Level   = LogLevel.Debug,
+            Message = "All permissions retrieved ({PermissionCount} permissions)")]
+        public static partial void AllPermissionsRetrieved(
+            ILogger logger,
+            int     permissionCount);
 
-        public static void AllPermissionsRetrieved(
-                ILogger logger,
-                int     permissionCount)
-            => _allPermissionsRetrieved.Invoke(
-                logger,
-                permissionCount);
-        private static readonly Action<ILogger, int> _allPermissionsRetrieved
-            = LoggerMessage.Define<int>(
-                    LogLevel.Debug,
-                    EventType.AllPermissionsRetrieved.ToEventId(),
-                    "All permissions retrieved ({PermissionCount} permissions)")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x02B4C35B,
+            Level   = LogLevel.Debug,
+            Message = "Retrieving all permissions")]
+        public static partial void AllPermissionsRetrieving(ILogger logger);
 
-        public static void AllPermissionsRetrieving(ILogger logger)
-            => _allPermissionsRetrieving.Invoke(logger);
-        private static readonly Action<ILogger> _allPermissionsRetrieving
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    EventType.AllPermissionsRetrieving.ToEventId(),
-                    "Retrieving all permissions")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x32B57E30,
+            Level   = LogLevel.Debug,
+            Message = "Granted permissions cached (UserId {UserId}, GuildId {GuildId}, {PermissionCount} permissions)")]
+        public static partial void GrantedPermissionIdsCached(
+            ILogger     logger,
+            Snowflake   userId,
+            Snowflake   guildId,
+            int         permissionCount);
 
-        public static void GrantedPermissionIdsCached(
-                ILogger     logger,
-                Snowflake   guildId,
-                Snowflake   userId,
-                int         permissionCount)
-            => _grantedPermissionIdsCached.Invoke(
-                logger,
-                guildId,
-                userId,
-                permissionCount);
-        private static readonly Action<ILogger, Snowflake, Snowflake, int> _grantedPermissionIdsCached
-            = LoggerMessage.Define<Snowflake, Snowflake, int>(
-                    LogLevel.Debug,
-                    EventType.GrantedPermissionIdsCached.ToEventId(),
-                    "Granted permissions cached (GuildId {GuildId}, UserId {UserId}, {PermissionCount} permissions)")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x736EC4A3,
+            Level   = LogLevel.Debug,
+            Message = "Caching granted permissions (UserId {UserId}, GuildId {GuildId}, {PermissionCount} permissions)")]
+        public static partial void GrantedPermissionIdsCaching(
+            ILogger     logger,
+            Snowflake   userId,
+            Snowflake   guildId,
+            int         permissionCount);
 
-        public static void GrantedPermissionIdsCaching(
-                ILogger     logger,
-                Snowflake   guildId,
-                Snowflake   userId,
-                int         permissionCount)
-            => _grantedPermissionIdsCaching.Invoke(
-                logger,
-                guildId,
-                userId,
-                permissionCount);
-        private static readonly Action<ILogger, Snowflake, Snowflake, int> _grantedPermissionIdsCaching
-            = LoggerMessage.Define<Snowflake, Snowflake, int>(
-                    LogLevel.Debug,
-                    EventType.GrantedPermissionIdsCaching.ToEventId(),
-                    "Caching granted permissions (GuildId {GuildId}, UserId {UserId}, {PermissionCount} permissions)")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x6E7F3DC4,
+            Level   = LogLevel.Debug,
+            Message = "Granted permissions not found (UserId {UserId}, GuildId {GuildId})")]
+        public static partial void GrantedPermissionIdsNotFound(
+            ILogger     logger,
+            Snowflake   guildId,
+            Snowflake   userId);
 
-        public static void GrantedPermissionIdsNotFound(
-                ILogger     logger,
-                Snowflake   guildId,
-                Snowflake   userId)
-            => _grantedPermissionIdsNotFound.Invoke(
-                logger,
-                guildId,
-                userId);
-        private static readonly Action<ILogger, Snowflake, Snowflake> _grantedPermissionIdsNotFound
-            = LoggerMessage.Define<Snowflake, Snowflake>(
-                    LogLevel.Debug,
-                    EventType.GrantedPermissionIdsNotFound.ToEventId(),
-                    "Granted permissions not found (GuildId {GuildId}, UserId {UserId})")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x08273A3D,
+            Level   = LogLevel.Debug,
+            Message = "Granted permissions retrieved ({PermissionCount} permissions, UserId {UserId}, GuildId {GuildId})")]
+        public static partial void GrantedPermissionIdsRetrieved(
+            ILogger     logger,
+            Snowflake   userId,
+            Snowflake   guildId,
+            int         permissionCount);
 
-        public static void GrantedPermissionIdsRetrieved(
-                ILogger     logger,
-                Snowflake   guildId,
-                Snowflake   userId,
-                int         permissionCount)
-            => _grantedPermissionIdsRetrieved.Invoke(
-                logger,
-                guildId,
-                userId,
-                permissionCount);
-        private static readonly Action<ILogger, Snowflake, Snowflake, int> _grantedPermissionIdsRetrieved
-            = LoggerMessage.Define<Snowflake, Snowflake, int>(
-                    LogLevel.Debug,
-                    EventType.GrantedPermissionIdsRetrieved.ToEventId(),
-                    "Granted permissions retrieved ({PermissionCount} permissions, GuildId {GuildId}, UserId {UserId})")
-                .WithoutException();
-
-        public static void GrantedPermissionIdsRetrieving(
-                ILogger     logger,
-                Snowflake   guildId,
-                Snowflake   userId)
-            => _grantedPermissionIdsRetrieving.Invoke(
-                logger,
-                guildId,
-                userId);
-        private static readonly Action<ILogger, Snowflake, Snowflake> _grantedPermissionIdsRetrieving
-            = LoggerMessage.Define<Snowflake, Snowflake>(
-                    LogLevel.Debug,
-                    EventType.GrantedPermissionIdsRetrieving.ToEventId(),
-                    "Retrieving granted permissions (GuildId {GuildId}, UserId {UserId})")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x6D1296C2,
+            Level   = LogLevel.Debug,
+            Message = "Retrieving granted permissions (UserId {UserId}, GuildId {GuildId})")]
+        public static partial void GrantedPermissionIdsRetrieving(
+            ILogger     logger,
+            Snowflake   userId,
+            Snowflake   guildId);
 
         public static void GuildMemberRetrievalFailed(
                 ILogger         logger,
                 IResultError    error)
-            => _guildMemberRetrievalFailed.Invoke(
+            => GuildMemberRetrievalFailed(
                 logger,
                 error.GetType().Name,
-                error.Message);
-        private static readonly Action<ILogger, string, string> _guildMemberRetrievalFailed
-            = LoggerMessage.Define<string, string>(
-                    LogLevel.Error,
-                    EventType.GuildMemberRetrievalFailed.ToEventId(),
-                    "Guild member retrieval failed: {ErrorType}: {ErrorMessage}")
-                .WithoutException();
+                error.Message,
+                (error as ExceptionError)?.Exception);
 
-        public static void GuildMemberRetrieved(
-                ILogger                 logger,
-                Snowflake               guildId,
-                Snowflake               userId,
-                IDiscordPermissionSet   permissions,
-                int                     roleCount)
-            => _guildMemberRetrieved.Invoke(
-                logger,
-                guildId,
-                userId,
-                permissions,
-                roleCount);
-        private static readonly Action<ILogger, Snowflake, Snowflake, IDiscordPermissionSet, int> _guildMemberRetrieved
-            = StructuredLoggerMessage.Define<Snowflake, Snowflake, IDiscordPermissionSet, int>(
-                    LogLevel.Debug,
-                    EventType.GuildMemberRetrieved.ToEventId(),
-                    "Guild member retrieved (GuildId {GuildId}, UserId {UserId})",
-                    "Permissions",
-                    "RoleCount")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x68817ADE,
+            Level   = LogLevel.Error,
+            Message = "Guild member retrieval failed: {ErrorType}: {ErrorMessage}")]
+        private static partial void GuildMemberRetrievalFailed(
+            ILogger     logger,
+            string      errorType,
+            string      errorMessage,
+            Exception?  exception);
 
-        public static void GuildMemberRetrieving(
-                ILogger                 logger,
-                Snowflake               guildId,
-                Snowflake               userId)
-            => _guildMemberRetrieving.Invoke(
-                logger,
-                guildId,
-                userId);
-        private static readonly Action<ILogger, Snowflake, Snowflake> _guildMemberRetrieving
-            = LoggerMessage.Define<Snowflake, Snowflake>(
-                    LogLevel.Debug,
-                    EventType.GuildMemberRetrieving.ToEventId(),
-                    "Retrieving guild member (GuildId {GuildId}, UserId {UserId})")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x76D95776,
+            Level   = LogLevel.Debug,
+            Message = "Guild member retrieved (UserId {UserId}, GuildId {GuildId})")]
+        public static partial void GuildMemberRetrieved(
+            ILogger                 logger,
+            Snowflake               userId,
+            Snowflake               guildId,
+            IDiscordPermissionSet   permissions,
+            int                     roleCount);
+
+        [LoggerMessage(
+            EventId = 0x1B67C894,
+            Level   = LogLevel.Debug,
+            Message = "Retrieving guild member (UserId {UserId}, GuildId {GuildId})")]
+        public static partial void GuildMemberRetrieving(
+            ILogger     logger,
+            Snowflake   userId,
+            Snowflake   guildId);
 
         public static void GuildPermissionGranted(
                 ILogger                                 logger,
                 GuildPermissionMappingDefinitionModel   mapping)
-            => _guildPermissionGranted.Invoke(
+            => GuildPermissionGranted(
                 logger,
                 mapping.PermissionId,
                 mapping.GuildPermission,
                 mapping.GuildId);
-        private static readonly Action<ILogger, int, DiscordPermission, Snowflake> _guildPermissionGranted
-            = LoggerMessage.Define<int, DiscordPermission, Snowflake>(
-                    LogLevel.Debug,
-                    EventType.GuildPermissionGranted.ToEventId(),
-                    "Permission {PermissionId} granted, by virtue of permission {GuildPermission} in guild {GuildId}")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId = 0x7EB09F3B,
+            Level   = LogLevel.Debug,
+            Message = "Permission {PermissionId} granted, by virtue of permission {GuildPermission} in guild {GuildId}")]
+        private static partial void GuildPermissionGranted(
+            ILogger             logger,
+            int                 permissionId,
+            DiscordPermission   guildPermission,
+            Snowflake           guildId);
 
         public static void GuildPermissionMappingIgnored(
                 ILogger                                 logger,
-                GuildPermissionMappingDefinitionModel mapping)
-            => _guildPermissionMappingIgnored.Invoke(
+                GuildPermissionMappingDefinitionModel   mapping)
+            => GuildPermissionMappingIgnored(
                 logger,
                 mapping.PermissionId,
                 mapping.GuildPermission,
                 mapping.GuildId);
-        private static readonly Action<ILogger, int, DiscordPermission, Snowflake> _guildPermissionMappingIgnored
-            = LoggerMessage.Define<int, DiscordPermission, Snowflake>(
-                    LogLevel.Debug,
-                    EventType.GuildPermissionGranted.ToEventId(),
-                    "Permission {PermissionId} ignored, by virtue of permission {GuildPermission} in guild {GuildId}")
-                .WithoutException();
 
-        public static void GuildPermissionMappingsEnumerated(
-                ILogger     logger,
-                Snowflake   guildId)
-            => _guildPermissionMappingsEnumerated.Invoke(
-                logger,
-                guildId);
-        private static readonly Action<ILogger, Snowflake> _guildPermissionMappingsEnumerated
-            = StructuredLoggerMessage.Define<Snowflake>(
-                    LogLevel.Debug,
-                    EventType.GuildPermissionMappingsEnumerated.ToEventId(),
-                    "Guild permission mappings enumerated",
-                    "GuildId")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x5B296087,
+            Level   = LogLevel.Debug,
+            Message = "Permission {PermissionId} ignored, by virtue of permission {GuildPermission} in guild {GuildId}")]
+        private static partial void GuildPermissionMappingIgnored(
+            ILogger             logger,
+            int                 permissionId,
+            DiscordPermission   guildPermission,
+            Snowflake           guildId);
 
-        public static void GuildPermissionMappingsEnumerating(
-                ILogger     logger,
-                Snowflake   guildId)
-            => _guildPermissionMappingsEnumerating.Invoke(
-                logger,
-                guildId);
-        private static readonly Action<ILogger, Snowflake> _guildPermissionMappingsEnumerating
-            = StructuredLoggerMessage.Define<Snowflake>(
-                    LogLevel.Debug,
-                    EventType.GuildPermissionMappingsEnumerating.ToEventId(),
-                    "Enumerating guild permission mappings",
-                    "GuildId")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x1FD85DA1,
+            Level   = LogLevel.Debug,
+            Message = "Guild permission mappings enumerated")]
+        public static partial void GuildPermissionMappingsEnumerated(
+            ILogger     logger,
+            Snowflake   guildId);
+
+        [LoggerMessage(
+            EventId = 0x70EF71CC,
+            Level   = LogLevel.Debug,
+            Message = "Enumerating guild permission mappings")]
+        public static partial void GuildPermissionMappingsEnumerating(
+            ILogger     logger,
+            Snowflake   guildId);
 
         public static void GuildPermissionRevoked(
                 ILogger                                 logger,
                 GuildPermissionMappingDefinitionModel   mapping)
-            => _guildPermissionRevoked.Invoke(
+            => GuildPermissionRevoked(
                 logger,
                 mapping.PermissionId,
                 mapping.GuildPermission,
                 mapping.GuildId);
-        private static readonly Action<ILogger, int, DiscordPermission, Snowflake> _guildPermissionRevoked
-            = LoggerMessage.Define<int, DiscordPermission, Snowflake>(
-                    LogLevel.Debug,
-                    EventType.GuildPermissionRevoked.ToEventId(),
-                    "Permission {PermissionId} revoked, by virtue of permission {GuildPermission} in guild {GuildId}")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x3D521B85,
+            Level   = LogLevel.Debug,
+            Message = "Permission {PermissionId} revoked, by virtue of permission {GuildPermission} in guild {GuildId}")]
+        private static partial void GuildPermissionRevoked(
+                ILogger             logger,
+                int                 permissionId,
+                DiscordPermission   guildPermission,
+                Snowflake           guildId);
 
         public static void RolePermissionGranted(
                 ILogger                                 logger,
                 RolePermissionMappingDefinitionModel    mapping)
-            => _rolePermissionGranted.Invoke(
+            => RolePermissionGranted(
                 logger,
                 mapping.PermissionId,
                 mapping.RoleId,
                 mapping.GuildId);
-        private static readonly Action<ILogger, int, Snowflake, Snowflake> _rolePermissionGranted
-            = LoggerMessage.Define<int, Snowflake, Snowflake>(
-                    LogLevel.Debug,
-                    EventType.RolePermissionGranted.ToEventId(),
-                    "Permission {PermissionId} granted, by virtue of role {RoleId} in guild {GuildId}")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId = 0x603731FA,
+            Level   = LogLevel.Debug,
+            Message = "Permission {PermissionId} granted, by virtue of role {RoleId} in guild {GuildId}")]
+        private static partial void RolePermissionGranted(
+            ILogger     logger,
+            int         permissionId,
+            Snowflake   roleId,
+            Snowflake   guildId);
 
         public static void RolePermissionMappingIgnored(
                 ILogger                                 logger,
                 RolePermissionMappingDefinitionModel    mapping)
-            => _rolePermissionMappingIgnored.Invoke(
+            => RolePermissionMappingIgnored(
                 logger,
                 mapping.PermissionId,
                 mapping.RoleId,
                 mapping.GuildId);
-        private static readonly Action<ILogger, int, Snowflake, Snowflake> _rolePermissionMappingIgnored
-            = LoggerMessage.Define<int, Snowflake, Snowflake>(
-                    LogLevel.Debug,
-                    EventType.RolePermissionGranted.ToEventId(),
-                    "Permission {PermissionId} ignored, by virtue of role {RoleId} in guild {GuildId}")
-                .WithoutException();
 
-        public static void RolePermissionMappingsEnumerated(
-                ILogger     logger,
-                Snowflake   guildId)
-            => _rolePermissionMappingsEnumerated.Invoke(
-                logger,
-                guildId);
-        private static readonly Action<ILogger, Snowflake> _rolePermissionMappingsEnumerated
-            = StructuredLoggerMessage.Define<Snowflake>(
-                    LogLevel.Debug,
-                    EventType.RolePermissionMappingsEnumerated.ToEventId(),
-                    "Role permission mappings enumerated",
-                    "GuildId")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x06049CD7,
+            Level   = LogLevel.Debug,
+            Message = "Permission {PermissionId} ignored, by virtue of role {RoleId} in guild {GuildId}")]
+        private static partial void RolePermissionMappingIgnored(
+            ILogger     logger,
+            int         permissionId,
+            Snowflake   roleId,
+            Snowflake   guildId);
 
-        public static void RolePermissionMappingsEnumerating(
-                ILogger     logger,
-                Snowflake   guildId)
-            => _rolePermissionMappingsEnumerating.Invoke(
-                logger,
-                guildId);
-        private static readonly Action<ILogger, Snowflake> _rolePermissionMappingsEnumerating
-            = StructuredLoggerMessage.Define<Snowflake>(
-                    LogLevel.Debug,
-                    EventType.RolePermissionMappingsEnumerating.ToEventId(),
-                    "Enumerating role permission mappings",
-                    "GuildId")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x0E671952,
+            Level   = LogLevel.Debug,
+            Message = "Role permission mappings enumerated")]
+        public static partial void RolePermissionMappingsEnumerated(
+            ILogger     logger,
+            Snowflake   guildId);
+
+        [LoggerMessage(
+            EventId = 0x70E306ED,
+            Level   = LogLevel.Debug,
+            Message = "Enumerating role permission mappings")]
+        public static partial void RolePermissionMappingsEnumerating(
+            ILogger     logger,
+            Snowflake   guildId);
 
         public static void RolePermissionRevoked(
                 ILogger                                 logger,
                 RolePermissionMappingDefinitionModel    mapping)
-            => _rolePermissionRevoked.Invoke(
+            => RolePermissionRevoked(
                 logger,
                 mapping.PermissionId,
                 mapping.RoleId,
                 mapping.GuildId);
-        private static readonly Action<ILogger, int, Snowflake, Snowflake> _rolePermissionRevoked
-            = LoggerMessage.Define<int, Snowflake, Snowflake>(
-                    LogLevel.Debug,
-                    EventType.RolePermissionRevoked.ToEventId(),
-                    "Permission {PermissionId} revoked, by virtue of role {RoleId} in guild {GuildId}")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId = 0x5F4E50CA,
+            Level   = LogLevel.Debug,
+            Message = "Permission {PermissionId} revoked, by virtue of role {RoleId} in guild {GuildId}")]
+        public static partial void RolePermissionRevoked(
+            ILogger     logger,
+            int         permissionId,
+            Snowflake   roleId,
+            Snowflake   guildId);
     }
 }

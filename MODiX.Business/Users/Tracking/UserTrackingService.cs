@@ -14,8 +14,8 @@ namespace Modix.Business.Users.Tracking
     public interface IUserTrackingService
     {
         ValueTask TrackUserAsync(
-            Snowflake           guildId,
             Snowflake           userId,
+            Snowflake           guildId,
             Optional<string>    username,
             Optional<ushort>    discriminator,
             Optional<string?>   avatarHash,
@@ -39,8 +39,8 @@ namespace Modix.Business.Users.Tracking
         }
 
         public async ValueTask TrackUserAsync(
-            Snowflake           guildId,
             Snowflake           userId,
+            Snowflake           guildId,
             Optional<string>    username,
             Optional<ushort>    discriminator,
             Optional<string?>   avatarHash,
