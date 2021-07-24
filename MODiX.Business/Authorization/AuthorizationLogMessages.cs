@@ -37,27 +37,27 @@ namespace Modix.Business.Authorization
         [LoggerMessage(
             EventId = 0x32B57E30,
             Level   = LogLevel.Debug,
-            Message = "Granted permissions cached (GuildId {GuildId}, UserId {UserId}, {PermissionCount} permissions)")]
+            Message = "Granted permissions cached (UserId {UserId}, GuildId {GuildId}, {PermissionCount} permissions)")]
         public static partial void GrantedPermissionIdsCached(
             ILogger     logger,
-            Snowflake   guildId,
             Snowflake   userId,
+            Snowflake   guildId,
             int         permissionCount);
 
         [LoggerMessage(
             EventId = 0x736EC4A3,
             Level   = LogLevel.Debug,
-            Message = "Caching granted permissions (GuildId {GuildId}, UserId {UserId}, {PermissionCount} permissions)")]
+            Message = "Caching granted permissions (UserId {UserId}, GuildId {GuildId}, {PermissionCount} permissions)")]
         public static partial void GrantedPermissionIdsCaching(
             ILogger     logger,
-            Snowflake   guildId,
             Snowflake   userId,
+            Snowflake   guildId,
             int         permissionCount);
 
         [LoggerMessage(
             EventId = 0x6E7F3DC4,
             Level   = LogLevel.Debug,
-            Message = "Granted permissions not found (GuildId {GuildId}, UserId {UserId})")]
+            Message = "Granted permissions not found (UserId {UserId}, GuildId {GuildId})")]
         public static partial void GrantedPermissionIdsNotFound(
             ILogger     logger,
             Snowflake   guildId,
@@ -66,21 +66,21 @@ namespace Modix.Business.Authorization
         [LoggerMessage(
             EventId = 0x08273A3D,
             Level   = LogLevel.Debug,
-            Message = "Granted permissions retrieved ({PermissionCount} permissions, GuildId {GuildId}, UserId {UserId})")]
+            Message = "Granted permissions retrieved ({PermissionCount} permissions, UserId {UserId}, GuildId {GuildId})")]
         public static partial void GrantedPermissionIdsRetrieved(
             ILogger     logger,
-            Snowflake   guildId,
             Snowflake   userId,
+            Snowflake   guildId,
             int         permissionCount);
 
         [LoggerMessage(
             EventId = 0x6D1296C2,
             Level   = LogLevel.Debug,
-            Message = "Retrieving granted permissions (GuildId {GuildId}, UserId {UserId})")]
+            Message = "Retrieving granted permissions (UserId {UserId}, GuildId {GuildId})")]
         public static partial void GrantedPermissionIdsRetrieving(
             ILogger     logger,
-            Snowflake   guildId,
-            Snowflake   userId);
+            Snowflake   userId,
+            Snowflake   guildId);
 
         public static void GuildMemberRetrievalFailed(
                 ILogger         logger,
@@ -104,22 +104,22 @@ namespace Modix.Business.Authorization
         [LoggerMessage(
             EventId = 0x76D95776,
             Level   = LogLevel.Debug,
-            Message = "Guild member retrieved (GuildId {GuildId}, UserId {UserId})")]
+            Message = "Guild member retrieved (UserId {UserId}, GuildId {GuildId})")]
         public static partial void GuildMemberRetrieved(
             ILogger                 logger,
-            Snowflake               guildId,
             Snowflake               userId,
+            Snowflake               guildId,
             IDiscordPermissionSet   permissions,
             int                     roleCount);
 
         [LoggerMessage(
             EventId = 0x1B67C894,
             Level   = LogLevel.Debug,
-            Message = "Retrieving guild member (GuildId {GuildId}, UserId {UserId})")]
+            Message = "Retrieving guild member (UserId {UserId}, GuildId {GuildId})")]
         public static partial void GuildMemberRetrieving(
             ILogger     logger,
-            Snowflake   guildId,
-            Snowflake   userId);
+            Snowflake   userId,
+            Snowflake   guildId);
 
         public static void GuildPermissionGranted(
                 ILogger                                 logger,

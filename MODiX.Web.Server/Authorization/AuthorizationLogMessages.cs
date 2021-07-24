@@ -70,7 +70,7 @@ namespace Modix.Web.Server.Authorization
         [LoggerMessage(
             EventId = 0x3B513694,
             Level   = LogLevel.Debug,
-            Message = "Retrieving guild ID ({GuildId})")]
+            Message = "Guild ID retrieved ({GuildId})")]
         public static partial void GuildIdRetrieved(
             ILogger     logger,
             Snowflake   guildId);

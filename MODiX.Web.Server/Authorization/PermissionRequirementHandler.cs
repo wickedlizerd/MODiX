@@ -65,14 +65,14 @@ namespace Modix.Web.Server.Authorization
             var guildId = new Snowflake(guildIdValue);
             AuthorizationLogMessages.GuildIdRetrieved(_logger, guildId);
 
-            AuthorizationLogMessages.GrantedPermissionIdsRetrieving(_logger, guildId, userId);
-            var grantedPermissionIdsResult = await _authorizationService.GetGrantedPermissionIdsAsync(guildId, userId, _httpContextAccessor.HttpContext.RequestAborted);
+            AuthorizationLogMessages.GrantedPermissionIdsRetrieving(_logger, userId, guildId);
+            var grantedPermissionIdsResult = await _authorizationService.GetGrantedPermissionIdsAsync(userId, guildId, _httpContextAccessor.HttpContext.RequestAborted);
             if (!grantedPermissionIdsResult.IsSuccess)
             {
-                AuthorizationLogMessages.GrantedPermissionIdsRetrievalFailed(_logger, guildId, userId, grantedPermissionIdsResult.Error);
+                AuthorizationLogMessages.GrantedPermissionIdsRetrievalFailed(_logger, userId, guildId, grantedPermissionIdsResult.Error);
                 return;
             }
-            AuthorizationLogMessages.GrantedPermissionIdsRetrieved(_logger, guildId, userId, grantedPermissionIdsResult.Entity.Count);
+            AuthorizationLogMessages.GrantedPermissionIdsRetrieved(_logger, userId, guildId, grantedPermissionIdsResult.Entity.Count);
 
             if (grantedPermissionIdsResult.Entity.Contains(requirement.PermissionId))
             {

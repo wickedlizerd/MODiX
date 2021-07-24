@@ -7,18 +7,18 @@ namespace Modix.Business.Authorization
     public class AuthorizationPermissionsCacheEntry
     {
         public AuthorizationPermissionsCacheEntry(
-            Snowflake                   guildId,
             Snowflake                   userId,
+            Snowflake                   guildId,
             IReadOnlyCollection<int>    grantedPermissionIds)
         {
-            GuildId                 = guildId;
             UserId                  = userId;
+            GuildId                 = guildId;
             GrantedPermissionIds    = grantedPermissionIds;
         }
 
-        public Snowflake GuildId { get; }
-
         public Snowflake UserId { get; }
+
+        public Snowflake GuildId { get; }
 
         public IReadOnlyCollection<int> GrantedPermissionIds { get; }
     }

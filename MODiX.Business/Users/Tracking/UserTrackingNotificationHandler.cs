@@ -131,8 +131,8 @@ namespace Modix.Business.Users.Tracking
         {
             UserTrackingLogMessages.UserTracking(_logger, userId, guildId, username, discriminator, avatarHash, nickname);
             await _userTrackingService.TrackUserAsync(
-                guildId:            guildId,
                 userId:             userId,
+                guildId:            guildId,
                 username:           username,
                 discriminator:      discriminator,
                 avatarHash:         avatarHash,

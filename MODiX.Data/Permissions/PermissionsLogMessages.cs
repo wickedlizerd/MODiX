@@ -52,7 +52,7 @@ namespace Modix.Data.Permissions
         [LoggerMessage(
             EventId = 0x117C12E7,
             Level   = LogLevel.Debug,
-            Message = "Building guild permission mappings enumeration")]
+            Message = "Guild permission mappings enumeration built")]
         private static partial void GuildPermissionMappingsEnumerationBuilt(
             ILogger logger,
             string  guildId,
@@ -73,7 +73,7 @@ namespace Modix.Data.Permissions
         [LoggerMessage(
             EventId = 0x2E81AD6F,
             Level   = LogLevel.Debug,
-            Message = "Building permission IDs enumeration")]
+            Message = "Permission IDs enumeration built")]
         public static partial void PermissionIdsEnumerationBuilt(ILogger logger);
 
         [LoggerMessage(
@@ -122,7 +122,7 @@ namespace Modix.Data.Permissions
         [LoggerMessage(
             EventId = 0x4654F6B1,
             Level   = LogLevel.Debug,
-            Message = "Building role permission mappings enumeration")]
+            Message = "Role permission mappings enumeration built")]
         private static partial void RolePermissionMappingsEnumerationBuilt(
             ILogger logger,
             string  guildId,
