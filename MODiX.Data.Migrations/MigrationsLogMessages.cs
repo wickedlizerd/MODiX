@@ -1,33 +1,19 @@
-﻿using System;
-
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace Modix.Data.Migrations
 {
-    internal static class MigrationsLogMessages
+    internal static partial class MigrationsLogMessages
     {
-        private enum EventType
-        {
-            DatabaseMigrating   = DataLogEventType.Migrations + 0x0100,
-            DatabaseMigrated    = DataLogEventType.Migrations + 0x0200
-        }
+        [LoggerMessage(
+            EventId = 0x3C99957B,
+            Level   = LogLevel.Debug,
+            Message = "Database migrations applied")]
+        public static partial void DatabaseMigrated(ILogger logger);
 
-        public static void DatabaseMigrated(ILogger logger)
-            => _databaseMigrated.Invoke(logger);
-        private static readonly Action<ILogger> _databaseMigrated
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    EventType.DatabaseMigrated.ToEventId(),
-                    "Database migrations applied")
-                .WithoutException();
-
-        public static void DatabaseMigrating(ILogger logger)
-            => _databaseMigrating.Invoke(logger);
-        private static readonly Action<ILogger> _databaseMigrating
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    EventType.DatabaseMigrating.ToEventId(),
-                    "Applying database migrations")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x7AA598B8,
+            Level   = LogLevel.Debug,
+            Message = "Applying database migrations")]
+        public static partial void DatabaseMigrating(ILogger logger);
     }
 }

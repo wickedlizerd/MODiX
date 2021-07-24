@@ -1,7 +1,6 @@
 ﻿using System;
 
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Structured;
 
 using Remora.Discord.API.Abstractions.Objects;
 using Remora.Discord.API.Objects;
@@ -12,218 +11,206 @@ using Modix.Web.Protocol.Authentication;
 
 namespace Modix.Web.Server.Authentication
 {
-    internal static class AuthenticationLogMessages
+    internal static partial class AuthenticationLogMessages
     {
-        private enum EventType
-        {
-            LoginStarting                       = ServerLogEventType.Authentication + 0x0100,
-            LoginStarted                        = ServerLogEventType.Authentication + 0x0200,
-            LoginCompleting                     = ServerLogEventType.Authentication + 0x0300,
-            LoginCompleted                      = ServerLogEventType.Authentication + 0x0400,
-            TokenGrantAcquiring                 = ServerLogEventType.Authentication + 0x0500,
-            TokenGrantAcquisitionFailed         = ServerLogEventType.Authentication + 0x0600,
-            TokenGrantAcquired                  = ServerLogEventType.Authentication + 0x0700,
-            UserRetrieving                      = ServerLogEventType.Authentication + 0x0800,
-            UserRetrievalFailed                 = ServerLogEventType.Authentication + 0x0900,
-            UserRetrieved                       = ServerLogEventType.Authentication + 0x0A00,
-            TokenRevoking                       = ServerLogEventType.Authentication + 0x0B00,
-            TokenRevocationFailed               = ServerLogEventType.Authentication + 0x0C00,
-            TokenRevoked                        = ServerLogEventType.Authentication + 0x0D00,
-            TokenRevocationEncounteredException = ServerLogEventType.Authentication + 0x0E00
-        }
-
         public static void LoginCompleted(
                 ILogger         logger,
                 LoginSuccess    response)
-            => _loginCompleted.Invoke(
+            => LoginCompleted(
                 logger,
                 response.Ticket.UserId,
                 response.Ticket.Created,
                 response.Ticket.Expires);
-        private static readonly Action<ILogger, ulong, DateTimeOffset, DateTimeOffset> _loginCompleted
-            = StructuredLoggerMessage.Define<ulong, DateTimeOffset, DateTimeOffset>(
-                    LogLevel.Debug,
-                    EventType.LoginCompleted.ToEventId(),
-                    "Login sequence completed (UserId: {UserId})",
-                    "TicketCreated",
-                    "TicketExpires")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId = 0x558A8B8C,
+            Level   = LogLevel.Debug,
+            Message = "Login sequence completed (UserId: {UserId})")]
+        private static partial void LoginCompleted(
+            ILogger         logger,
+            ulong           userId,
+            DateTimeOffset  ticketCreated,
+            DateTimeOffset  ticketExpires);
 
         public static void LoginCompleting(
                 ILogger                 logger,
                 CompleteLoginRequest    request)
-            => _loginCompleting.Invoke(
+            => LoginCompleting(
                 logger,
                 request.RedirectUrl);
-        private static readonly Action<ILogger, string> _loginCompleting
-            = StructuredLoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    EventType.LoginCompleted.ToEventId(),
-                    "Completing login sequence",
-                    "RedirectUrl")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId = 0x7A09ECE1,
+            Level   = LogLevel.Debug,
+            Message = "Completing login sequence")]
+        private static partial void LoginCompleting(
+            ILogger logger,
+            string  redirectUrl);
 
         public static void LoginStarting(
                 ILogger             logger,
                 StartLoginRequest   request)
-            => _loginStarting.Invoke(
+            => LoginStarting(
                 logger,
                 request.RedirectUri,
                 request.State);
-        private static readonly Action<ILogger, string, string?> _loginStarting
-            = StructuredLoggerMessage.Define<string, string?>(
-                    LogLevel.Debug,
-                    EventType.LoginStarting.ToEventId(),
-                    "Starting login sequence",
-                    "RedirectUri",
-                    "State")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId = 0x33838087,
+            Level   = LogLevel.Debug,
+            Message = "Starting login sequence")]
+        private static partial void LoginStarting(
+            ILogger logger,
+            string  redirectUrl,
+            string? state);
 
         public static void LoginStarted(
                 ILogger             logger,
                 StartLoginResponse  response)
-            => _loginStarted.Invoke(
+            => LoginStarted(
                 logger,
                 response.AuthorizeUri);
-        private static readonly Action<ILogger, string> _loginStarted
-            = StructuredLoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    EventType.LoginStarted.ToEventId(),
-                    "Login sequence started",
-                    "AuthorizeUri")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId = 0x1CC6CD91,
+            Level   = LogLevel.Debug,
+            Message = "Login sequence started")]
+        private static partial void LoginStarted(
+            ILogger logger,
+            string  authorizeUrl);
 
         public static void TokenGrantAcquired(
                 ILogger         logger,
                 OAuthTokenGrant tokenGrant)
-            => _tokenGrantAcquired.Invoke(
+            => TokenGrantAcquired(
                 logger,
                 tokenGrant.TokenType,
                 tokenGrant.Scope,
                 tokenGrant.ExpiresIn);
-        private static readonly Action<ILogger, string, string, int> _tokenGrantAcquired
-            = StructuredLoggerMessage.Define<string, string, int>(
-                    LogLevel.Debug,
-                    EventType.TokenGrantAcquired.ToEventId(),
-                    "Token grant acquired",
-                    "TokenType",
-                    "Scope",
-                    "ExpiresIn")
-                .WithoutException();
 
-        public static void TokenGrantAcquiring(ILogger logger)
-            => _tokenGrantAcquiring.Invoke(logger);
-        private static readonly Action<ILogger> _tokenGrantAcquiring
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    EventType.TokenGrantAcquiring.ToEventId(),
-                    "Acquiring token grant")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x000E5D67,
+            Level   = LogLevel.Debug,
+            Message = "Token grant acquired")]
+        private static partial void TokenGrantAcquired(
+            ILogger logger,
+            string  tokenType,
+            string  scope,
+            int     expiresIn);
+
+        [LoggerMessage(
+            EventId = 0x753DE350,
+            Level   = LogLevel.Debug,
+            Message = "Acquiring token grant")]
+        public static partial void TokenGrantAcquiring(ILogger logger);
 
         public static void TokenGrantAcquisitionFailed(
                 ILogger         logger,
                 IResultError    error)
-            => _tokenGrantAcquisitionFailed.Invoke(
+            => TokenGrantAcquisitionFailed(
                 logger,
                 error.GetType().Name,
                 error.Message,
                 (error as ExceptionError)?.Exception);
-        private static readonly Action<ILogger, string, string, Exception?> _tokenGrantAcquisitionFailed
-            = LoggerMessage.Define<string, string>(
-                LogLevel.Error,
-                EventType.TokenGrantAcquisitionFailed.ToEventId(),
-                "Token grant acquisition failed: {ErrorType}: {ErrorMessage}");
 
-        public static void TokenRevocationEncounteredException(
-                ILogger     logger,
-                Exception   exception)
-            => _tokenRevocationEncounteredException.Invoke(
-                logger,
-                exception);
-        private static readonly Action<ILogger, Exception?> _tokenRevocationEncounteredException
-            = LoggerMessage.Define(
-                LogLevel.Warning,
-                EventType.TokenRevocationEncounteredException.ToEventId(),
-                "An unexpected exception occurred while revoking tokens");
+        [LoggerMessage(
+            EventId = 0x4CB95003,
+            Level   = LogLevel.Error,
+            Message = "Token grant acquisition failed: {ErrorType}: {ErrorMessage}")]
+        private static partial void TokenGrantAcquisitionFailed(
+            ILogger     logger,
+            string      errorType,
+            string      errorMessage,
+            Exception?  exception);
+
+        [LoggerMessage(
+            EventId = 0x64C0B480,
+            Level   = LogLevel.Warning,
+            Message = "An unexpected exception occurred while revoking tokens")]
+        public static partial void TokenRevocationEncounteredException(
+            ILogger     logger,
+            Exception   exception);
 
         public static void TokenRevocationFailed(
                 ILogger         logger,
                 string          tokenTypeHint,
                 IResultError    error)
-            => _tokenRevocationFailed.Invoke(
+            => TokenRevocationFailed(
                 logger,
                 tokenTypeHint,
                 error.GetType().Name,
                 error.Message,
                 (error as ExceptionError)?.Exception);
-        private static readonly Action<ILogger, string, string, string, Exception?> _tokenRevocationFailed
-            = LoggerMessage.Define<string, string, string>(
-                LogLevel.Warning,
-                EventType.TokenRevocationFailed.ToEventId(),
-                "Revocation of {TokenTypeHint} failed: {ErrorType}: {ErrorMessage}");
 
-        public static void TokenRevoked(
-                ILogger         logger,
-                string          tokenTypeHint)
-            => _tokenRevoked.Invoke(
-                logger,
-                tokenTypeHint);
-        private static readonly Action<ILogger, string> _tokenRevoked
-            = LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    EventType.TokenRevoked.ToEventId(),
-                    "{TokenTypeHint} revoked")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x3E819DBD,
+            Level   = LogLevel.Warning,
+            Message = "Revocation of {TokenTypeHint} failed: {ErrorType}: {ErrorMessage}")]
+        private static partial void TokenRevocationFailed(
+            ILogger     logger,
+            string      tokenTypeHint,
+            string      errorType,
+            string      errorMessage,
+            Exception?  exception);
 
-        public static void TokenRevoking(
-                ILogger         logger,
-                string          tokenTypeHint)
-            => _tokenRevoking.Invoke(
-                logger,
-                tokenTypeHint);
-        private static readonly Action<ILogger, string> _tokenRevoking
-            = LoggerMessage.Define<string>(
-                    LogLevel.Debug,
-                    EventType.TokenRevoking.ToEventId(),
-                    "Revoking {TokenTypeHint}")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x4D47EE99,
+            Level   = LogLevel.Debug,
+            Message = "{TokenTypeHint} revoked")]
+        public static partial void TokenRevoked(
+            ILogger logger,
+            string  tokenTypeHint);
+
+        [LoggerMessage(
+            EventId = 0x1CC07772,
+            Level   = LogLevel.Debug,
+            Message = "Revoking {TokenTypeHint}")]
+        public static partial void TokenRevoking(
+            ILogger logger,
+            string  tokenTypeHint);
 
         public static void UserRetrievalFailed(
                 ILogger         logger,
                 IResultError    error)
-            => _userRetrievalFailed.Invoke(
+            => UserRetrievalFailed(
                 logger,
                 error.GetType().Name,
                 error.Message,
                 (error as ExceptionError)?.Exception);
-        private static readonly Action<ILogger, string, string, Exception?> _userRetrievalFailed
-            = LoggerMessage.Define<string, string>(
-                LogLevel.Error,
-                EventType.UserRetrievalFailed.ToEventId(),
-                "User info retrieval failed: {ErrorType}: {ErrorMessage}");
+
+        [LoggerMessage(
+            EventId = 0x53385A3A,
+            Level   = LogLevel.Error,
+            Message = "User info retrieval failed: {ErrorType}: {ErrorMessage}")]
+        private static partial void UserRetrievalFailed(
+            ILogger     logger,
+            string      errorType,
+            string      errorMessage,
+            Exception?  exception);
 
         public static void UserRetrieved(
                 ILogger logger,
                 IUser   user)
-            => _userRetrieved.Invoke(
+            => UserRetrieved(
                 logger,
                 user.ID,
                 user.Username,
                 user.Discriminator);
-        private static readonly Action<ILogger, Snowflake, string, ushort> _userRetrieved
-            = LoggerMessage.Define<Snowflake, string, ushort>(
-                    LogLevel.Debug,
-                    EventType.UserRetrieved.ToEventId(),
-                    "User info retrieved: ({UserId}, {Username}#{Discriminator})")
-                .WithoutException();
 
-        public static void UserRetrieving(ILogger logger)
-            => _userRetrieving.Invoke(logger);
-        private static readonly Action<ILogger> _userRetrieving
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    EventType.UserRetrieving.ToEventId(),
-                    "Retrieving user info")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x4854FE9B,
+            Level   = LogLevel.Debug,
+            Message = "User info retrieved: ({UserId}, {Username}#{Discriminator})")]
+        private static partial void UserRetrieved(
+            ILogger     logger,
+            Snowflake   userId,
+            string      username,
+            ushort      discriminator);
+
+        [LoggerMessage(
+            EventId = 0x5C38594A,
+            Level   = LogLevel.Debug,
+            Message = "Retrieving user info")]
+        public static partial void UserRetrieving(ILogger logger);
     }
 }

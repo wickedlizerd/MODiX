@@ -1,78 +1,63 @@
-﻿using System;
-
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Structured;
+﻿using Microsoft.Extensions.Logging;
 
 using Remora.Discord.Core;
 
 namespace Modix.Business.Guilds.Tracking
 {
-    internal static class GuildTrackingLogMessages
+    internal static partial class GuildTrackingLogMessages
     {
-        private enum EventType
-        {
-            GuildTracking   = GuildsLogEventType.Tracking + 0x01,
-            GuildTracked    = GuildsLogEventType.Tracking + 0x02,
-            GuildUnTracking = GuildsLogEventType.Tracking + 0x03,
-            GuildUnTracked  = GuildsLogEventType.Tracking + 0x04
-        }
-
         public static void GuildTracked(
                 ILogger                 logger,
                 GuildTrackingCacheEntry entry)
-            => _guildTracked.Invoke(
+            => GuildTracked(
                 logger,
                 entry.Id,
                 entry.Name,
                 entry.Icon?.Value);
-        private static readonly Action<ILogger, Snowflake, string, string?> _guildTracked
-            = StructuredLoggerMessage.Define<Snowflake, string, string?>(
-                    LogLevel.Debug,
-                    EventType.GuildTracked.ToEventId(),
-                    "Guild tracked (GuildId {GuildId}, {Name})",
-                    "IconHash")
-                .WithoutException();
+
+        [LoggerMessage(
+            EventId = 0x08B995B6,
+            Level   = LogLevel.Debug,
+            Message = "Guild tracked (GuildId {GuildId}, {Name})")]
+        private static partial void GuildTracked(
+                ILogger                 logger,
+                Snowflake   guildId,
+                string      name,
+                string?     iconHash);
 
         public static void GuildTracking(
                 ILogger                 logger,
                 GuildTrackingCacheEntry entry)
-            => _guildTracking.Invoke(
+            => GuildTracking(
                 logger,
                 entry.Id,
                 entry.Name,
                 entry.Icon?.Value);
-        private static readonly Action<ILogger, Snowflake, string, string?> _guildTracking
-            = StructuredLoggerMessage.Define<Snowflake, string, string?>(
-                    LogLevel.Debug,
-                    EventType.GuildTracking.ToEventId(),
-                    "Tracking guild (GuildId {GuildId}, {Name})",
-                    "IconHash")
-                .WithoutException();
 
-        public static void GuildUnTracked(
-                ILogger     logger,
-                Snowflake   guildId)
-            => _guildUnTracked.Invoke(
-                logger,
-                guildId);
-        private static readonly Action<ILogger, Snowflake> _guildUnTracked
-            = LoggerMessage.Define<Snowflake>(
-                    LogLevel.Debug,
-                    EventType.GuildUnTracked.ToEventId(),
-                    "Guild un-tracked (GuildId {GuildId})")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x196AFDBB,
+            Level   = LogLevel.Debug,
+            Message = "Tracking guild (GuildId {GuildId}, {Name})")]
+        private static partial void GuildTracking(
+            ILogger     logger,
+            Snowflake   guildId,
+            string      name,
+            string?     iconHash);
 
-        public static void GuildUnTracking(
-                ILogger     logger,
-                Snowflake   guildId)
-            => _guildUnTracking.Invoke(
-                logger,
-                guildId);
-        private static readonly Action<ILogger, Snowflake> _guildUnTracking
-            = LoggerMessage.Define<Snowflake>(
-                    LogLevel.Debug,
-                    EventType.GuildUnTracking.ToEventId(),
-                    "Un-tracking guild (GuildId {GuildId})")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x09BFE7A0,
+            Level   = LogLevel.Debug,
+            Message = "Guild un-tracked (GuildId {GuildId})")]
+        public static partial void GuildUnTracked(
+            ILogger     logger,
+            Snowflake   guildId);
+
+        [LoggerMessage(
+            EventId = 0x7408806D,
+            Level   = LogLevel.Debug,
+            Message = "Un-tracking guild (GuildId {GuildId})")]
+        public static partial void GuildUnTracking(
+            ILogger     logger,
+            Snowflake   guildId);
     }
 }

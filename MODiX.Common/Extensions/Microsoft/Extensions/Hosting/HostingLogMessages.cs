@@ -1,35 +1,19 @@
-﻿using System;
-
-using Microsoft.Extensions.Logging;
-
-using Modix.Common;
+﻿using Microsoft.Extensions.Logging;
 
 namespace Microsoft.Extensions.Hosting
 {
-    internal static class HostingLogMessages
+    internal static partial class HostingLogMessages
     {
-        private enum EventType
-        {
-            StartupActionExecuting  = CommonLogEventType.Hosting + 0x0001,
-            StartupActionExecuted   = CommonLogEventType.Hosting + 0x0002,
-        }
+        [LoggerMessage(
+            EventId = 0x6063D5CC,
+            Level   = LogLevel.Information,
+            Message = "Startup action executed")]
+        public static partial void StartupActionExecuted(ILogger logger);
 
-        public static void StartupActionExecuted(ILogger logger)
-            => _startupActionExecuted.Invoke(logger);
-        private static readonly Action<ILogger> _startupActionExecuted
-            = LoggerMessage.Define(
-                    LogLevel.Information,
-                    EventType.StartupActionExecuted.ToEventId(),
-                    $"{nameof(StartupActionBase)} executed")
-                .WithoutException();
-
-        public static void StartupActionExecuting(ILogger logger)
-            => _startupActionExecuting.Invoke(logger);
-        private static readonly Action<ILogger> _startupActionExecuting
-            = LoggerMessage.Define(
-                    LogLevel.Information,
-                    EventType.StartupActionExecuting.ToEventId(),
-                    $"Executing {nameof(StartupActionBase)}")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x15E90E2F,
+            Level   = LogLevel.Information,
+            Message = "Executing startup action")]
+        public static partial void StartupActionExecuting(ILogger logger);
     }
 }

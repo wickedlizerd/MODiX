@@ -1,23 +1,13 @@
-﻿using System;
-
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace Modix.Web.Server.Diagnostics
 {
-    internal static class DiagnosticsLogMessages
+    internal static partial class DiagnosticsLogMessages
     {
-        private enum EventType
-        {
-            PipelineHealthCheckPerformed    = ServerLogEventType.Diagnostics + 0x0100
-        }
-
-        public static void PipelineHealthCheckPerformed(ILogger logger)
-            => _pipelineHealthCheckPerformed.Invoke(logger);
-        private static readonly Action<ILogger> _pipelineHealthCheckPerformed
-            = LoggerMessage.Define(
-                    LogLevel.Debug,
-                    EventType.PipelineHealthCheckPerformed.ToEventId(),
-                    "Web Server pipeline health check performed")
-                .WithoutException();
+        [LoggerMessage(
+            EventId = 0x756A1258,
+            Level   = LogLevel.Debug,
+            Message = "Web Server pipeline health check performed")]
+        public static partial void PipelineHealthCheckPerformed(ILogger logger);
     }
 }
