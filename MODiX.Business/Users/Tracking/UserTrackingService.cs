@@ -76,16 +76,25 @@ namespace Modix.Business.Users.Tracking
                 }
 
                 var nicknamesByGuildId = currentEntry?.NicknamesByGuildId ?? ImmutableDictionary<Snowflake, string?>.Empty;
+
                 var newEntry = new UserTrackingCacheEntry(
                     userId:             userId,
-                    username:           username,
-                    discriminator:      discriminator,
-                    avatarHash:         avatarHash,
+                    username:           username.HasValue
+                        ? username
+                        : (currentEntry?.Username ?? default),
+                    discriminator:      discriminator.HasValue
+                        ? discriminator
+                        : (currentEntry?.Discriminator ?? default),
+                    avatarHash:         avatarHash.HasValue
+                        ? avatarHash
+                        : (currentEntry?.AvatarHash ?? default),
                     lastUpdated:        now,
                     nicknamesByGuildId: nickname.HasValue
                         ? nicknamesByGuildId.SetItem(guildId, nickname.Value)
                         : nicknamesByGuildId,
-                    lastSaved:          isSaveNeeded ? now : (currentEntry?.LastSaved ?? now));
+                    lastSaved:          isSaveNeeded
+                        ? now
+                        : (currentEntry?.LastSaved ?? now));
 
                 if (currentEntry is null)
                 {
