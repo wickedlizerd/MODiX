@@ -240,8 +240,10 @@ namespace Modix.Business.Caching
         [LoggerMessage(
             EventId = 0x383ED0CB,
             Level   = LogLevel.Debug,
-            Message = "Old entries removed")]
-        public static partial void OldEntriesRemoved(ILogger logger);
+            Message = "Old entries removed ({RemovedEntryCount} entries)")]
+        public static partial void OldEntriesRemoved(
+            ILogger logger,
+            int     removedEntryCount);
 
         [LoggerMessage(
             EventId = 0x0B8CCC78,

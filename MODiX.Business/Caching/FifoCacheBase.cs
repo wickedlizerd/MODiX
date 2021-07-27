@@ -81,27 +81,27 @@ namespace Modix.Business.Caching
         public IEnumerable<TEntry> RemoveOldEntries(TimeSpan minimumAge)
         {
             var threshold = _systemClock.UtcNow - minimumAge;
-            var anyRemoved = false;
+            var removedEntryCount = 0;
 
             CachingLogMessages.OldEntriesRemoving(_logger, minimumAge);
             while ((_entryQueue.Last is not null) && (_entryQueue.Last.Value.Added <= threshold))
             {
                 var nodeToRemove = _entryQueue.Last;
-                var key = SelectKey(nodeToRemove.Value.Entry);
-                CachingLogMessages.EntryRemoving(_logger, key, nodeToRemove.Value.Added);
+                var keyToRemove = SelectKey(nodeToRemove.Value.Entry);
+                CachingLogMessages.EntryRemoving(_logger, keyToRemove, nodeToRemove.Value.Added);
 
                 yield return nodeToRemove.Value.Entry;
 
-                _entriesByKey.Remove(SelectKey(_entryQueue.Last.Value.Entry));
+                _entriesByKey.Remove(keyToRemove);
                 _entryQueue.Remove(_entryQueue.Last);
 
-                anyRemoved = true;
+                ++removedEntryCount;
 
-                CachingLogMessages.EntryRemoved(_logger, key, nodeToRemove.Value.Added);
+                CachingLogMessages.EntryRemoved(_logger, keyToRemove, nodeToRemove.Value.Added);
             }
-            CachingLogMessages.OldEntriesRemoved(_logger);
+            CachingLogMessages.OldEntriesRemoved(_logger, removedEntryCount);
 
-            if (anyRemoved)
+            if (removedEntryCount is not 0)
                 ChangeOldestEntryAdded(_entryQueue.Last?.Value.Added);
         }
 
