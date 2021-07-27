@@ -51,6 +51,7 @@ namespace Modix.Business.Users.Tracking
 
             var now = _systemClock.UtcNow;
             bool isSaveNeeded;
+            UserTrackingCacheEntry newEntry;
 
             // Check the cache to see what's changed since the last save.
             // If only the timestamp has changed, just update the existing cache entry, in place, and leave the LastSaved timestamp.
@@ -77,7 +78,7 @@ namespace Modix.Business.Users.Tracking
 
                 var nicknamesByGuildId = currentEntry?.NicknamesByGuildId ?? ImmutableDictionary<Snowflake, string?>.Empty;
 
-                var newEntry = new UserTrackingCacheEntry(
+                newEntry = new UserTrackingCacheEntry(
                     userId:             userId,
                     username:           username.HasValue
                         ? username
@@ -125,10 +126,12 @@ namespace Modix.Business.Users.Tracking
                     new UserMergeModel(
                         guildId:        guildId,
                         userId:         userId,
-                        username:       username,
-                        discriminator:  discriminator,
-                        avatarHash:     avatarHash,
-                        nickname:       nickname,
+                        username:       newEntry.Username,
+                        discriminator:  newEntry.Discriminator,
+                        avatarHash:     newEntry.AvatarHash,
+                        nickname:       newEntry.NicknamesByGuildId.TryGetValue(guildId, out var nicknameToSave)
+                            ? nicknameToSave
+                            : default,
                         timestamp:      now),
                     cancellationToken:  cancellationToken);
                 UserTrackingLogMessages.CacheEntrySaved(_logger, userId, guildId);

@@ -34,10 +34,13 @@ namespace Modix.Business.Users.Tracking
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            // Each time the oldest entry in the cache changes (and isn't null), wait until CacheTimeout after it was added, then run a cleanup.
+            // Whenever the oldest entry changes, we setup a timer to fire when that entry will exire. The .Switch() cancels any existing timer, so there's only ever one running at a time.
+            // This gives us a rolling window that fires a cleanup of everything within the window, whenever the window gets full.
+            // We then publish and connect the timer to keep it running in the background, even when it's not currently being awaited (like, when a cleanup is in progress).
             var timer = _userTrackingCache.OldestEntryAdded
                 .WhereNotNull()
-                .Delay(oldestEntryAdded => Observable.Timer(dueTime: oldestEntryAdded + (_userTrackingConfiguration.Value.CacheTimeout ?? UserTrackingDefaults.DefaultCacheTimeout)))
+                .Select(oldestEntryAdded => Observable.Timer(dueTime: oldestEntryAdded + (_userTrackingConfiguration.Value.CacheTimeout ?? UserTrackingDefaults.DefaultCacheTimeout)))
+                .Switch()
                 .Publish();
 
             var whenStopped = ListenAsync();
@@ -51,7 +54,7 @@ namespace Modix.Business.Users.Tracking
             {
                 while(!stoppingToken.IsCancellationRequested)
                 {
-                    await timer.FirstAsync();
+                    await timer.ToAsyncEnumerable().FirstAsync(stoppingToken);
 
                     using var serviceScope = _serviceScopeFactory.CreateScope();
                     using var logScope = UserTrackingLogMessages.BeginBackgroundScope(_logger, Guid.NewGuid());
