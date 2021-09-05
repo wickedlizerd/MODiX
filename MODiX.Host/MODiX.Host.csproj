@@ -4,6 +4,7 @@
     <RootNamespace>Modix.Host</RootNamespace>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileTag>modix-2.0</DockerfileTag>
+    <Version>2.0.0.0-prerelease-1</Version>
   </PropertyGroup>
   
   <ItemGroup>
@@ -11,9 +12,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.KeyPerFile" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
-    <PackageReference Include="Serilog.AspNetCore" />
-    <PackageReference Include="Serilog.Expressions" />
-    <PackageReference Include="Serilog.Sinks.Seq" />
+    <PackageReference Include="SeqLoggerProvider" />
   </ItemGroup>
   
   <ItemGroup>
