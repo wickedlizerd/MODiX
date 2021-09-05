@@ -12,7 +12,7 @@ namespace Modix.Bot.Parsers
     public class TimeSpanParser
         : AbstractTypeParser<TimeSpan>
     {
-        public override ValueTask<Result<TimeSpan>> TryParse(string value, CancellationToken ct)
+        public override ValueTask<Result<TimeSpan>> TryParseAsync(string value, CancellationToken ct)
             => new(TimeSpan.TryParse(value, out var result)
                 ? result
                 : new ParsingError<TimeSpan>(value));

@@ -13,7 +13,6 @@ using Modix.Bot;
 using Modix.Business;
 using Modix.Data;
 using Modix.Data.Migrations;
-using Modix.Host.Logging;
 using Modix.Web.Server;
 
 namespace Modix.Host
@@ -34,7 +33,6 @@ namespace Modix.Host
                     .MimeTypes = ResponseCompressionDefaults.MimeTypes
                         .Append("application/octet-stream"))
                 .AddSingleton<ISystemClock, DefaultSystemClock>()
-                .AddLogging(_configuration)
                 .AddModixBot()
                 .AddModixBusiness(_configuration)
                 .AddModixData(_configuration)

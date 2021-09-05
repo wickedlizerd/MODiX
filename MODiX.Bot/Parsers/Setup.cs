@@ -1,6 +1,4 @@
-﻿using System;
-
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 using Remora.Commands.Extensions;
 
@@ -10,6 +8,6 @@ namespace Modix.Bot.Parsers
     {
         public static IServiceCollection AddParsers(this IServiceCollection services)
             => services
-                .AddParser<TimeSpan, TimeSpanParser>();
+                .AddParser<TimeSpanParser>();
     }
 }

@@ -3,50 +3,48 @@
 
   <!-- Override package versions across all projects that use them -->
   <ItemGroup>
-    <PackageReference Update="Grpc.AspNetCore.Web" Version="2.38.0" />
-    <PackageReference Update="Grpc.Net.Client" Version="2.38.0" />
-    <PackageReference Update="Grpc.Net.Client.Web" Version="2.38.0" />
+    <PackageReference Update="Grpc.AspNetCore.Web" Version="2.39.0" />
+    <PackageReference Update="Grpc.Net.Client" Version="2.39.0" />
+    <PackageReference Update="Grpc.Net.Client.Web" Version="2.39.0" />
     <PackageReference Update="Humanizer" Version="2.11.10" />
-    <PackageReference Update="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0-preview.6.21355.2" />
-    <PackageReference Update="Microsoft.AspNetCore.Components.Authorization" Version="6.0.0-preview.6.21355.2" />
-    <PackageReference Update="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.0-preview.6.21355.2" />
-    <PackageReference Update="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.0-preview.6.21355.2" />
-    <PackageReference Update="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.0-preview.6.21355.2" />
+    <PackageReference Update="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.0-preview.7.21378.6" />
+    <PackageReference Update="Microsoft.AspNetCore.Components.Authorization" Version="6.0.0-preview.7.21378.6" />
+    <PackageReference Update="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.0-preview.7.21378.6" />
+    <PackageReference Update="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="6.0.0-preview.7.21378.6" />
+    <PackageReference Update="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.0-preview.7.21378.6" />
     <PackageReference Update="Microsoft.AspNetCore.WebUtilities" Version="2.2.0" />
-    <PackageReference Update="Microsoft.EntityFrameworkCore.Design" Version="5.0.8" />
-    <PackageReference Update="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0-preview.6.21352.12" />
-    <PackageReference Update="Microsoft.Extensions.Configuration.KeyPerFile" Version="6.0.0-preview.6.21355.2" />
-    <PackageReference Update="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0-preview.6.21352.12" />
-    <PackageReference Update="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0-preview.6.21352.12" />
-    <PackageReference Update="Microsoft.Extensions.Diagnostics.HealthChecks" Version="6.0.0-preview.6.21355.2" />
-    <PackageReference Update="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0-preview.6.21352.12" />
-    <PackageReference Update="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0-preview.6.21352.12" />
-    <PackageReference Update="Microsoft.Extensions.Options" Version="6.0.0-preview.6.21352.12" />
-    <PackageReference Update="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0-preview.6.21352.12" />
-    <PackageReference Update="Microsoft.Extensions.Options.DataAnnotations" Version="6.0.0-preview.6.21352.12" />
-    <PackageReference Update="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.13" />
+    <PackageReference Update="Microsoft.EntityFrameworkCore.Design" Version="5.0.9" />
+    <PackageReference Update="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0-preview.7.21377.19" />
+    <PackageReference Update="Microsoft.Extensions.Configuration.KeyPerFile" Version="6.0.0-preview.7.21378.6" />
+    <PackageReference Update="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.0-preview.7.21377.19" />
+    <PackageReference Update="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0-preview.7.21377.19" />
+    <PackageReference Update="Microsoft.Extensions.Diagnostics.HealthChecks" Version="6.0.0-preview.7.21378.6" />
+    <PackageReference Update="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0-preview.7.21377.19" />
+    <PackageReference Update="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0-preview.7.21377.19" />
+    <PackageReference Update="Microsoft.Extensions.Options" Version="6.0.0-preview.7.21377.19" />
+    <PackageReference Update="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0-preview.7.21377.19" />
+    <PackageReference Update="Microsoft.Extensions.Options.DataAnnotations" Version="6.0.0-preview.7.21377.19" />
+    <PackageReference Update="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.11.1" />
     <PackageReference Update="Nito.AsyncEx.Coordination" Version="5.1.0" />
-    <PackageReference Update="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.0-preview5" />
+    <PackageReference Update="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.0-preview7" />
     <PackageReference Update="protobuf-net" Version="3.0.101" />
     <PackageReference Update="protobuf-net.BuildTools" Version="3.0.101" />
     <PackageReference Update="protobuf-net.Grpc" Version="1.0.152" />
     <PackageReference Update="protobuf-net.Grpc.AspNetCore" Version="1.0.152" />
-    <PackageReference Update="Remora.Discord" Version="3.0.39" />
-    <PackageReference Update="Remora.Discord.API.Abstractions" Version="24.0.0" />
-    <PackageReference Update="Remora.Discord.Commands" Version="4.0.4" />
-    <PackageReference Update="Remora.Discord.Core" Version="3.1.0" />
-    <PackageReference Update="Remora.Results" Version="5.0.0" />
-    <PackageReference Update="Serilog.AspNetCore" Version="4.1.0" />
-    <PackageReference Update="Serilog.Expressions" Version="3.2.0" />
-    <PackageReference Update="Serilog.Sinks.Seq" Version="5.0.1" />
-    <PackageReference Update="StructuredLoggerMessage" Version="1.1.0" />
-    <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="6.12.0" />
+    <PackageReference Update="Remora.Discord" Version="3.0.58" />
+    <PackageReference Update="Remora.Discord.API.Abstractions" Version="33.0.0" />
+    <PackageReference Update="Remora.Discord.Commands" Version="10.0.1" />
+    <PackageReference Update="Remora.Discord.Core" Version="3.2.0" />
+    <PackageReference Update="Remora.Results" Version="6.1.0" />
+    <PackageReference Update="SeqLoggerProvider" Version="2.1.0" />
+    <PackageReference Update="StructuredLoggerMessage" Version="1.1.1" />
+    <PackageReference Update="System.IdentityModel.Tokens.Jwt" Version="6.12.2" />
     <PackageReference Update="System.Interactive.Async" Version="5.0.0" />
     <PackageReference Update="System.Linq.Async" Version="5.0.0" />
-    <PackageReference Update="System.Net.Http.Json" Version="6.0.0-preview.6.21352.12" />
+    <PackageReference Update="System.Net.Http.Json" Version="6.0.0-preview.7.21377.19" />
     <PackageReference Update="System.Reactive" Version="5.0.0" />
     <PackageReference Update="System.Reactive.Linq" Version="5.0.0" />
-    <PackageReference Update="System.ServiceModel.Primitives" Version="4.8.1" />
+    <PackageReference Update="System.ServiceModel.Primitives" Version="4.9.0-preview1.21220.1" />
   </ItemGroup>
 
 </Project>

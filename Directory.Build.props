@@ -6,6 +6,7 @@
     <RazorLangVersion>5.0</RazorLangVersion>
     <Nullable>enable</Nullable>
     <UserSecretsId>206be744-9ad3-45b8-a6c5-5ba49f3d1c41</UserSecretsId>
+    <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
   </PropertyGroup>
 
 </Project>
