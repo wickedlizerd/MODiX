@@ -56,8 +56,11 @@ namespace Modix.Host
                             })
                             .ValidateOnStartup(),
                         configureJsonSerializer:    builder => builder
-                            .Configure(options => options
-                                .Converters.Add(new NullableContextAttributeWriteOnlyJsonConverter()))
+                            .Configure(options =>
+                            {
+                                options.ReferenceHandler = ReferenceHandler.Preserve;
+                                options.Converters.Add(new NullableContextAttributeWriteOnlyJsonConverter());
+                            })
                         ))
                 .Build();
 
