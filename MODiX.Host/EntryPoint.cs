@@ -133,14 +133,14 @@ namespace Modix.Host
 
                         _saveChangesFailedOccurred.Invoke(
                             _serviceProvider.GetRequiredService<ILogger<Logger>>(),
-                            Encoding.UTF8.GetString(buffer.GetBuffer().AsSpan(0, (int)buffer.Length)),
+                            Encoding.UTF8.GetString(buffer.GetBuffer()),
                             null);
                     }
                     catch (Exception ex)
                     {
                         _saveChangesFailedOccurred.Invoke(
                             _serviceProvider.GetRequiredService<ILogger<Logger>>(),
-                            Encoding.UTF8.GetString(buffer.GetBuffer().AsSpan(0, (int)buffer.Length)),
+                            Encoding.UTF8.GetString(buffer.GetBuffer()),
                             ex);
                     }
                 }
