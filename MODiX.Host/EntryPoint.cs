@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -93,7 +94,20 @@ namespace Modix.Host
             : ILogger
         {
             public Logger(IServiceProvider serviceProvider)
-                => _serviceProvider = serviceProvider;
+            {
+                _serviceProvider = serviceProvider;
+
+                _jsonSerializerOptions = new JsonSerializerOptions()
+                {
+                    Encoder             = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                    ReferenceHandler    = ReferenceHandler.Preserve
+                };
+
+                _jsonSerializerOptions.Converters.Add((JsonConverter)Activator.CreateInstance(
+                    Assembly.Load("SeqLoggerProvider")
+                        .GetTypes()
+                        .First(type => type.FullName == "System.Text.Json.Serialization.MemberInfoWriteOnlyJsonConverterFactory"))!);
+            }
 
             public IDisposable BeginScope<TState>(TState state)
                 => DummyDisposable.Instance;
@@ -115,11 +129,7 @@ namespace Modix.Host
                 {
                     try
                     {
-                        JsonSerializer.Serialize<object>(buffer, state!, new JsonSerializerOptions()
-                        {
-                            Encoder             = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-                            ReferenceHandler    = ReferenceHandler.Preserve
-                        });
+                        JsonSerializer.Serialize<object>(buffer, state!, _jsonSerializerOptions);
 
                         _saveChangesFailedOccurred.Invoke(
                             _serviceProvider.GetRequiredService<ILogger<Logger>>(),
@@ -146,7 +156,8 @@ namespace Modix.Host
                     formatString:           "SaveChangesFailed has occurred",
                     unformattedValueNames:  "BufferText");
 
-            private readonly IServiceProvider _serviceProvider;
+            private readonly JsonSerializerOptions  _jsonSerializerOptions;
+            private readonly IServiceProvider       _serviceProvider;
 
             private sealed class DummyDisposable
                 : IDisposable
