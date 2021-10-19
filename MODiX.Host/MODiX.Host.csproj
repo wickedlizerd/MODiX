@@ -4,7 +4,7 @@
     <RootNamespace>Modix.Host</RootNamespace>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileTag>modix-2.0</DockerfileTag>
-    <Version>2.0.0.0-prerelease-7</Version>
+    <Version>2.0.0.0-prerelease-8</Version>
   </PropertyGroup>
   
   <ItemGroup>
