@@ -20,7 +20,7 @@ namespace System.Transactions
             TransactionsLogMessages.TransactionScopeCreating(_logger);
             var transactionScope = new TransactionScopeWrapper(_logger, new TransactionOptions()
             {
-                IsolationLevel  = isolationLevel ?? IsolationLevel.ReadCommitted,
+                IsolationLevel  = isolationLevel ?? IsolationLevel.Snapshot,
                 Timeout         = TimeSpan.FromSeconds(30)
             });
             TransactionsLogMessages.TransactionScopeCreated(_logger);
