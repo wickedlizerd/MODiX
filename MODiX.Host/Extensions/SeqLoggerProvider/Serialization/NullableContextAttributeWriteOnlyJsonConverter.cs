@@ -1,4 +1,8 @@
-﻿namespace System.Text.Json.Serialization
+﻿using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace SeqLoggerProvider.Serialization
 {
     // https://github.com/dotnet/runtime/issues/58690
     public class NullableContextAttributeWriteOnlyJsonConverter

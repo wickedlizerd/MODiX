@@ -15,6 +15,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using SeqLoggerProvider.Serialization;
+
 using Modix.Bot;
 using Modix.Business;
 using Modix.Data;
@@ -79,6 +81,7 @@ namespace Modix.Host
                             {
                                 options.ReferenceHandler = ReferenceHandler.Preserve;
                                 options.Converters.Add(new NullableContextAttributeWriteOnlyJsonConverter());
+                                options.Converters.Add(new SnowflakeWriteOnlyJsonConverter());
                             })))
                 .ConfigureServices((context, services) => services
                     .AddResponseCompression(options => options
