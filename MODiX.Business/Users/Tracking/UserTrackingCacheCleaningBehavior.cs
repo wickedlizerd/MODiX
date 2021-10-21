@@ -96,6 +96,9 @@ namespace Modix.Business.Users.Tracking
                         UserTrackingLogMessages.CacheEntriesSaveNotNeeded(_logger);
                     else
                     {
+                        using var @lock = await serviceScope.ServiceProvider.GetRequiredService<IUsersRepositorySynchronizer>()
+                            .LockAsync(stoppingToken);
+
                         UserTrackingLogMessages.CacheEntriesSaving(_logger, entriesToSave.Count);
                         await serviceScope.ServiceProvider.GetRequiredService<IUsersRepository>()
                             .MergeAsync(

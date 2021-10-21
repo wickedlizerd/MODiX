@@ -30,12 +30,14 @@ namespace Modix.Business.Users.Tracking
             ILogger<UserTrackingService>    logger,
             ISystemClock                    systemClock,
             IUsersRepository                usersRepository,
+            IUsersRepositorySynchronizer    usersRepositorySynchronizer,
             IUserTrackingCache              userTrackingCache)
         {
-            _logger             = logger;
-            _systemClock        = systemClock;
-            _usersRepository    = usersRepository;
-            _userTrackingCache  = userTrackingCache;
+            _logger                         = logger;
+            _systemClock                    = systemClock;
+            _usersRepository                = usersRepository;
+            _usersRepositorySynchronizer    = usersRepositorySynchronizer;
+            _userTrackingCache              = userTrackingCache;
         }
 
         public async ValueTask TrackUserAsync(
@@ -73,7 +75,7 @@ namespace Modix.Business.Users.Tracking
                     isSaveNeeded = (username.HasValue && (currentEntry.Username != username))
                         || (discriminator.HasValue && (currentEntry.Discriminator != discriminator))
                         || (avatarHash.HasValue && (currentEntry.AvatarHash != avatarHash))
-                        || (nickname.HasValue && !currentEntry.NicknamesByGuildId.Contains(new(guildId, nickname.Value)));
+                        || (nickname.HasValue && !(currentEntry.NicknamesByGuildId.TryGetValue(guildId, out var entryNickname) && (nickname.Value == entryNickname)));
                 }
 
                 var nicknamesByGuildId = currentEntry?.NicknamesByGuildId ?? ImmutableDictionary<Snowflake, string?>.Empty;
@@ -121,6 +123,8 @@ namespace Modix.Business.Users.Tracking
 
             if (isSaveNeeded)
             {
+                using var @lock = await _usersRepositorySynchronizer.LockAsync(cancellationToken);
+
                 UserTrackingLogMessages.CacheEntrySaving(_logger, userId, guildId);
                 await _usersRepository.MergeAsync(
                     new UserMergeModel(
@@ -140,9 +144,10 @@ namespace Modix.Business.Users.Tracking
             UserTrackingLogMessages.UserTracked(_logger, userId, guildId);
         }
 
-        private readonly ILogger            _logger;
-        private readonly ISystemClock       _systemClock;
-        private readonly IUsersRepository   _usersRepository;
-        private readonly IUserTrackingCache _userTrackingCache;
+        private readonly ILogger                        _logger;
+        private readonly ISystemClock                   _systemClock;
+        private readonly IUsersRepository               _usersRepository;
+        private readonly IUsersRepositorySynchronizer   _usersRepositorySynchronizer;
+        private readonly IUserTrackingCache             _userTrackingCache;
     }
 }
