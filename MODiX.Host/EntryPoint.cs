@@ -1,20 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Structured;
 using Microsoft.Extensions.Options;
 
 namespace Modix.Host
@@ -37,8 +29,6 @@ namespace Modix.Host
                 })
                 .ConfigureWebHostDefaults(webHost => webHost
                     .UseStartup<Startup>())
-                .ConfigureServices(services => services
-                    .AddSingleton<ILoggerProvider, MyTestLoggerProvider>())
                 .ConfigureLogging((context, builder) => builder
                     .AddConfiguration(context.Configuration.GetSection("MODiX:Host:Logging"))
                     .AddConsole()
@@ -68,107 +58,12 @@ namespace Modix.Host
                         configureJsonSerializer:    builder => builder
                             .Configure(options =>
                             {
-                                options.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                                options.ReferenceHandler = ReferenceHandler.Preserve;
                                 options.Converters.Add(new NullableContextAttributeWriteOnlyJsonConverter());
                             })))
                 .Build();
 
             host.Run();
-        }
-    }
-
-    internal class MyTestLoggerProvider
-        : ILoggerProvider
-    {
-        public MyTestLoggerProvider(IServiceProvider serviceProvider)
-            => _serviceProvider = serviceProvider;
-
-        public ILogger CreateLogger(string categoryName)
-            => new Logger(_serviceProvider);
-
-        public void Dispose() { }
-
-        private readonly IServiceProvider _serviceProvider;
-
-        private class Logger
-            : ILogger
-        {
-            public Logger(IServiceProvider serviceProvider)
-            {
-                _serviceProvider = serviceProvider;
-
-                _jsonSerializerOptions = new JsonSerializerOptions()
-                {
-                    Encoder             = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-                    ReferenceHandler    = ReferenceHandler.Preserve
-                };
-
-                _jsonSerializerOptions.Converters.Add((JsonConverter)Activator.CreateInstance(
-                    Assembly.Load("SeqLoggerProvider")
-                        .GetTypes()
-                        .First(type => type.FullName == "System.Text.Json.Serialization.MemberInfoWriteOnlyJsonConverterFactory"))!);
-            }
-
-            public IDisposable BeginScope<TState>(TState state)
-                => DummyDisposable.Instance;
-
-            public bool IsEnabled(LogLevel logLevel)
-                => logLevel is LogLevel.Error;
-
-            public void Log<TState>(
-                LogLevel                            logLevel,
-                EventId                             eventId,
-                TState                              state,
-                Exception?                          exception,
-                Func<TState, Exception?, string>    formatter)
-            {
-                if (eventId != _saveChangesFailedEventId)
-                    return;
-
-                using (var buffer = new MemoryStream())
-                {
-                    try
-                    {
-                        JsonSerializer.Serialize<object>(buffer, state!, _jsonSerializerOptions);
-
-                        _saveChangesFailedOccurred.Invoke(
-                            _serviceProvider.GetRequiredService<ILogger<Logger>>(),
-                            Encoding.UTF8.GetString(buffer.GetBuffer()),
-                            null);
-                    }
-                    catch (Exception ex)
-                    {
-                        _saveChangesFailedOccurred.Invoke(
-                            _serviceProvider.GetRequiredService<ILogger<Logger>>(),
-                            Encoding.UTF8.GetString(buffer.GetBuffer()),
-                            ex);
-                    }
-                }
-            }
-
-            private static readonly EventId _saveChangesFailedEventId
-                = new(10000, "Microsoft.EntityFrameworkCore.Update.SaveChangesFailed");
-
-            private static readonly Action<ILogger, string, Exception?> _saveChangesFailedOccurred
-                = StructuredLoggerMessage.Define<string>(
-                    logLevel:               LogLevel.Error,
-                    eventId:                new(0x68D584B3, "SaveChangesFailedOccurred"),
-                    formatString:           "SaveChangesFailed has occurred",
-                    unformattedValueNames:  "BufferText");
-
-            private readonly JsonSerializerOptions  _jsonSerializerOptions;
-            private readonly IServiceProvider       _serviceProvider;
-
-            private sealed class DummyDisposable
-                : IDisposable
-            {
-                public static readonly DummyDisposable Instance
-                    = new();
-
-                private DummyDisposable() { }
-
-                public void Dispose() { }
-            }
         }
     }
 }

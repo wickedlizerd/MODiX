@@ -1,6 +1,7 @@
 ﻿using System.Transactions;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -20,6 +21,7 @@ namespace Modix.Data
                     .ValidateDataAnnotations()
                     .ValidateOnStartup())
                 .AddDbContext<ModixDbContext>((serviceProvider, builder) => builder
+                    .ConfigureWarnings(builder => builder.Ignore(CoreEventId.SaveChangesFailed)) // Workaround: https://github.com/dotnet/efcore/issues/26417
                     .UseNpgsql(
                         serviceProvider.GetRequiredService<IOptions<DataConfiguration>>().Value.ConnectionString,
                         optionsBuilder => optionsBuilder
