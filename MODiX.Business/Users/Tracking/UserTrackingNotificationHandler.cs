@@ -29,14 +29,16 @@ namespace Modix.Business.Users.Tracking
         public Task HandleNotificationAsync(
                 IGuildMemberAdd     notification,
                 CancellationToken   cancellationToken)
-            => TrackUserAsync(
-                guildId:            notification.GuildID,
-                userId:             notification.User.Value!.ID,
-                username:           notification.User.Value.Username,
-                discriminator:      notification.User.Value.Discriminator,
-                avatarHash:         notification.User.Value.Avatar?.Value,
-                nickname:           notification.Nickname,
-                cancellationToken:  cancellationToken);
+            => notification.User.HasValue
+                ? TrackUserAsync(
+                    guildId:            notification.GuildID,
+                    userId:             notification.User.Value.ID,
+                    username:           notification.User.Value.Username,
+                    discriminator:      notification.User.Value.Discriminator,
+                    avatarHash:         notification.User.Value.Avatar?.Value,
+                    nickname:           notification.Nickname,
+                    cancellationToken:  cancellationToken)
+                : Task.CompletedTask;
 
         public Task HandleNotificationAsync(
                 IGuildMemberUpdate  notification,
@@ -73,7 +75,7 @@ namespace Modix.Business.Users.Tracking
                 ? TrackUserAsync(
                     guildId:            notification.GuildID.Value,
                     userId:             notification.UserID,
-                    username:           notification.Member.Value!.User.HasValue
+                    username:           notification.Member.Value.User.HasValue
                         ? notification.Member.Value.User.Value.Username
                         : default(Optional<string>),
                     discriminator:      notification.Member.Value.User.HasValue
@@ -81,7 +83,7 @@ namespace Modix.Business.Users.Tracking
                         : default(Optional<ushort>),
                     avatarHash:         notification.Member.Value.User.HasValue
                         ? notification.Member.Value.User.Value.Avatar?.Value
-                        : default,
+                        : default(Optional<string?>),
                     nickname:           notification.Member.HasValue
                         ? notification.Member.Value.Nickname
                         : default,
@@ -94,7 +96,7 @@ namespace Modix.Business.Users.Tracking
             => (notification.GuildID.HasValue && notification.Author.HasValue)
                 ? TrackUserAsync(
                     guildId:            notification.GuildID.Value,
-                    userId:             notification.Author.Value!.ID,
+                    userId:             notification.Author.Value.ID,
                     username:           notification.Author.Value.Username,
                     discriminator:      notification.Author.Value.Discriminator,
                     avatarHash:         notification.Author.Value.Avatar?.Value,
@@ -115,7 +117,7 @@ namespace Modix.Business.Users.Tracking
                     discriminator:      notification.User.Discriminator,
                     avatarHash:         notification.User.Avatar.HasValue
                         ? notification.User.Avatar.Value?.Value
-                        : default,
+                        : default(Optional<string?>),
                     nickname:           default,
                     cancellationToken:  cancellationToken)
                 : Task.CompletedTask;
