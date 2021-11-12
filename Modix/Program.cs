@@ -108,6 +108,7 @@ namespace Modix
         public static IWebHostBuilder CreateWebHostBuilder(string[] args, IConfiguration config) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseConfiguration(config)
+                .UseUrls("http://localhost:5003")
                 .UseSerilog()
                 .UseStartup<Startup>();
     }
