@@ -6,8 +6,8 @@ WORKDIR /src
 RUN apt-get update && apt-get install curl -y \
   && curl -sL https://deb.nodesource.com/setup_14.x | bash -\
   && apt-get install nodejs -y
-COPY Modix.sln .
-COPY Directory.* .
+COPY Modix.sln ./
+COPY Directory.* ./
 COPY **/*.csproj ./
 RUN for file in $(ls *.csproj); do mkdir -p ${file%.*}/ && mv $file ${file%.*}/; done
 RUN dotnet restore Modix.sln
